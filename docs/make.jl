@@ -10,7 +10,7 @@ makedocs(;
     sitename="MLFlowClient.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://deyandyankov.github.io/MLFlowClient.jl",
+        canonical="https://juliaai.github.io/MLFlowClient.jl",
         assets=String[],
     ),
     pages=[
@@ -21,6 +21,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/deyandyankov/MLFlowClient.jl",
+    repo="github.com/JuliaAI/MLFlowClient.jl",
     devbranch="main",
 )
