@@ -21,6 +21,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/deyandyankov/MLFlowClient.jl",
+    repo="github.com/JuliaAI/MLFlowClient.jl",
     devbranch="main",
 )
