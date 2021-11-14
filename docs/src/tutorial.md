@@ -10,7 +10,6 @@ Suppose that you are developing a method `getpricepath(α, n)` which generates a
 
 ```julia
 using Plots
-using MLFlowClient
 using Random
 
 αs = [0.0, 0.9, 0.98]
@@ -58,7 +57,7 @@ using Random
 αs = [0.0, 0.9, 0.98]
 n = 100
 
-"""Method that generates price paths of length `n` based on `α`"""
+"Method that generates price paths of length `n` based on `α`"
 function getpricepath(α, n)
     x = zeros(n + 1)
     x[1] = 0.0
@@ -70,7 +69,7 @@ end
 p = plot()
 
 # Create MLFlow instance
-mlf = MLFlow("http://localhost")
+mlf = MLFlow("http://localhost:5000")
 
 # Initiate new experiment
 experiment_id = createexperiment(mlf; name="price-paths")
