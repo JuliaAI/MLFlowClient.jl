@@ -4,13 +4,13 @@
 Base type which defines location and version for MLFlow API service.
 
 # Fields
-- `baseuri::String`: base MLFlow tracking URI, e.g. `http://localhost`
+- `baseuri::String`: base MLFlow tracking URI, e.g. `http://localhost:5000`
 - `apiversion`: used API version, e.g. `2.0`
 
 # Examples
 ``` julia-repl
-julia> mlf = MLFlow("http://localhost")
-MLFlow("http://localhost", 2.0)
+julia> mlf = MLFlow("http://localhost:5000")
+MLFlow("http://localhost:5000", 2.0)
 ```
 """
 struct MLFlow
