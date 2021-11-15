@@ -95,3 +95,65 @@ end
 deleterun(mlf::MLFlow, run_info::MLFlowRunInfo) = deleterun(mlf, run_info.run_id)
 deleterun(mlf::MLFlow, run::MLFlowRun) = deleterun(mlf, run.info)
 
+"""
+    searchruns(mlf::MLFlow, experiment_ids)
+
+Searches for runs in an experiment.
+
+# Arguments
+- `mlf`: [`MLFlow`](@ref) configuration.
+- `experiment_ids::AbstractVector{Integer}`: `experiment_id`s in which to search for runs. Can also be a single `Integer`.
+
+# Keywords
+- `filter::String`: filter as defined in [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs)
+- `run_view_type::String`: one of `ACTIVE_ONLY`, `DELETED_ONLY`, or `ALL`.
+- `max_results::Integer`: 50,000 by default.
+- `order_by::String`: as defined in [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs)
+- `page_token::String`: paging functionality, handled automatically. Not meant to be passed by the user.
+
+# Returns
+- vector of [`MLFlowRun`](@ref) runs that were found in the list of experiments.
+
+"""
+function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
+                    filter::String="",
+                    run_view_type::String="ACTIVE_ONLY",
+                    max_results::Int64=50000,
+                    order_by::AbstractVector{<:String}=["attribute.start_time"],
+                    page_token::String=""
+                    )
+    endpoint = "runs/search"
+    run_view_type ∈ ["ACTIVE_ONLY", "DELETED_ONLY", "ALL"] || error("Unsupported run_view_type = $run_view_type")
+    kwargs = (
+        experiment_ids=experiment_ids,
+        filter=filter,
+        run_view_type=run_view_type,
+        max_results=max_results,
+        order_by=order_by
+    )
+    if !isempty(page_token)
+        kwargs = (; kwargs..., page_token=page_token)
+    end
+
+    result = mlfpost(mlf, endpoint; kwargs...)
+    haskey(result, "runs") || return MLFlowRun[]
+
+    runs = map(x -> MLFlowRun(x["info"], x["data"]), result["runs"])
+
+    # paging functionality using recursion
+    if haskey(result, "next_page_token") && !isempty(result["next_page_token"])
+        kwargs = (
+            filter=filter,
+            run_view_type=run_view_type,
+            max_results=max_results,
+            order_by=order_by,
+            page_token=result["next_page_token"]
+        )
+        nextruns = searchruns(mlf, experiment_ids; kwargs...)
+        return vcat(runs, nextruns)
+    end
+
+    runs
+end
+searchruns(mlf::MLFlow, experiment_id::Integer; kwargs...) =
+    searchruns(mlf, [experiment_id]; kwargs...)
