@@ -12,6 +12,7 @@ MLFlowExperiment
 MLFlowRun
 MLFlowRunInfo
 MLFlowRunData
+MLFlowRunDataMetric
 MLFlowRunStatus
 ```
 
@@ -31,6 +32,7 @@ createrun
 getrun
 updaterun
 deleterun
+searchruns
 ```
 
 # Logging

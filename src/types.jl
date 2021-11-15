@@ -77,13 +77,13 @@ end
 Represents run metadata.
 
 # Fields
-- `run_id::String`
-- `experiment_id::Integer`
-- `status::MLFlowRunStatus` 
-- `start_time::Union{Int64,Missing}`
-- `end_time::Union{Int64,Missing}`
-- `artifact_uri::String`
-- `lifecycle_stage::String`
+- `run_id::String`: run identifier.
+- `experiment_id::Integer`: experiment identifier.
+- `status::MLFlowRunStatus`: run status.
+- `start_time::Union{Int64,Missing}`: when was the run started, UNIX time in milliseconds.
+- `end_time::Union{Int64,Missing}`: when did the run end, UNIX time in milliseconds.
+- `artifact_uri::String`: where are artifacts from this run stored.
+- `lifecycle_stage::String`: one of `active` or `deleted`.
 """
 struct MLFlowRunInfo
     run_id::String
@@ -133,10 +133,10 @@ end
 Represents a metric.
 
 # Fields
-- `key::String`: ...
-- `value`: ...
-- `step::Int64`: ...
-- `timestamp::Int64`: ...
+- `key::String`: metric identifier.
+- `value::Float64`: metric value.
+- `step::Int64`: step.
+- `timestamp::Int64`: timestamp in UNIX time in milliseconds.
 """
 struct MLFlowRunDataMetric
     key::String
@@ -161,7 +161,7 @@ Represents run data.
 # Fields
 - `metrics::Vector{MLFlowRunDataMetric}`: run metrics.
 - `params::Dict{String,String}`: run parameters.
-- `tags`
+- `tags`: list of run tags.
 
 """
 struct MLFlowRunData

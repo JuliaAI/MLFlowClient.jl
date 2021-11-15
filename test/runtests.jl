@@ -75,21 +75,20 @@ end
     logmetric(mlf, exprun2, "metric2", [1.0, 2.0])
     updaterun(mlf, exprun2, "FINISHED")
 
-    @show experiment_id
     runs = searchruns(mlf, experiment_id)
     @test length(runs) == 2
     runs = searchruns(mlf, experiment_id; filter="param.param2 = \"key2\"")
     @test length(runs) == 1
-    @test_throws ErrorException searchruns(mlf, experiment_id; run_view_type="MEH")
+    @test_throws ErrorException searchruns(mlf, experiment_id; run_view_type="ERR")
     runs = searchruns(mlf, experiment_id; filter="param.param2 = \"key3\"")
     @test length(runs) == 0
     runs = searchruns(mlf, experiment_id; max_results=1) # test paging functionality
     @test length(runs) == 2
-   # , "params.\"paramkey\" == \"paramval\"")
-    # deleterun(mlf, exprunid)
+    deleterun(mlf, exprunid)
+    deleterun(mlf, exprun2)
 
-    # deleteexperiment(mlf, experiment_id)
-    # experiment = getexperiment(mlf, experiment_id)
-    # @test experiment.experiment_id == experiment_id
-    # @test experiment.lifecycle_stage == "deleted"
+    deleteexperiment(mlf, experiment_id)
+    experiment = getexperiment(mlf, experiment_id)
+    @test experiment.experiment_id == experiment_id
+    @test experiment.lifecycle_stage == "deleted"
 end

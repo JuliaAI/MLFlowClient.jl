@@ -96,19 +96,19 @@ deleterun(mlf::MLFlow, run_info::MLFlowRunInfo) = deleterun(mlf, run_info.run_id
 deleterun(mlf::MLFlow, run::MLFlowRun) = deleterun(mlf, run.info)
 
 """
-    searchruns(mlf::MLFlow, experiment_ids, filter)
+    searchruns(mlf::MLFlow, experiment_ids)
 
-Searches for runs in an experiment based on filter.
+Searches for runs in an experiment.
 
 # Arguments
 - `mlf`: [`MLFlow`](@ref) configuration.
-- `experiment_ids::AbstractVector{Integer}`: `experiment_id`s in which to search for runs.
+- `experiment_ids::AbstractVector{Integer}`: `experiment_id`s in which to search for runs. Can also be a single `Integer`.
 
 # Keywords
 - `filter::String`: filter as defined in [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs)
-- `run_view_type::String`: ...
-- `max_results::Integer`: ...
-- `order_by::String`: ...
+- `run_view_type::String`: one of `ACTIVE_ONLY`, `DELETED_ONLY`, or `ALL`.
+- `max_results::Integer`: 50,000 by default.
+- `order_by::String`: as defined in [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs)
 - `page_token::String`: paging functionality, handled automatically. Not meant to be passed by the user.
 
 # Returns
@@ -155,6 +155,5 @@ function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
 
     runs
 end
-function searchruns(mlf::MLFlow, experiment_id::Integer; kwargs...)
+searchruns(mlf::MLFlow, experiment_id::Integer; kwargs...) =
     searchruns(mlf, [experiment_id]; kwargs...)
-end
