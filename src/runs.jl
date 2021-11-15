@@ -95,3 +95,48 @@ end
 deleterun(mlf::MLFlow, run_info::MLFlowRunInfo) = deleterun(mlf, run_info.run_id)
 deleterun(mlf::MLFlow, run::MLFlowRun) = deleterun(mlf, run.info)
 
+"""
+    searchruns(mlf::MLFlow, experiment_ids, filter)
+
+Searches for runs in an experiment based on filter.
+
+# Arguments
+- `mlf`: [`MLFlow`](@ref) configuration.
+- `experiment_ids::AbstractVector{Integer}`: `experiment_id`s in which to search for runs.
+
+# Keywords
+- `filter::String`: filter as defined in [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs)
+- `run_view_type::String`: ...
+- `max_results::Integer`: ...
+- `order_by::String`: ...
+
+# Returns
+- a vector of runs that were found
+
+"""
+function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
+                    filter::String="",
+                    run_view_type::String="ACTIVE_ONLY",
+                    max_results::Int64=50000,
+                    order_by::AbstractVector{<:String}=[""]
+                    )
+    endpoint = "runs/search"
+    run_view_type ∈ ["ACTIVE_ONLY", "DELETED_ONLY", "ALL"] || error("Unsupported run_view_type = $run_view_type")
+    kwargs = (
+        experiment_ids=experiment_ids,
+        filter=filter,
+        run_view_type=run_view_type,
+        max_results=max_results,
+    )
+    if order_by != [""]
+        kwargs.order_by = order_by
+    end
+
+    result = mlfpost(mlf, endpoint; kwargs...)
+    haskey(result, "runs") || error("Malformed result from MLFow")
+
+    map(x -> MLFlowRun(x["info"], x["data"]), result["runs"])
+end
+function searchruns(mlf::MLFlow, experiment_id::Integer; kwargs...)
+    searchruns(mlf, [experiment_id]; kwargs...)
+end

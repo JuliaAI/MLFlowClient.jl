@@ -128,25 +128,58 @@ struct MLFlowRunInfo
 end
 
 """
+    MLFlowRunDataMetric
+
+Represents a metric.
+
+# Fields
+- `key::String`: ...
+- `value`: ...
+- `step::Int64`: ...
+- `timestamp::Int64`: ...
+"""
+struct MLFlowRunDataMetric
+    key::String
+    value::Float64
+    step::Int64
+    timestamp::Int64
+    function MLFlowRunDataMetric(d::Dict{String,Any})
+        key = d["key"]
+        value = d["value"]
+        step = parse(Int64, d["step"])
+        timestamp = parse(Int64, d["timestamp"])
+        new(key, value, step, timestamp)
+    end
+end
+
+
+"""
     MLFlowRunData
 
 Represents run data.
 
 # Fields
-- `metrics`
-- `params`
+- `metrics::Vector{MLFlowRunDataMetric}`: run metrics.
+- `params::Dict{String,String}`: run parameters.
 - `tags`
-
-# TODO
-Incomplete functionality.
 
 """
 struct MLFlowRunData
-    metrics
-    params
+    metrics::Vector{MLFlowRunDataMetric}
+    params::Union{Dict{String,String},Missing}
     tags
     function MLFlowRunData(data::Dict{String,Any})
-        new([], [], []) # TODO: add functionality
+        metrics = haskey(data, "metrics") ? MLFlowRunDataMetric.(data["metrics"]) : MLFlowRunDataMetric[]
+        if haskey(data, "params")
+            params = Dict{String,String}()
+            for p in data["params"]
+                params[p["key"]] = p["value"]
+            end
+        else
+            params = Dict{String,String}()
+        end
+        tags = haskey(data, "tags") ? data["tags"] : missing
+        new(metrics, params, tags)
     end
 end
 
@@ -158,11 +191,16 @@ Represents an MLFlow run.
 # Fields
 - `info::MLFlowRunInfo`: Run metadata.
 - `data::MLFlowRunData`: Run data.
+
 """
 struct MLFlowRun
-    info::MLFlowRunInfo
+    info::Union{MLFlowRunInfo,Missing}
     data::Union{MLFlowRunData,Missing}
 
+    function MLFlowRun(rundata::MLFlowRunData)
+        info = missing
+        new(info, rundata)
+    end
     function MLFlowRun(runinfo::MLFlowRunInfo)
         data = missing
         new(runinfo, data)

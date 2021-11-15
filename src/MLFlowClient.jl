@@ -25,6 +25,7 @@ export
     MLFlowRunStatus,
     MLFlowRunInfo,
     MLFlowRunData,
+    MLFlowRunDataMetric,
     MLFlowRun
 
 include("utils.jl")
@@ -41,7 +42,8 @@ export
     createrun,
     getrun,
     updaterun,
-    deleterun
+    deleterun,
+    searchruns
 
 include("logging.jl")
 export
