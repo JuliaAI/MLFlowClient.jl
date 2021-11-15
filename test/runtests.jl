@@ -68,6 +68,8 @@ end
         # Consider raising an issue with MLFlow itself.
         @test_broken !ismissing(finishedrun.info.end_time)
 
+        runs = searchrun(mlf, experiment_id, "params.\"paramkey\" == \"paramval\"")
+
         deleterun(mlf, exprunid)
 
         deleteexperiment(mlf, experiment_id)
