@@ -1,5 +1,5 @@
 """
-    MLFlow(baseuri; apiversion)
+    MLFlow
 
 Base type which defines location and version for MLFlow API service.
 
@@ -7,11 +7,15 @@ Base type which defines location and version for MLFlow API service.
 - `baseuri::String`: base MLFlow tracking URI, e.g. `http://localhost:5000`
 - `apiversion`: used API version, e.g. `2.0`
 
+# Constructors
+
+- `MLFlow(baseuri; apiversion=2.0)`
 # Examples
 ``` julia-repl
 julia> mlf = MLFlow("http://localhost:5000")
 MLFlow("http://localhost:5000", 2.0)
 ```
+
 """
 struct MLFlow
     baseuri::String
@@ -30,6 +34,12 @@ Represents an MLFlow experiment.
 - `experiment_id::Integer`: experiment identifier.
 - `tags::Any`: list of tags.
 - `artifact_location::String`: where are experiment artifacts stored.
+
+# Constructors
+
+- `MLFlowExperiment(name, lifecycle_stage, experiment_id, tags, artifact_location)`
+- `MLFlowExperiment(exp::Dict{String,Any})`
+
 """
 struct MLFlowExperiment
     name::String
@@ -60,11 +70,14 @@ Represents the status of an MLFlow Run.
 # Fields
 - `status::String`: one of RUNNING/SCHEDULED/FINISHED/FAILED/KILLED
 
+# Constructors
+
+- `MLFlowRunStatus(status::String)`
 """
 struct MLFlowRunStatus
     status::String
 
-    function MLFlowRunStatus(status)
+    function MLFlowRunStatus(status::String)
         acceptable_statuses = ["RUNNING", "SCHEDULED", "FINISHED", "FAILED", "KILLED"]
         status ∈ acceptable_statuses || error("Invalid status $status - choose one of $acceptable_statuses")
         new(status)
@@ -84,6 +97,11 @@ Represents run metadata.
 - `end_time::Union{Int64,Missing}`: when did the run end, UNIX time in milliseconds.
 - `artifact_uri::String`: where are artifacts from this run stored.
 - `lifecycle_stage::String`: one of `active` or `deleted`.
+
+# Constructors
+
+- `MLFlowRunInfo(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)`
+- `MLFlowRunInfo(info::Dict{String,Any})`
 """
 struct MLFlowRunInfo
     run_id::String
@@ -137,6 +155,11 @@ Represents a metric.
 - `value::Float64`: metric value.
 - `step::Int64`: step.
 - `timestamp::Int64`: timestamp in UNIX time in milliseconds.
+
+# Constructors
+
+- `MLFlowRunDataMetric(d::Dict{String,Any})`
+
 """
 struct MLFlowRunDataMetric
     key::String
@@ -162,6 +185,10 @@ Represents run data.
 - `metrics::Vector{MLFlowRunDataMetric}`: run metrics.
 - `params::Dict{String,String}`: run parameters.
 - `tags`: list of run tags.
+
+# Constructors
+
+- `MLFlowRunData(data::Dict{String,Any})`
 
 """
 struct MLFlowRunData
@@ -191,6 +218,13 @@ Represents an MLFlow run.
 # Fields
 - `info::MLFlowRunInfo`: Run metadata.
 - `data::MLFlowRunData`: Run data.
+
+# Constructors
+
+- `MLFlowRun(rundata::MLFlowRunData)`
+- `MLFlowRun(runinfo::MLFlowRunInfo)`
+- `MLFlowRun(info::Dict{String,Any})`
+- `MLFlowRun(info::Dict{String,Any}, data::Dict{String,Any})`
 
 """
 struct MLFlowRun
