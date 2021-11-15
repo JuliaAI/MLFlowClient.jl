@@ -140,7 +140,7 @@ function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
 
     runs = map(x -> MLFlowRun(x["info"], x["data"]), result["runs"])
 
-    # paging functionality
+    # paging functionality using recursion
     if haskey(result, "next_page_token") && !isempty(result["next_page_token"])
         kwargs = (
             filter=filter,
