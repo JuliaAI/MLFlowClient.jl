@@ -78,6 +78,13 @@ end
     @show experiment_id
     runs = searchruns(mlf, experiment_id)
     @test length(runs) == 2
+    runs = searchruns(mlf, experiment_id; filter="param.param2 = \"key2\"")
+    @test length(runs) == 1
+    @test_throws ErrorException searchruns(mlf, experiment_id; run_view_type="MEH")
+    runs = searchruns(mlf, experiment_id; filter="param.param2 = \"key3\"")
+    @test length(runs) == 0
+    runs = searchruns(mlf, experiment_id; max_results=1) # test paging functionality
+    @test length(runs) == 2
    # , "params.\"paramkey\" == \"paramval\"")
     # deleterun(mlf, exprunid)
 

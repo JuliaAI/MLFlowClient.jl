@@ -109,16 +109,18 @@ Searches for runs in an experiment based on filter.
 - `run_view_type::String`: ...
 - `max_results::Integer`: ...
 - `order_by::String`: ...
+- `page_token::String`: paging functionality, handled automatically. Not meant to be passed by the user.
 
 # Returns
-- a vector of runs that were found
+- vector of [`MLFlowRun`](@ref) runs that were found in the list of experiments.
 
 """
 function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
                     filter::String="",
                     run_view_type::String="ACTIVE_ONLY",
                     max_results::Int64=50000,
-                    order_by::AbstractVector{<:String}=[""]
+                    order_by::AbstractVector{<:String}=["attribute.start_time"],
+                    page_token::String=""
                     )
     endpoint = "runs/search"
     run_view_type ∈ ["ACTIVE_ONLY", "DELETED_ONLY", "ALL"] || error("Unsupported run_view_type = $run_view_type")
@@ -127,15 +129,31 @@ function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
         filter=filter,
         run_view_type=run_view_type,
         max_results=max_results,
+        order_by=order_by
     )
-    if order_by != [""]
-        kwargs.order_by = order_by
+    if !isempty(page_token)
+        kwargs = (; kwargs..., page_token=page_token)
     end
 
     result = mlfpost(mlf, endpoint; kwargs...)
-    haskey(result, "runs") || error("Malformed result from MLFow")
+    haskey(result, "runs") || return MLFlowRun[]
 
-    map(x -> MLFlowRun(x["info"], x["data"]), result["runs"])
+    runs = map(x -> MLFlowRun(x["info"], x["data"]), result["runs"])
+
+    # paging functionality
+    if haskey(result, "next_page_token") && !isempty(result["next_page_token"])
+        kwargs = (
+            filter=filter,
+            run_view_type=run_view_type,
+            max_results=max_results,
+            order_by=order_by,
+            page_token=result["next_page_token"]
+        )
+        nextruns = searchruns(mlf, experiment_ids; kwargs...)
+        return vcat(runs, nextruns)
+    end
+
+    runs
 end
 function searchruns(mlf::MLFlow, experiment_id::Integer; kwargs...)
     searchruns(mlf, [experiment_id]; kwargs...)
