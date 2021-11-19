@@ -17,6 +17,7 @@ using UUIDs
 using HTTP
 using URIs
 using JSON
+using FilePathsBase: AbstractPath
 
 include("types.jl")
 export

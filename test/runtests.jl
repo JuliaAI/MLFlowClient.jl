@@ -25,10 +25,50 @@ end
     mlf = MLFlow()
     @test mlf.baseuri == "http://localhost:5000"
     @test mlf.apiversion == 2.0
+    mlf = MLFlow("https://localhost:5001", apiversion=3.0)
+    @test mlf.baseuri == "https://localhost:5001"
+    @test mlf.apiversion == 3.0
+end
+
+@testset "createexperiment" begin
+    @ensuremlf
+    exp = createexperiment(mlf)
+    @test isa(exp, MLFlowExperiment)
+    @test deleteexperiment(mlf, exp)
+    experiment = getexperiment(mlf, exp.experiment_id)
+    @test experiment.experiment_id == exp.experiment_id
+    @test experiment.lifecycle_stage == "deleted"
+end
+
+@testset "createrun" begin
+    @ensuremlf
+    expname = "getorcreate-$(UUIDs.uuid4())"
+    e = getorcreateexperiment(mlf, expname)
+    r = createrun(mlf, e.experiment_id)
+    @test isa(r, MLFlowRun)
+    @test deleterun(mlf, r)
+    rr = createrun(mlf, e)
+    @test isa(rr, MLFlowRun)
+    @test deleterun(mlf, rr)
+    @test deleteexperiment(mlf, e)
+end
+
+@testset "getorcreateexperiment" begin
+    @ensuremlf
+    expname = "getorcreate"
+    e = getorcreateexperiment(mlf, expname)
+    @test isa(e, MLFlowExperiment)
+    ee = getorcreateexperiment(mlf, expname)
+    @test isa(ee, MLFlowExperiment)
+    @test e === ee
+    @test deleteexperiment(mlf, ee)
+    @test deleteexperiment(mlf, ee)
 end
 
 @testset "MLFlowClient.jl" begin
     @ensuremlf
+    exp = createexperiment(mlf)
+    @test isa(exp, MLFlowExperiment)
 
     exptags = [:key => "val"]
     expname = "expname-$(UUIDs.uuid4())"
@@ -63,8 +103,13 @@ end
     f = open(tmpfiletoupload, "w")
     write(f, "samplecontents")
     close(f)
-    logartifact(mlf, retrieved_run, tmpfiletoupload)
+    artifactpath = logartifact(mlf, retrieved_run, tmpfiletoupload)
+    @test isfile(artifactpath)
+    @test_throws SystemError logartifact(mlf, retrieved_run, "/etc/shadow")
     rm(tmpfiletoupload)
+
+    artifactpath = logartifact(mlf, retrieved_run, "randbytes.bin", b"some rand bytes here")
+    @test isfile(artifactpath)
 
     running_run = updaterun(mlf, exprunid, "RUNNING")
     @test running_run.info.experiment_id == experiment_id
@@ -94,31 +139,7 @@ end
     deleterun(mlf, exprunid)
     deleterun(mlf, exprun2)
 
-    deleteexperiment(mlf, experiment_id)
-    experiment = getexperiment(mlf, experiment_id)
-    @test experiment.experiment_id == experiment_id
-    @test experiment.lifecycle_stage == "deleted"
+    deleteexperiment(mlf, exp)
 end
 
-@testset "createrun" begin
-    @ensuremlf
 
-    expname = "getorcreate-$(UUIDs.uuid4())"
-    e = getorcreateexperiment(mlf, expname)
-    r = createrun(mlf, e.experiment_id)
-    @test isa(r, MLFlowRun)
-    rr = createrun(mlf, e)
-    @test isa(rr, MLFlowRun)
-end
-
-@testset "getorcreateexperiment" begin
-    @ensuremlf
-    expname = "getorcreate"
-    e = getorcreateexperiment(mlf, expname)
-    @test isa(e, MLFlowExperiment)
-    ee = getorcreateexperiment(mlf, expname)
-    @test isa(ee, MLFlowExperiment)
-    @test e === ee
-    @test deleteexperiment(mlf, ee)
-    @test deleteexperiment(mlf, ee)
-end

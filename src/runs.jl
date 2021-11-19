@@ -94,10 +94,15 @@ Deletes an experiment's run.
 # Arguments
 - `mlf`: [`MLFlow`](@ref) configuration.
 - `run`: one of [`MLFlowRun`](@ref), [`MLFlowRunInfo`](@ref), or `String`.
+
+# Returns
+`true` if successful.
+
 """
 function deleterun(mlf::MLFlow, run_id::String)
     endpoint = "runs/delete"
     mlfpost(mlf, endpoint; run_id=run_id)
+    true
 end
 deleterun(mlf::MLFlow, run_info::MLFlowRunInfo) = deleterun(mlf, run_info.run_id)
 deleterun(mlf::MLFlow, run::MLFlowRun) = deleterun(mlf, run.info)
