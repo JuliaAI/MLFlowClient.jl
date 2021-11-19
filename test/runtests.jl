@@ -4,12 +4,21 @@ using UUIDs
 
 function mlflow_server_is_running(mlf::MLFlow)
     try
-        @info "Querying mlflow server at $mlf"
         response = MLFlowClient.mlfget(mlf, "experiments/list")
         return isa(response, Dict)
     catch e
         return false
     end
+end
+
+# creates an instance of mlf
+# skips test if mlflow is not available on default location, http://localhost:5000
+macro ensuremlf()
+    e = quote
+        mlf = MLFlow()
+        mlflow_server_is_running(mlf) || return nothing
+    end
+    eval(e)
 end
 
 @testset "MLFlow" begin
@@ -19,8 +28,7 @@ end
 end
 
 @testset "MLFlowClient.jl" begin
-    mlf = MLFlow()
-    mlflow_server_is_running(mlf) || return nothing
+    @ensuremlf
 
     exptags = [:key => "val"]
     expname = "expname-$(UUIDs.uuid4())"
@@ -93,8 +101,7 @@ end
 end
 
 @testset "createrun" begin
-    mlf = MLFlow()
-    mlflow_server_is_running(mlf) || return nothing
+    @ensuremlf
 
     expname = "getorcreate-$(UUIDs.uuid4())"
     e = getorcreateexperiment(mlf, expname)
@@ -103,10 +110,9 @@ end
     rr = createrun(mlf, e)
     @test isa(rr, MLFlowRun)
 end
-@testset "getorcreateexperiment" begin
-    mlf = MLFlow()
-    mlflow_server_is_running(mlf) || return nothing
 
+@testset "getorcreateexperiment" begin
+    @ensuremlf
     expname = "getorcreate"
     e = getorcreateexperiment(mlf, expname)
     @test isa(e, MLFlowExperiment)
