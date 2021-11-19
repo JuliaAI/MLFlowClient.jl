@@ -104,5 +104,6 @@ end
     ee = getorcreateexperiment(mlf, expname)
     @test isa(ee, MLFlowExperiment)
     @test e === ee
-    deleteexperiment(mlf, ee)
+    @test deleteexperiment(mlf, ee)
+    @test deleteexperiment(mlf, ee)
 end
