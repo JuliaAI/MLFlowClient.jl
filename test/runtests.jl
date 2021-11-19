@@ -12,24 +12,23 @@ function mlflow_server_is_running(mlf::MLFlow)
     end
 end
 
-@testset "MLFlowClient.jl" begin
-    mlflowbaseuri = "http://localhost:5000"
-    mlf = MLFlow(mlflowbaseuri)
-    @test mlf.baseuri == mlflowbaseuri
+@testset "MLFlow" begin
+    mlf = MLFlow()
+    @test mlf.baseuri == "http://localhost:5000"
     @test mlf.apiversion == 2.0
+end
 
-    if !mlflow_server_is_running(mlf)
-        return nothing
-    end
+@testset "MLFlowClient.jl" begin
+    mlf = MLFlow()
+    mlflow_server_is_running(mlf) || return nothing
 
     exptags = [:key => "val"]
     expname = "expname-$(UUIDs.uuid4())"
 
     @test ismissing(getexperiment(mlf, "$(UUIDs.uuid4()) - $(UUIDs.uuid4())"))
 
-    experiment_id = createexperiment(mlf; name=expname, tags=exptags)
-    experiment = getexperiment(mlf, experiment_id)
-    @test experiment.experiment_id == experiment_id
+    experiment = createexperiment(mlf; name=expname, tags=exptags)
+    experiment_id = experiment.experiment_id
     experimentbyname = getexperiment(mlf, expname)
     @test experimentbyname.name == experiment.name
 
@@ -91,4 +90,29 @@ end
     experiment = getexperiment(mlf, experiment_id)
     @test experiment.experiment_id == experiment_id
     @test experiment.lifecycle_stage == "deleted"
+end
+
+@testset "createrun" begin
+    mlf = MLFlow()
+    mlflow_server_is_running(mlf) || return nothing
+
+    expname = "getorcreate-$(UUIDs.uuid4())"
+    e = getorcreateexperiment(mlf, expname)
+    r = createrun(mlf, e.experiment_id)
+    @test isa(r, MLFlowRun)
+    rr = createrun(mlf, e)
+    @test isa(rr, MLFlowRun)
+end
+@testset "getorcreateexperiment" begin
+    mlf = MLFlow()
+    mlflow_server_is_running(mlf) || return nothing
+
+    expname = "getorcreate"
+    e = getorcreateexperiment(mlf, expname)
+    @test isa(e, MLFlowExperiment)
+    ee = getorcreateexperiment(mlf, expname)
+    @test isa(ee, MLFlowExperiment)
+    @test e === ee
+    @test deleteexperiment(mlf, ee)
+    @test deleteexperiment(mlf, ee)
 end

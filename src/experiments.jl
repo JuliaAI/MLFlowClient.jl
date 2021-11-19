@@ -10,7 +10,7 @@ Creates an MLFlow experiment.
 - `tags`: a Dictionary of key-values which tag the experiment.
 
 # Returns
-Experiment identifier (integer).
+An object of type [`MLFlowExperiment`](@ref).
 
 """
 function createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags=missing)
@@ -19,7 +19,8 @@ function createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, 
         name = string(UUIDs.uuid4())
     end
     result = mlfpost(mlf, endpoint; name=name, artifact_location=artifact_location, tags=tags)
-    parse(Int, result["experiment_id"])
+    experiment_id = parse(Int, result["experiment_id"])
+    getexperiment(mlf, experiment_id)
 end
 
 """
@@ -82,18 +83,66 @@ function _getexperimentbyname(mlf::MLFlow, experiment_name::String)
 end
 
 """
-    deleteexperiment(mlf::MLFlow, experiment_id)
+    getorcreateexperiment(mlf::MLFlow, experiment_name::String)
+
+Gets an experiment if one alrady exists, or creates a new one.
+
+# Arguments
+- `mlf`: [`MLFlow`](@ref) configuration.
+- `experiment_name`: Experiment name.
+
+# Returns
+An instance of type [`MLFlowExperiment`](@ref)
+
+"""
+function getorcreateexperiment(mlf::MLFlow, experiment_name::String)
+    exp = getexperiment(mlf, experiment_name)
+    if ismissing(exp)
+        exp = createexperiment(mlf, name=experiment_name)
+    end
+    exp
+end
+
+"""
+    deleteexperiment(mlf::MLFlow, experiment_id::Integer)
 
 Deletes an MLFlow experiment.
 
 # Arguments
 - `mlf`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: experiment identifier.
+
+# Returns
+
+`true` if successful. Otherwise, raises exception.
 """
-function deleteexperiment(mlf::MLFlow, experiment_id)
+function deleteexperiment(mlf::MLFlow, experiment_id::Integer)
     endpoint = "experiments/delete"
-    mlfpost(mlf, endpoint; experiment_id=experiment_id)
+    try
+        result = mlfpost(mlf, endpoint; experiment_id=experiment_id)
+    catch e
+        if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
+            # experiment already deleted
+            return true
+        end
+        throw(e)
+    end
+    true
 end
+"""
+    deleteexperiment(mlf::MLFlow, experiment::MLFlowExperiment)
+
+Deletes an MLFlow experiment.
+
+# Arguments
+- `mlf`: [`MLFlow`](@ref) configuration.
+- `experiment`: an object of type [`MLFlowExperiment`](@ref)
+
+Dispatches to `deleteexperiment(mlf::MLFlow, experiment_id::Integer)`.
+
+"""
+deleteexperiment(mlf::MLFlow, experiment::MLFlowExperiment) =
+    deleteexperiment(mlf, experiment.experiment_id)
 
 """
     listexperiments(mlf::MLFlow)
