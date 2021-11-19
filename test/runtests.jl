@@ -20,7 +20,7 @@ end
 
 @testset "MLFlowClient.jl" begin
     mlf = MLFlow()
-    !mlflow_server_is_running(mlf) && return nothing
+    mlflow_server_is_running(mlf) || return nothing
 
     exptags = [:key => "val"]
     expname = "expname-$(UUIDs.uuid4())"
@@ -94,7 +94,7 @@ end
 
 @testset "createrun" begin
     mlf = MLFlow()
-    !mlflow_server_is_running(mlf) && return nothing
+    mlflow_server_is_running(mlf) || return nothing
 
     expname = "getorcreate-$(UUIDs.uuid4())"
     e = getorcreateexperiment(mlf, expname)
@@ -105,7 +105,7 @@ end
 end
 @testset "getorcreateexperiment" begin
     mlf = MLFlow()
-    !mlflow_server_is_running(mlf) && return nothing
+    mlflow_server_is_running(mlf) || return nothing
 
     expname = "getorcreate"
     e = getorcreateexperiment(mlf, expname)
