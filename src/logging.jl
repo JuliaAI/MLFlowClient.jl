@@ -124,6 +124,10 @@ function logartifact(mlf::MLFlow, run_id::AbstractString, filepath::Union{Abstra
         return logartifact(mlf, run_id, basename(filepath), data)
     catch e
         throw(e)
+    finally
+        if @isdefined f
+            close(f)
+        end
     end
 end
 logartifact(mlf::MLFlow, run::MLFlowRun, filepath::Union{AbstractPath,AbstractString}) =
