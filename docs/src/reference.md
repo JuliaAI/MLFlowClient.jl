@@ -21,6 +21,7 @@ MLFlowRunStatus
 ```@docs
 createexperiment
 getexperiment
+getorcreateexperiment
 listexperiments
 deleteexperiment
 ```

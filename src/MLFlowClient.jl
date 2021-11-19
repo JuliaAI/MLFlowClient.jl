@@ -34,6 +34,7 @@ include("experiments.jl")
 export
     createexperiment,
     getexperiment,
+    getorcreateexperiment,
     deleteexperiment,
     listexperiments
     

@@ -27,9 +27,8 @@ end
 
     @test ismissing(getexperiment(mlf, "$(UUIDs.uuid4()) - $(UUIDs.uuid4())"))
 
-    experiment_id = createexperiment(mlf; name=expname, tags=exptags)
-    experiment = getexperiment(mlf, experiment_id)
-    @test experiment.experiment_id == experiment_id
+    experiment = createexperiment(mlf; name=expname, tags=exptags)
+    experiment_id = experiment.experiment_id
     experimentbyname = getexperiment(mlf, expname)
     @test experimentbyname.name == experiment.name
 
@@ -91,4 +90,19 @@ end
     experiment = getexperiment(mlf, experiment_id)
     @test experiment.experiment_id == experiment_id
     @test experiment.lifecycle_stage == "deleted"
+end
+
+@testset "getorcreateexperiment" begin
+    mlflowbaseuri = "http://localhost:5000"
+    mlf = MLFlow(mlflowbaseuri)
+    !mlflow_server_is_running(mlf) && return nothing
+
+    expname = "getorcreate-$(UUIDs.uuid4())"
+    expname = "getorcreate"
+    e = getorcreateexperiment(mlf, expname)
+    @test isa(e, MLFlowExperiment)
+    ee = getorcreateexperiment(mlf, expname)
+    @test isa(ee, MLFlowExperiment)
+    @test e === ee
+    deleteexperiment(mlf, ee)
 end
