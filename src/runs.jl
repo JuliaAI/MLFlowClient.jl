@@ -22,6 +22,13 @@ function createrun(mlf::MLFlow, experiment_id; start_time=missing, tags=missing)
     result = mlfpost(mlf, endpoint; experiment_id=experiment_id, start_time=string(start_time), tags=tags)
     MLFlowRun(result["run"]["info"], result["run"]["data"])
 end
+"""
+    createrun(mlf::MLFlow, experiment::MLFlowExperiment; start_time=missing, tags=missing)
+
+Dispatches to `createrun(mlf::MLFlow, experiment_id; start_time=start_time, tags=tags)`
+"""
+createrun(mlf::MLFlow, experiment::MLFlowExperiment; start_time=missing, tags=missing) =
+    createrun(mlf, experiment.experiment_id; start_time=start_time, tags=tags)
 
 """
     getrun(mlf::MLFlow, run_id)

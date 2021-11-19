@@ -10,9 +10,11 @@ Base type which defines location and version for MLFlow API service.
 # Constructors
 
 - `MLFlow(baseuri; apiversion=2.0)`
+- `MLFlow()` - defaults to `MLFlow("http://localhost:5000")`
+
 # Examples
 ``` julia-repl
-julia> mlf = MLFlow("http://localhost:5000")
+julia> mlf = MLFlow()
 MLFlow("http://localhost:5000", 2.0)
 ```
 
@@ -22,6 +24,7 @@ struct MLFlow
     apiversion
     MLFlow(baseuri; apiversion=2.0) = new(baseuri, apiversion)
 end
+MLFlow() = MLFlow("http://localhost:5000")
 
 """
     MLFlowExperiment
