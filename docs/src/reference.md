@@ -6,6 +6,8 @@ CurrentModule = MLFlowClient
 
 # Types
 
+TODO: Document accessors.
+
 ```@docs
 MLFlow
 MLFlowExperiment
@@ -21,6 +23,7 @@ MLFlowRunStatus
 ```@docs
 createexperiment
 getexperiment
+getorcreateexperiment
 listexperiments
 deleteexperiment
 ```
@@ -41,4 +44,13 @@ searchruns
 logparam
 logmetric
 logartifact
+```
+
+# Utilities
+
+```@docs
+mlfget
+mlfpost
+uri
+generatefilterfromparams
 ```

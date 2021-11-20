@@ -62,7 +62,7 @@ end
 
 
 """
-    logartifact(mlf::MLFlow, run, filename)
+    logartifact(mlf::MLFlow, run, basefilename, data)
 
 Stores an artifact (file) in the run's artifact location.
 
@@ -73,13 +73,64 @@ Stores an artifact (file) in the run's artifact location.
 # Arguments
 - `mlf::MLFlow`: [`MLFlow`](@ref) onfiguration. Currently not used, but when this method is extended to support `S3`, information from `mlf` will be needed.
 - `run`: one of [`MLFlowRun`](@ref), [`MLFlowRunInfo`](@ref) or `String`.
-- `filename`: path to the artifact that needs to be sent to `MLFlow`.
+- `basefilename`: name of the file to be written.
+- `data`: artifact content, an object that can be written directly to a file handle.
+
+# Throws
+- an `ErrorException` if an exception occurs during writing artifact.
+
+# Returns
+
+path of the artifact that was created.
 """
-function logartifact(mlf::MLFlow, run_id::String, filename)
+function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::AbstractString, data)
     mlflowrun = getrun(mlf, run_id)
     artifact_uri = mlflowrun.info.artifact_uri
     mkpath(artifact_uri)
-    cp(filename, joinpath(artifact_uri, basename(filename)))
+    filepath = joinpath(artifact_uri, basefilename)
+    try
+        f = open(filepath, "w")
+        write(f, data)
+        close(f)
+    catch e
+        error("Unable to create artifact $(filepath): $e")
+    end
+    filepath
 end
-logartifact(mlf::MLFlow, run::MLFlowRun, filename) = logartifact(mlf, run.info, filename)
-logartifact(mlf::MLFlow, run_info::MLFlowRunInfo, filename) = logartifact(mlf, run_info.run_id, filename)
+logartifact(mlf::MLFlow, run::MLFlowRun, basefilename::AbstractString, data) =
+    logartifact(mlf, run.info, basefilename, data)
+logartifact(mlf::MLFlow, run_info::MLFlowRunInfo, basefilename::AbstractString, data) =
+    logartifact(mlf, run_info.run_id, basefilename, data)
+
+"""
+    logartifact(mlf::MLFlow, run, filepath)
+
+Stores an artifact (file) in the run's artifact location.
+The name of the artifact is calculated using `basename(filepath)`.
+
+Dispatches on `logartifact(mlf::MLFlow, run, basefilename, data)` where `data` is the contents of `filepath`.
+
+# Throws
+- an `ErrorException` if `filepath` does not exist.
+- an exception if such occurs while trying to read the contents of `filepath`.
+
+"""
+function logartifact(mlf::MLFlow, run_id::AbstractString, filepath::Union{AbstractPath,AbstractString})
+    isfile(filepath) || error("File $filepath does not exist.")
+    try
+        f = open(filepath, "r")
+        data = read(f)
+        close(f)
+        return logartifact(mlf, run_id, basename(filepath), data)
+    catch e
+        throw(e)
+    finally
+        if @isdefined f
+            close(f)
+        end
+    end
+end
+logartifact(mlf::MLFlow, run::MLFlowRun, filepath::Union{AbstractPath,AbstractString}) =
+    logartifact(mlf, run.info, filepath)
+logartifact(mlf::MLFlow, run_info::MLFlowRunInfo, filepath::Union{AbstractPath,AbstractString}) =
+    logartifact(mlf, run_info.run_id, filepath)

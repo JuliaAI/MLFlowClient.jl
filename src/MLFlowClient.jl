@@ -17,6 +17,7 @@ using UUIDs
 using HTTP
 using URIs
 using JSON
+using FilePathsBase: AbstractPath
 
 include("types.jl")
 export
@@ -24,16 +25,23 @@ export
     MLFlowExperiment,
     MLFlowRunStatus,
     MLFlowRunInfo,
+    get_run_id,
     MLFlowRunData,
+    get_params,
     MLFlowRunDataMetric,
-    MLFlowRun
+    MLFlowRun,
+    get_info,
+    get_data
 
 include("utils.jl")
+export
+    generatefilterfromparams
 
 include("experiments.jl")
 export
     createexperiment,
     getexperiment,
+    getorcreateexperiment,
     deleteexperiment,
     listexperiments
     

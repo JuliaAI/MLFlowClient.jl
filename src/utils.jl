@@ -4,9 +4,8 @@
 Retrieves an URI based on `mlf`, `endpoint`, and, optionally, `query`.
 
 # Examples
-``` julia-repl
-julia> MLFlowClient.uri(mlf, "experiments/get", Dict(:experiment_id=>10))
-URI("http://localhost/api/2.0/mlflow/experiments/get?experiment_id=10")
+```@example
+MLFlowClient.uri(mlf, "experiments/get", Dict(:experiment_id=>10))
 ```
 """
 function uri(mlf::MLFlow, endpoint="", query=missing)
@@ -48,3 +47,26 @@ function mlfpost(mlf, endpoint; kwargs...)
     end
 end
 
+"""
+    generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V}
+
+Generates a `filter` string from `filter_params` dictionary.
+
+# Arguments
+- `filter_params`: dictionary to use for filter generation.
+
+# Returns
+A string that can be passed as `filter` to [`searchruns`](@ref).
+
+# Examples
+
+```@example
+generatefilterfromparams(Dict("paramkey1" => "paramvalue1", "paramkey2" => "paramvalue2"))
+```
+"""
+function generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V}
+    length(filter_params) > 0 || return ""
+    # NOTE: may have issues with escaping.
+    filters = ["param.\"$(k)\" = \"$(v)\"" for(k, v) ∈ filter_params ]
+    join(filters, " and ")
+end
