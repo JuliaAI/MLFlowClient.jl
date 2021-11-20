@@ -25,11 +25,17 @@ export
     MLFlowExperiment,
     MLFlowRunStatus,
     MLFlowRunInfo,
+    get_run_id,
     MLFlowRunData,
+    get_params,
     MLFlowRunDataMetric,
-    MLFlowRun
+    MLFlowRun,
+    get_info,
+    get_data
 
 include("utils.jl")
+export
+    generatefilterfromparams
 
 include("experiments.jl")
 export

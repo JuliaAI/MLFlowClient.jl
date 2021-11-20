@@ -13,18 +13,18 @@ Base type which defines location and version for MLFlow API service.
 - `MLFlow()` - defaults to `MLFlow("http://localhost:5000")`
 
 # Examples
-``` julia-repl
-julia> mlf = MLFlow()
-MLFlow("http://localhost:5000", 2.0)
+
+```@example
+mlf = MLFlow()
 ```
 
 """
 struct MLFlow
     baseuri::String
     apiversion
-    MLFlow(baseuri; apiversion=2.0) = new(baseuri, apiversion)
 end
-MLFlow() = MLFlow("http://localhost:5000")
+MLFlow(baseuri; apiversion=2.0) = MLFlow(baseuri, apiversion)
+MLFlow() = MLFlow("http://localhost:5000", 2.0)
 
 """
     MLFlowExperiment
@@ -50,18 +50,14 @@ struct MLFlowExperiment
     experiment_id::Integer
     tags::Any
     artifact_location::String
-
-    MLFlowExperiment(name, lifecycle_stage, experiment_id, tags, artifact_location) =
-        new(name, lifecycle_stage, experiment_id, tags, artifact_location)
-   
-    function MLFlowExperiment(exp::Dict{String,Any})
-        name = get(exp, "name", missing)
-        lifecycle_stage = get(exp, "lifecycle_stage", missing)
-        experiment_id = parse(Int, get(exp, "experiment_id", missing))
-        tags = get(exp, "tags", missing)
-        artifact_location = get(exp, "artifact_location", missing)
-        MLFlowExperiment(name, lifecycle_stage, experiment_id, tags, artifact_location)
-    end
+end
+function MLFlowExperiment(exp::Dict{String,Any})
+    name = get(exp, "name", missing)
+    lifecycle_stage = get(exp, "lifecycle_stage", missing)
+    experiment_id = parse(Int, get(exp, "experiment_id", missing))
+    tags = get(exp, "tags", missing)
+    artifact_location = get(exp, "artifact_location", missing)
+    MLFlowExperiment(name, lifecycle_stage, experiment_id, tags, artifact_location)
 end
 
 
@@ -79,7 +75,6 @@ Represents the status of an MLFlow Run.
 """
 struct MLFlowRunStatus
     status::String
-
     function MLFlowRunStatus(status::String)
         acceptable_statuses = ["RUNNING", "SCHEDULED", "FINISHED", "FAILED", "KILLED"]
         status ∈ acceptable_statuses || error("Invalid status $status - choose one of $acceptable_statuses")
@@ -114,39 +109,24 @@ struct MLFlowRunInfo
     end_time::Union{Int64,Missing}
     artifact_uri::String
     lifecycle_stage::String
-
-    function MLFlowRunInfo(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)
-        new(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)
-    end
-
-    function MLFlowRunInfo(info::Dict{String,Any})
-        run_id = get(info, "run_id", missing)
-        experiment_id = get(info, "experiment_id", missing)
-        status = get(info, "status", missing)
-        start_time = get(info, "start_time", missing)
-        end_time = get(info, "end_time", missing)
-        artifact_uri = get(info, "artifact_uri", "")
-        lifecycle_stage = get(info, "lifecycle_stage", "")
-
-        if !ismissing(experiment_id)
-            experiment_id = parse(Int64, experiment_id)
-        end
-
-        if !ismissing(status)
-            status = MLFlowRunStatus(status)
-        end
-
-        if !ismissing(start_time)
-            start_time = parse(Int64, start_time)
-        end
-
-        if !ismissing(end_time)
-            end_time = parse(Int64, end_time)
-        end
-
-        MLFlowRunInfo(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)
-    end
 end
+function MLFlowRunInfo(info::Dict{String,Any})
+    run_id = get(info, "run_id", missing)
+    experiment_id = get(info, "experiment_id", missing)
+    status = get(info, "status", missing)
+    start_time = get(info, "start_time", missing)
+    end_time = get(info, "end_time", missing)
+    artifact_uri = get(info, "artifact_uri", "")
+    lifecycle_stage = get(info, "lifecycle_stage", "")
+
+    experiment_id = ismissing(experiment_id) ? experiment_id : parse(Int64, experiment_id)
+    status = ismissing(status) ? status : MLFlowRunStatus(status)
+    start_time = ismissing(start_time) ? start_time : parse(Int64, start_time)
+    end_time = ismissing(end_time) ? end_time : parse(Int64, end_time)
+
+    MLFlowRunInfo(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)
+end
+get_run_id(runinfo::MLFlowRunInfo) = runinfo.run_id
 
 """
     MLFlowRunDataMetric
@@ -169,13 +149,13 @@ struct MLFlowRunDataMetric
     value::Float64
     step::Int64
     timestamp::Int64
-    function MLFlowRunDataMetric(d::Dict{String,Any})
-        key = d["key"]
-        value = d["value"]
-        step = parse(Int64, d["step"])
-        timestamp = parse(Int64, d["timestamp"])
-        new(key, value, step, timestamp)
-    end
+end
+function MLFlowRunDataMetric(d::Dict{String,Any})
+    key = d["key"]
+    value = d["value"]
+    step = parse(Int64, d["step"])
+    timestamp = parse(Int64, d["timestamp"])
+    MLFlowRunDataMetric(key, value, step, timestamp)
 end
 
 
@@ -198,20 +178,21 @@ struct MLFlowRunData
     metrics::Vector{MLFlowRunDataMetric}
     params::Union{Dict{String,String},Missing}
     tags
-    function MLFlowRunData(data::Dict{String,Any})
-        metrics = haskey(data, "metrics") ? MLFlowRunDataMetric.(data["metrics"]) : MLFlowRunDataMetric[]
-        if haskey(data, "params")
-            params = Dict{String,String}()
-            for p in data["params"]
-                params[p["key"]] = p["value"]
-            end
-        else
-            params = Dict{String,String}()
-        end
-        tags = haskey(data, "tags") ? data["tags"] : missing
-        new(metrics, params, tags)
-    end
 end
+function MLFlowRunData(data::Dict{String,Any})
+    metrics = haskey(data, "metrics") ? MLFlowRunDataMetric.(data["metrics"]) : MLFlowRunDataMetric[]
+    if haskey(data, "params")
+        params = Dict{String,String}()
+        for p in data["params"]
+            params[p["key"]] = p["value"]
+        end
+    else
+        params = Dict{String,String}()
+    end
+    tags = haskey(data, "tags") ? data["tags"] : missing
+    MLFlowRunData(metrics, params, tags)
+end
+get_params(rundata::MLFlowRunData) = rundata.params
 
 """
     MLFlowRun
@@ -233,23 +214,14 @@ Represents an MLFlow run.
 struct MLFlowRun
     info::Union{MLFlowRunInfo,Missing}
     data::Union{MLFlowRunData,Missing}
-
-    function MLFlowRun(rundata::MLFlowRunData)
-        info = missing
-        new(info, rundata)
-    end
-    function MLFlowRun(runinfo::MLFlowRunInfo)
-        data = missing
-        new(runinfo, data)
-    end
-    function MLFlowRun(info::Dict{String,Any})
-        info = MLFlowRunInfo(info)
-        data = missing
-        new(info, data)
-    end
-    function MLFlowRun(info::Dict{String,Any}, data::Dict{String,Any})
-        info = MLFlowRunInfo(info)
-        data = MLFlowRunData(data)
-        new(info, data)
-    end
 end
+MLFlowRun(rundata::MLFlowRunData) =
+    MLFlowRun(missing, rundata)
+MLFlowRun(runinfo::MLFlowRunInfo) =
+    MLFlowRun(runinfo, missing)
+MLFlowRun(info::Dict{String,Any}) =
+    MLFlowRun(MLFlowRunInfo(info), missing)
+MLFlowRun(info::Dict{String,Any}, data::Dict{String,Any}) =
+    MLFlowRun(MLFlowRunInfo(info), MLFlowRunData(data))
+get_info(run::MLFlowRun) = run.info
+get_data(run::MLFlowRun) = run.data

@@ -1,6 +1,7 @@
 using MLFlowClient
 using Test
 using UUIDs
+using Dates
 
 function mlflow_server_is_running(mlf::MLFlow)
     try
@@ -63,6 +64,43 @@ end
     @test e === ee
     @test deleteexperiment(mlf, ee)
     @test deleteexperiment(mlf, ee)
+end
+
+@testset "generatefilterfromparama" begin
+    filter_params = Dict("k1" => "v1")
+    filter = generatefilterfromparams(filter_params)
+    @test filter == "param.\"k1\" = \"v1\""
+    filter_params = Dict("k1" => "v1", "started" => Date("2020-01-01"))
+    filter = generatefilterfromparams(filter_params)
+    @test occursin("param.\"k1\" = \"v1\"", filter)
+    @test occursin("param.\"started\" = \"2020-01-01\"", filter)
+    @test occursin(" and ", filter)
+end
+
+@testset "searchruns" begin
+    @ensuremlf
+    exp = createexperiment(mlf)
+    expid = exp.experiment_id
+    exprun = createrun(mlf, exp)
+    @test exprun.info.experiment_id == expid
+    @test exprun.info.lifecycle_stage == "active"
+    @test exprun.info.status == MLFlowRunStatus("RUNNING")
+    exprunid = exprun.info.run_id
+
+    runparams = Dict(
+        "k1" => "v1",
+        "started" => Date("2020-01-01")
+    )
+    logparam(mlf, exprun, runparams)
+
+    findrun = searchruns(mlf, exp; filter_params=runparams)
+    @test length(findrun) == 1
+    r = only(findrun)
+    @test get_run_id(get_info(r)) == exprun.info.run_id
+    @test sort(collect(keys(get_params(get_data(r))))) == sort(string.(keys(runparams)))
+    @test sort(collect(values(get_params(get_data(r))))) == sort(string.(values(runparams)))
+
+    @test deleteexperiment(mlf, exp)
 end
 
 @testset "MLFlowClient.jl" begin

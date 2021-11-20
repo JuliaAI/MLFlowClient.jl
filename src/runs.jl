@@ -118,6 +118,7 @@ Searches for runs in an experiment.
 
 # Keywords
 - `filter::String`: filter as defined in [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs)
+- `filter_params::AbstractDict{K,V}`: if provided, `filter` is automatically generated based on `filter_params` using [`generatefilterfromparams`](@ref). One can only provide either `filter` or `filter_params`, but not both.
 - `run_view_type::String`: one of `ACTIVE_ONLY`, `DELETED_ONLY`, or `ALL`.
 - `max_results::Integer`: 50,000 by default.
 - `order_by::String`: as defined in [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs)
@@ -129,13 +130,23 @@ Searches for runs in an experiment.
 """
 function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
                     filter::String="",
+                    filter_params::AbstractDict{K,V}=Dict{}(),
                     run_view_type::String="ACTIVE_ONLY",
                     max_results::Int64=50000,
                     order_by::AbstractVector{<:String}=["attribute.start_time"],
                     page_token::String=""
-                    )
+                    ) where {K,V}
     endpoint = "runs/search"
     run_view_type ∈ ["ACTIVE_ONLY", "DELETED_ONLY", "ALL"] || error("Unsupported run_view_type = $run_view_type")
+
+    if length(filter_params) > 0 && length(filter) > 0
+        error("Can only use either filter or filter_params, but not both at the same time.")
+    end
+
+    if length(filter_params) > 0
+        filter = generatefilterfromparams(filter_params)
+    end
+
     kwargs = (
         experiment_ids=experiment_ids,
         filter=filter,
@@ -169,3 +180,7 @@ function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
 end
 searchruns(mlf::MLFlow, experiment_id::Integer; kwargs...) =
     searchruns(mlf, [experiment_id]; kwargs...)
+searchruns(mlf::MLFlow, exp::MLFlowExperiment; kwargs...) =
+    searchruns(mlf, exp.experiment_id; kwargs...)
+searchruns(mlf::MLFlow, exps::AbstractVector{MLFlowExperiment}; kwargs...) =
+    searchruns(mlf, [getfield.(exps, :experiment_id)]; kwargs...)
