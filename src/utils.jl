@@ -67,6 +67,6 @@ generatefilterfromparams(Dict("paramkey1" => "paramvalue1", "paramkey2" => "para
 function generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V}
     length(filter_params) > 0 || return ""
     # NOTE: may have issues with escaping.
-    filters = ["param.\"$(k)\" = \"$(v)\"" for(k, v) ∈ filter_params ]
+    filters = ["param.\"$(k)\" = \"$(v)\"" for(k, v) ∈ filter_params]
     join(filters, " and ")
 end

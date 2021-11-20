@@ -155,9 +155,7 @@ end
     finished_run = updaterun(mlf, exprun, MLFlowRunStatus("FINISHED"))
     finishedrun = getrun(mlf, finished_run.info.run_id)
     
-    # NOTE: seems like MLFlow API never returns `end_time` as documented in https://mlflow.org/docs/latest/rest-api.html#runinfo
-    # Consider raising an issue with MLFlow itself.
-    @test_broken !ismissing(finishedrun.info.end_time)
+    @test !ismissing(finishedrun.info.end_time)
 
     exprun2 = createrun(mlf, experiment_id)
     exprun2id = exprun.info.run_id

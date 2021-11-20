@@ -70,7 +70,7 @@ function updaterun(mlf::MLFlow, run_id::String, status::MLFlowRunStatus; end_tim
     )
     if ismissing(end_time) && status.status == "FINISHED"
         end_time = Int(trunc(datetime2unix(now()) * 1000))
-        kwargs[:end_time] => end_time
+        kwargs[:end_time] = string(end_time)
     end
     result = mlfpost(mlf, endpoint; kwargs...)
     MLFlowRun(result["run_info"])
@@ -133,7 +133,7 @@ function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
                     filter_params::AbstractDict{K,V}=Dict{}(),
                     run_view_type::String="ACTIVE_ONLY",
                     max_results::Int64=50000,
-                    order_by::AbstractVector{<:String}=["attribute.start_time"],
+                    order_by::AbstractVector{<:String}=["attribute.end_time"],
                     page_token::String=""
                     ) where {K,V}
     endpoint = "runs/search"
