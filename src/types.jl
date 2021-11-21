@@ -25,6 +25,7 @@ struct MLFlow
 end
 MLFlow(baseuri; apiversion=2.0) = MLFlow(baseuri, apiversion)
 MLFlow() = MLFlow("http://localhost:5000", 2.0)
+Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, new_lines=true))
 
 """
     MLFlowExperiment
@@ -59,7 +60,7 @@ function MLFlowExperiment(exp::Dict{String,Any})
     artifact_location = get(exp, "artifact_location", missing)
     MLFlowExperiment(name, lifecycle_stage, experiment_id, tags, artifact_location)
 end
-
+Base.show(io::IO, t::MLFlowExperiment) = show(io, ShowCase(t, new_lines=true))
 
 """
     MLFlowRunStatus
@@ -81,6 +82,7 @@ struct MLFlowRunStatus
         new(status)
     end
 end
+Base.show(io::IO, t::MLFlowRunStatus) = show(io, ShowCase(t, new_lines=true))
 
 """
     MLFlowRunInfo
@@ -126,6 +128,7 @@ function MLFlowRunInfo(info::Dict{String,Any})
 
     MLFlowRunInfo(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)
 end
+Base.show(io::IO, t::MLFlowRunInfo) = show(io, ShowCase(t, new_lines=true))
 get_run_id(runinfo::MLFlowRunInfo) = runinfo.run_id
 
 """
@@ -157,7 +160,7 @@ function MLFlowRunDataMetric(d::Dict{String,Any})
     timestamp = parse(Int64, d["timestamp"])
     MLFlowRunDataMetric(key, value, step, timestamp)
 end
-
+Base.show(io::IO, t::MLFlowRunDataMetric) = show(io, ShowCase(t, new_lines=true))
 
 """
     MLFlowRunData
@@ -192,6 +195,7 @@ function MLFlowRunData(data::Dict{String,Any})
     tags = haskey(data, "tags") ? data["tags"] : missing
     MLFlowRunData(metrics, params, tags)
 end
+Base.show(io::IO, t::MLFlowRunData) = show(io, ShowCase(t, new_lines=true))
 get_params(rundata::MLFlowRunData) = rundata.params
 
 """
@@ -223,5 +227,6 @@ MLFlowRun(info::Dict{String,Any}) =
     MLFlowRun(MLFlowRunInfo(info), missing)
 MLFlowRun(info::Dict{String,Any}, data::Dict{String,Any}) =
     MLFlowRun(MLFlowRunInfo(info), MLFlowRunData(data))
+Base.show(io::IO, t::MLFlowRun) = show(io, ShowCase(t, new_lines=true))
 get_info(run::MLFlowRun) = run.info
 get_data(run::MLFlowRun) = run.data
