@@ -7,14 +7,14 @@ Associates a key/value pair of parameters to the particular run.
 # Arguments
 - `mlf`: [`MLFlow`](@ref) configuration.
 - `run`: one of [`MLFlowRun`](@ref), [`MLFlowRunInfo`](@ref), or `String`.
-- `key`: parameter key (name).
-- `value`: parameter value.
+- `key`: parameter key (name). Automatically converted to string before sending to MLFlow because this is the only type that MLFlow supports.
+- `value`: parameter value. Automatically converted to string before sending to MLFlow because this is the only type that MLFlow supports.
 
 One could also specify `kv::Dict` instead of separate `key` and `value` arguments.
 """
 function logparam(mlf::MLFlow, run_id::String, key, value)
     endpoint = "runs/log-parameter"
-    mlfpost(mlf, endpoint; run_id=run_id, key=key, value=value)
+    mlfpost(mlf, endpoint; run_id=run_id, key=string(key), value=string(value))
 end
 logparam(mlf::MLFlow, run_info::MLFlowRunInfo, key, value) =
     logparam(mlf, run_info.run_id, key, value)
