@@ -109,23 +109,54 @@ end
     @test isa(exp, MLFlowExperiment)
     exprun = createrun(mlf, exp)
     @test isa(exprun, MLFlowRun)
-
+    emptyrun = createrun(mlf, exp)
     @test_throws SystemError logartifact(mlf, exprun, "/etc/shadow")
 
-    tmpfiletoupload = tempname()
+    tmpfiletoupload = "sometempfilename.txt"
     f = open(tmpfiletoupload, "w")
     write(f, "samplecontents")
     close(f)
     artifactpath = logartifact(mlf, exprun, tmpfiletoupload)
     @test isfile(artifactpath)
-    rm(tmpfiletoupload)
-
     artifactpath = logartifact(mlf, exprun, "randbytes.bin", b"some rand bytes here")
     @test isfile(artifactpath)
 
-    artifactlist = listartifacts(mlf, exprun)
-    @test length(artifactlist) == 2
+    artifact_uri = exprun.info.artifact_uri
+    mkdir(joinpath(artifact_uri, "newdir"))
+    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "randbytesindir.bin"), b"bytes here")
+    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "randbytesindir2.bin"), b"bytes here")
+    mkdir(joinpath(artifact_uri, "newdir", "new2"))
+    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "randbytesindir.bin"), b"bytes here")
+    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "randbytesindir2.bin"), b"bytes here")
+    mkdir(joinpath(artifact_uri, "newdir", "new2", "new3"))
+    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "randbytesindir.bin"), b"bytes here")
+    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "randbytesindir2.bin"), b"bytes here")
+    mkdir(joinpath(artifact_uri, "newdir", "new2", "new3", "new4"))
+    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "new4", "randbytesindir.bin"), b"bytes here")
+    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "new4", "randbytesindir2.bin"), b"bytes here")
 
+    # artifact tree should now look like this:
+    # 
+    # ├── newdir
+    # │   ├── new2
+    # │   │   ├── new3
+    # │   │   │   ├── new4
+    # │   │   │   │   ├── randbytesindir2.bin
+    # │   │   │   │   └── randbytesindir.bin
+    # │   │   │   ├── randbytesindir2.bin
+    # │   │   │   └── randbytesindir.bin
+    # │   │   ├── randbytesindir2.bin
+    # │   │   └── randbytesindir.bin
+    # │   ├── randbytesindir2.bin
+    # │   └── randbytesindir.bin
+    # ├── randbytes.bin
+    # └── sometempfilename.txt
+
+    # 4 directories, 10 files
+
+    artifactlist = listartifacts(mlf, exprun)
+    @test sort(basename.(get_path.(artifactlist))) == ["newdir", "randbytes.bin", "sometempfilename.txt"]
+    @test sort(get_size.(artifactlist)) == [0, 14, 20]
     deleterun(mlf, exprun)
     deleteexperiment(mlf, exp)
 end

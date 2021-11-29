@@ -321,3 +321,56 @@ logartifact(mlf::MLFlow, run::MLFlowRun, filepath::Union{AbstractPath,AbstractSt
     logartifact(mlf, run.info, filepath)
 logartifact(mlf::MLFlow, run_info::MLFlowRunInfo, filepath::Union{AbstractPath,AbstractString}) =
     logartifact(mlf, run_info.run_id, filepath)
+
+"""
+    listartifacts(mlf::MLFlow, run_id)
+
+Lists the artifacts associated with an experiment run.
+According to (MLFlow documentation)[https://mlflow.org/docs/latest/rest-api.html#list-artifacts], this API endpoint should return paged results, similar to [`searchruns`](@ref).
+However, after some experimentation, this doesn't seem to be the case. Therefore, the paging functionality is not implemented here.
+
+# Arguments
+- `mlf::MLFlow`: [`MLFlow`](@ref) onfiguration. Currently not used, but when this method is extended to support `S3`, information from `mlf` will be needed.
+- `run`: one of [`MLFlowRun`](@ref), [`MLFlowRunInfo`](@ref) or `String`.
+
+# Keywords
+- `path::String`: path of a directory within the artifact location. If set, returns the contents of the directory.
+- `maxdepth::Int64`: depth of listing. Default is 1. This will only return the files/directories in the current `path`. `maxdepth=2` will return objects from current path and one level below.
+- `returnonly::Symbol`: by default, set to `:both`. Accepts values: `:files`, `:directories`. If set, it will only return files or directories.
+
+# Returns
+Returns an array of `Union{MLFlowArtifactFileInfo,MLFlowArtifactDirInfo}`.
+"""
+function listartifacts(mlf::MLFlow, run_id::String; path::String="", maxdepth::Int64=1, returnonly::Symbol=:both)
+    returnonly ∈ [:both, :files, :directories] || error("Invalid value for returnonly=$returnonly - valid values are :files, :directories, or :both")
+    endpoint = "artifacts/list"
+    kwargs = (
+        run_id=run_id,
+    )
+    kwargs = (; kwargs..., path=path)
+    httpresult = mlfget(mlf, endpoint; kwargs...)
+    "files" ∈ keys(httpresult) || return Vector{Union{MLFlowArtifactFileInfo,MLFlowArtifactDirInfo}}()
+    "root_uri" ∈ keys(httpresult) || error("Malformed response from MLFlow REST API.")
+    root_uri = httpresult["root_uri"]
+    result = Vector{Union{MLFlowArtifactFileInfo,MLFlowArtifactDirInfo}}()
+    maxdepth == 0 && return result
+
+    for resultentry ∈ httpresult["files"]
+        if resultentry["is_dir"] == false
+            filepath = joinpath(root_uri, resultentry["path"])
+            filesize = parse(Int, resultentry["file_size"])
+            push!(result, MLFlowArtifactFileInfo(filepath, filesize))
+            continue
+        end
+        if resultentry["is_dir"] == true
+            dirpath = joinpath(root_uri, resultentry["path"])
+            push!(result, MLFlowArtifactDirInfo(dirpath))
+            continue
+        end
+    end
+    result
+end
+listartifacts(mlf::MLFlow, run::MLFlowRun; kwargs...) =
+    listartifacts(mlf, run.info.run_id; kwargs...)
+listartifacts(mlf::MLFlow, run_info::MLFlowRunInfo; kwargs...) =
+    listartifacts(mlf, run_info.run_id; kwargs...)
