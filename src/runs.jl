@@ -323,10 +323,10 @@ logartifact(mlf::MLFlow, run_info::MLFlowRunInfo, filepath::Union{AbstractPath,A
     logartifact(mlf, run_info.run_id, filepath)
 
 """
-    listartifacts(mlf::MLFlow, run_id)
+    listartifacts(mlf::MLFlow, run)
 
 Lists the artifacts associated with an experiment run.
-According to (MLFlow documentation)[https://mlflow.org/docs/latest/rest-api.html#list-artifacts], this API endpoint should return paged results, similar to [`searchruns`](@ref).
+According to [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#list-artifacts), this API endpoint should return paged results, similar to [`searchruns`](@ref).
 However, after some experimentation, this doesn't seem to be the case. Therefore, the paging functionality is not implemented here.
 
 # Arguments
@@ -334,15 +334,13 @@ However, after some experimentation, this doesn't seem to be the case. Therefore
 - `run`: one of [`MLFlowRun`](@ref), [`MLFlowRunInfo`](@ref) or `String`.
 
 # Keywords
-- `path::String`: path of a directory within the artifact location. If set, returns the contents of the directory.
-- `maxdepth::Int64`: depth of listing. Default is 1. This will only return the files/directories in the current `path`. `maxdepth=2` will return objects from current path and one level below.
-- `returnonly::Symbol`: by default, set to `:both`. Accepts values: `:files`, `:directories`. If set, it will only return files or directories.
+- `path::String`: path of a directory within the artifact location. If set, returns the contents of the directory. By default, this is the root directory of the artifacts.
+- `maxdepth::Int64`: depth of listing. Default is 1. This will only return the files/directories in the current `path`. To return all artifacts files and directories, use `maxdepth=-1`.
 
 # Returns
-Returns an array of `Union{MLFlowArtifactFileInfo,MLFlowArtifactDirInfo}`.
+A vector of `Union{MLFlowArtifactFileInfo,MLFlowArtifactDirInfo}`.
 """
-function listartifacts(mlf::MLFlow, run_id::String; path::String="", maxdepth::Int64=1, returnonly::Symbol=:both)
-    returnonly ∈ [:both, :files, :directories] || error("Invalid value for returnonly=$returnonly - valid values are :files, :directories, or :both")
+function listartifacts(mlf::MLFlow, run_id::String; path::String="", maxdepth::Int64=1)
     endpoint = "artifacts/list"
     kwargs = (
         run_id=run_id,
@@ -360,11 +358,16 @@ function listartifacts(mlf::MLFlow, run_id::String; path::String="", maxdepth::I
             filepath = joinpath(root_uri, resultentry["path"])
             filesize = parse(Int, resultentry["file_size"])
             push!(result, MLFlowArtifactFileInfo(filepath, filesize))
-            continue
-        end
-        if resultentry["is_dir"] == true
+        elseif resultentry["is_dir"] == true
             dirpath = joinpath(root_uri, resultentry["path"])
             push!(result, MLFlowArtifactDirInfo(dirpath))
+            if maxdepth != 0
+                nextdepthresult = listartifacts(mlf, run_id, path=resultentry["path"], maxdepth=maxdepth-1)
+                result = vcat(result, nextdepthresult)
+            end
+        else
+            isdirval = resultentry["is_dir"]
+            @warn "Malformed response from MLFlow REST API is_dir=$isdirval - skipping"
             continue
         end
     end

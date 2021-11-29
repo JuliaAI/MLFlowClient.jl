@@ -118,6 +118,7 @@ end
     close(f)
     artifactpath = logartifact(mlf, exprun, tmpfiletoupload)
     @test isfile(artifactpath)
+    rm(tmpfiletoupload)
     artifactpath = logartifact(mlf, exprun, "randbytes.bin", b"some rand bytes here")
     @test isfile(artifactpath)
 
@@ -157,6 +158,15 @@ end
     artifactlist = listartifacts(mlf, exprun)
     @test sort(basename.(get_path.(artifactlist))) == ["newdir", "randbytes.bin", "sometempfilename.txt"]
     @test sort(get_size.(artifactlist)) == [0, 14, 20]
+
+    ald2 = listartifacts(mlf, exprun, maxdepth=2)
+    @test length(ald2) == 6
+    @test sort(basename.(get_path.(ald2))) == ["new2", "newdir", "randbytes.bin", "randbytesindir.bin", "randbytesindir2.bin", "sometempfilename.txt"]
+    aldrecursion = listartifacts(mlf, exprun, maxdepth=-1)
+    @test length(aldrecursion) == 14 # 4 directories, 10 files
+    @test sum(typeof.(aldrecursion) .== MLFlowArtifactDirInfo) == 4 # 4 directories
+    @test sum(typeof.(aldrecursion) .== MLFlowArtifactFileInfo) == 10 # 10 files
+
     deleterun(mlf, exprun)
     deleteexperiment(mlf, exp)
 end

@@ -16,6 +16,8 @@ MLFlowRunInfo
 MLFlowRunData
 MLFlowRunDataMetric
 MLFlowRunStatus
+MLFlowArtifactFileInfo
+MLFlowArtifactDirInfo
 ```
 
 # Experiments
@@ -36,14 +38,10 @@ getrun
 updaterun
 deleterun
 searchruns
-```
-
-# Logging
-
-```@docs
 logparam
 logmetric
 logartifact
+listartifacts
 ```
 
 # Utilities

@@ -234,7 +234,7 @@ get_data(run::MLFlowRun) = run.data
 """
     MLFlowArtifactFileInfo
 
-Metadata of a single artifact file.
+Metadata of a single artifact file -- result of [`listartifacts`](@ref).
 
 # Fields
 - `filepath::String`: File path, including the root artifact directory of a run.
@@ -251,7 +251,7 @@ get_size(mlfafi::MLFlowArtifactFileInfo) = mlfafi.filesize
 """
     MLFlowArtifactDirInfo
 
-Metadata of a single artifact directory.
+Metadata of a single artifact directory -- result of [`listartifacts`](@ref).
 
 # Fields
 - `dirpath::String`: Directory path, including the root artifact directory of a run.
