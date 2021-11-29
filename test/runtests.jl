@@ -103,6 +103,33 @@ end
     @test deleteexperiment(mlf, exp)
 end
 
+@testset "artifacts" begin
+    @ensuremlf
+    exp = createexperiment(mlf)
+    @test isa(exp, MLFlowExperiment)
+    exprun = createrun(mlf, exp)
+    @test isa(exprun, MLFlowRun)
+
+    @test_throws SystemError logartifact(mlf, exprun, "/etc/shadow")
+
+    tmpfiletoupload = tempname()
+    f = open(tmpfiletoupload, "w")
+    write(f, "samplecontents")
+    close(f)
+    artifactpath = logartifact(mlf, exprun, tmpfiletoupload)
+    @test isfile(artifactpath)
+    rm(tmpfiletoupload)
+
+    artifactpath = logartifact(mlf, exprun, "randbytes.bin", b"some rand bytes here")
+    @test isfile(artifactpath)
+
+    artifactlist = listartifacts(mlf, exprun)
+    @test length(artifactlist) == 2
+
+    deleterun(mlf, exprun)
+    deleteexperiment(mlf, exp)
+end
+
 @testset "MLFlowClient.jl" begin
     @ensuremlf
     exp = createexperiment(mlf)
@@ -137,18 +164,6 @@ end
     retrieved_run = getrun(mlf, exprunid)
     @test exprun.info == retrieved_run.info
 
-    tmpfiletoupload = tempname()
-    f = open(tmpfiletoupload, "w")
-    write(f, "samplecontents")
-    close(f)
-    artifactpath = logartifact(mlf, retrieved_run, tmpfiletoupload)
-    @test isfile(artifactpath)
-    @test_throws SystemError logartifact(mlf, retrieved_run, "/etc/shadow")
-    rm(tmpfiletoupload)
-
-    artifactpath = logartifact(mlf, retrieved_run, "randbytes.bin", b"some rand bytes here")
-    @test isfile(artifactpath)
-
     running_run = updaterun(mlf, exprunid, "RUNNING")
     @test running_run.info.experiment_id == experiment_id
     @test running_run.info.status == MLFlowRunStatus("RUNNING")
@@ -177,5 +192,3 @@ end
 
     deleteexperiment(mlf, exp)
 end
-
-

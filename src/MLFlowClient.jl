@@ -52,10 +52,7 @@ export
     getrun,
     updaterun,
     deleterun,
-    searchruns
-
-include("logging.jl")
-export
+    searchruns,
     logparam,
     logmetric,
     logartifact
