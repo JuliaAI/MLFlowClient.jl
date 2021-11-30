@@ -127,6 +127,7 @@ end
     # when running mlflow in a container, the below tests will be skipped
     # this is what happens in github actions - mlflow runs in a container, the artifact_uri is not immediately available, and tests are skipped
     artifact_uri = exprun.info.artifact_uri
+    @show artifact_uri
     if isdir(artifact_uri)
         mkdir(joinpath(artifact_uri, "newdir"))
         artifactpath = logartifact(mlf, exprun, joinpath("newdir", "randbytesindir.bin"), b"bytes here")
