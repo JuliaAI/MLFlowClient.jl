@@ -122,51 +122,56 @@ end
     artifactpath = logartifact(mlf, exprun, "randbytes.bin", b"some rand bytes here")
     @test isfile(artifactpath)
 
+    # only run the below if artifact_uri is a local directory
+    # i.e. when running mlflow server as a separate process next to the testset
+    # when running mlflow in a container, the below tests will be skipped
+    # this is what happens in github actions - mlflow runs in a container, the artifact_uri is not immediately available, and tests are skipped
     artifact_uri = exprun.info.artifact_uri
-    mkdir(joinpath(artifact_uri, "newdir"))
-    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "randbytesindir.bin"), b"bytes here")
-    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "randbytesindir2.bin"), b"bytes here")
-    mkdir(joinpath(artifact_uri, "newdir", "new2"))
-    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "randbytesindir.bin"), b"bytes here")
-    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "randbytesindir2.bin"), b"bytes here")
-    mkdir(joinpath(artifact_uri, "newdir", "new2", "new3"))
-    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "randbytesindir.bin"), b"bytes here")
-    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "randbytesindir2.bin"), b"bytes here")
-    mkdir(joinpath(artifact_uri, "newdir", "new2", "new3", "new4"))
-    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "new4", "randbytesindir.bin"), b"bytes here")
-    artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "new4", "randbytesindir2.bin"), b"bytes here")
+    if isdir(artifact_uri)
+        mkdir(joinpath(artifact_uri, "newdir"))
+        artifactpath = logartifact(mlf, exprun, joinpath("newdir", "randbytesindir.bin"), b"bytes here")
+        artifactpath = logartifact(mlf, exprun, joinpath("newdir", "randbytesindir2.bin"), b"bytes here")
+        mkdir(joinpath(artifact_uri, "newdir", "new2"))
+        artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "randbytesindir.bin"), b"bytes here")
+        artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "randbytesindir2.bin"), b"bytes here")
+        mkdir(joinpath(artifact_uri, "newdir", "new2", "new3"))
+        artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "randbytesindir.bin"), b"bytes here")
+        artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "randbytesindir2.bin"), b"bytes here")
+        mkdir(joinpath(artifact_uri, "newdir", "new2", "new3", "new4"))
+        artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "new4", "randbytesindir.bin"), b"bytes here")
+        artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "new4", "randbytesindir2.bin"), b"bytes here")
 
-    # artifact tree should now look like this:
-    # 
-    # ├── newdir
-    # │   ├── new2
-    # │   │   ├── new3
-    # │   │   │   ├── new4
-    # │   │   │   │   ├── randbytesindir2.bin
-    # │   │   │   │   └── randbytesindir.bin
-    # │   │   │   ├── randbytesindir2.bin
-    # │   │   │   └── randbytesindir.bin
-    # │   │   ├── randbytesindir2.bin
-    # │   │   └── randbytesindir.bin
-    # │   ├── randbytesindir2.bin
-    # │   └── randbytesindir.bin
-    # ├── randbytes.bin
-    # └── sometempfilename.txt
+        # artifact tree should now look like this:
+        # 
+        # ├── newdir
+        # │   ├── new2
+        # │   │   ├── new3
+        # │   │   │   ├── new4
+        # │   │   │   │   ├── randbytesindir2.bin
+        # │   │   │   │   └── randbytesindir.bin
+        # │   │   │   ├── randbytesindir2.bin
+        # │   │   │   └── randbytesindir.bin
+        # │   │   ├── randbytesindir2.bin
+        # │   │   └── randbytesindir.bin
+        # │   ├── randbytesindir2.bin
+        # │   └── randbytesindir.bin
+        # ├── randbytes.bin
+        # └── sometempfilename.txt
 
-    # 4 directories, 10 files
+        # 4 directories, 10 files
 
-    artifactlist = listartifacts(mlf, exprun)
-    @test sort(basename.(get_path.(artifactlist))) == ["newdir", "randbytes.bin", "sometempfilename.txt"]
-    @test sort(get_size.(artifactlist)) == [0, 14, 20]
+        artifactlist = listartifacts(mlf, exprun)
+        @test sort(basename.(get_path.(artifactlist))) == ["newdir", "randbytes.bin", "sometempfilename.txt"]
+        @test sort(get_size.(artifactlist)) == [0, 14, 20]
 
-    ald2 = listartifacts(mlf, exprun, maxdepth=2)
-    @test length(ald2) == 6
-    @test sort(basename.(get_path.(ald2))) == ["new2", "newdir", "randbytes.bin", "randbytesindir.bin", "randbytesindir2.bin", "sometempfilename.txt"]
-    aldrecursion = listartifacts(mlf, exprun, maxdepth=-1)
-    @test length(aldrecursion) == 14 # 4 directories, 10 files
-    @test sum(typeof.(aldrecursion) .== MLFlowArtifactDirInfo) == 4 # 4 directories
-    @test sum(typeof.(aldrecursion) .== MLFlowArtifactFileInfo) == 10 # 10 files
-
+        ald2 = listartifacts(mlf, exprun, maxdepth=2)
+        @test length(ald2) == 6
+        @test sort(basename.(get_path.(ald2))) == ["new2", "newdir", "randbytes.bin", "randbytesindir.bin", "randbytesindir2.bin", "sometempfilename.txt"]
+        aldrecursion = listartifacts(mlf, exprun, maxdepth=-1)
+        @test length(aldrecursion) == 14 # 4 directories, 10 files
+        @test sum(typeof.(aldrecursion) .== MLFlowArtifactDirInfo) == 4 # 4 directories
+        @test sum(typeof.(aldrecursion) .== MLFlowArtifactFileInfo) == 10 # 10 files
+    end
     deleterun(mlf, exprun)
     deleteexperiment(mlf, exp)
 end
