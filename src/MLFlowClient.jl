@@ -32,7 +32,11 @@ export
     MLFlowRunDataMetric,
     MLFlowRun,
     get_info,
-    get_data
+    get_data,
+    MLFlowArtifactFileInfo,
+    MLFlowArtifactDirInfo,
+    get_path,
+    get_size
 
 include("utils.jl")
 export
@@ -52,12 +56,10 @@ export
     getrun,
     updaterun,
     deleterun,
-    searchruns
-
-include("logging.jl")
-export
+    searchruns,
     logparam,
     logmetric,
-    logartifact
+    logartifact,
+    listartifacts
 
 end
