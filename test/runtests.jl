@@ -109,26 +109,24 @@ end
     @test isa(exp, MLFlowExperiment)
     exprun = createrun(mlf, exp)
     @test isa(exprun, MLFlowRun)
-    emptyrun = createrun(mlf, exp)
-    @test_throws SystemError logartifact(mlf, exprun, "/etc/shadow")
-
-    tmpfiletoupload = "sometempfilename.txt"
-    f = open(tmpfiletoupload, "w")
-    write(f, "samplecontents")
-    close(f)
-    artifactpath = logartifact(mlf, exprun, tmpfiletoupload)
-    @test isfile(artifactpath)
-    rm(tmpfiletoupload)
-    artifactpath = logartifact(mlf, exprun, "randbytes.bin", b"some rand bytes here")
-    @test isfile(artifactpath)
-
     # only run the below if artifact_uri is a local directory
     # i.e. when running mlflow server as a separate process next to the testset
     # when running mlflow in a container, the below tests will be skipped
     # this is what happens in github actions - mlflow runs in a container, the artifact_uri is not immediately available, and tests are skipped
     artifact_uri = exprun.info.artifact_uri
-    @show artifact_uri
     if isdir(artifact_uri)
+        @test_throws SystemError logartifact(mlf, exprun, "/etc/shadow")
+
+        tmpfiletoupload = "sometempfilename.txt"
+        f = open(tmpfiletoupload, "w")
+        write(f, "samplecontents")
+        close(f)
+        artifactpath = logartifact(mlf, exprun, tmpfiletoupload)
+        @test isfile(artifactpath)
+        rm(tmpfiletoupload)
+        artifactpath = logartifact(mlf, exprun, "randbytes.bin", b"some rand bytes here")
+        @test isfile(artifactpath)
+
         mkdir(joinpath(artifact_uri, "newdir"))
         artifactpath = logartifact(mlf, exprun, joinpath("newdir", "randbytesindir.bin"), b"bytes here")
         artifactpath = logartifact(mlf, exprun, joinpath("newdir", "randbytesindir2.bin"), b"bytes here")
