@@ -97,6 +97,7 @@ end
     @test length(findrun) == 1
     r = only(findrun)
     @test get_run_id(get_info(r)) == exprun.info.run_id
+    @test get_run_id(r) == get_run_id(get_info(r))
     @test sort(collect(keys(get_params(get_data(r))))) == sort(string.(keys(runparams)))
     @test sort(collect(values(get_params(get_data(r))))) == sort(string.(values(runparams)))
 
