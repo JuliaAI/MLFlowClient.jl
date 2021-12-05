@@ -231,6 +231,7 @@ Base.show(io::IO, t::MLFlowRun) = show(io, ShowCase(t, new_lines=true))
 get_info(run::MLFlowRun) = run.info
 get_data(run::MLFlowRun) = run.data
 get_run_id(run::MLFlowRun) = get_run_id(run.info)
+get_params(run::MLFlowRun) = get_params(run.data)
 
 """
     MLFlowArtifactFileInfo
