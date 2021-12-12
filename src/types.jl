@@ -25,6 +25,7 @@ struct MLFlow
 end
 MLFlow(baseuri; apiversion=2.0) = MLFlow(baseuri, apiversion)
 MLFlow() = MLFlow("http://localhost:5000", 2.0)
+Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, new_lines=true))
 
 """
     MLFlowExperiment
@@ -59,7 +60,7 @@ function MLFlowExperiment(exp::Dict{String,Any})
     artifact_location = get(exp, "artifact_location", missing)
     MLFlowExperiment(name, lifecycle_stage, experiment_id, tags, artifact_location)
 end
-
+Base.show(io::IO, t::MLFlowExperiment) = show(io, ShowCase(t, new_lines=true))
 
 """
     MLFlowRunStatus
@@ -81,6 +82,7 @@ struct MLFlowRunStatus
         new(status)
     end
 end
+Base.show(io::IO, t::MLFlowRunStatus) = show(io, ShowCase(t, new_lines=true))
 
 """
     MLFlowRunInfo
@@ -126,6 +128,7 @@ function MLFlowRunInfo(info::Dict{String,Any})
 
     MLFlowRunInfo(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)
 end
+Base.show(io::IO, t::MLFlowRunInfo) = show(io, ShowCase(t, new_lines=true))
 get_run_id(runinfo::MLFlowRunInfo) = runinfo.run_id
 
 """
@@ -157,7 +160,7 @@ function MLFlowRunDataMetric(d::Dict{String,Any})
     timestamp = parse(Int64, d["timestamp"])
     MLFlowRunDataMetric(key, value, step, timestamp)
 end
-
+Base.show(io::IO, t::MLFlowRunDataMetric) = show(io, ShowCase(t, new_lines=true))
 
 """
     MLFlowRunData
@@ -165,7 +168,7 @@ end
 Represents run data.
 
 # Fields
-- `metrics::Vector{MLFlowRunDataMetric}`: run metrics.
+- `metrics::Dict{String,MLFlowRunDataMetric}`: run metrics.
 - `params::Dict{String,String}`: run parameters.
 - `tags`: list of run tags.
 
@@ -175,12 +178,18 @@ Represents run data.
 
 """
 struct MLFlowRunData
-    metrics::Vector{MLFlowRunDataMetric}
+    metrics::Dict{String,MLFlowRunDataMetric}
     params::Union{Dict{String,String},Missing}
     tags
 end
 function MLFlowRunData(data::Dict{String,Any})
-    metrics = haskey(data, "metrics") ? MLFlowRunDataMetric.(data["metrics"]) : MLFlowRunDataMetric[]
+    metrics = Dict{String,MLFlowRunDataMetric}()
+    if haskey(data, "metrics")
+        for metric in data["metrics"]
+            v = MLFlowRunDataMetric(metric)
+            metrics[v.key] = v
+        end
+    end
     if haskey(data, "params")
         params = Dict{String,String}()
         for p in data["params"]
@@ -192,6 +201,7 @@ function MLFlowRunData(data::Dict{String,Any})
     tags = haskey(data, "tags") ? data["tags"] : missing
     MLFlowRunData(metrics, params, tags)
 end
+Base.show(io::IO, t::MLFlowRunData) = show(io, ShowCase(t, new_lines=true))
 get_params(rundata::MLFlowRunData) = rundata.params
 
 """
@@ -223,5 +233,40 @@ MLFlowRun(info::Dict{String,Any}) =
     MLFlowRun(MLFlowRunInfo(info), missing)
 MLFlowRun(info::Dict{String,Any}, data::Dict{String,Any}) =
     MLFlowRun(MLFlowRunInfo(info), MLFlowRunData(data))
+Base.show(io::IO, t::MLFlowRun) = show(io, ShowCase(t, new_lines=true))
 get_info(run::MLFlowRun) = run.info
 get_data(run::MLFlowRun) = run.data
+get_run_id(run::MLFlowRun) = get_run_id(run.info)
+get_params(run::MLFlowRun) = get_params(run.data)
+
+"""
+    MLFlowArtifactFileInfo
+
+Metadata of a single artifact file -- result of [`listartifacts`](@ref).
+
+# Fields
+- `filepath::String`: File path, including the root artifact directory of a run.
+- `filesize::Int64`: Size in bytes.
+"""
+struct MLFlowArtifactFileInfo
+    filepath::String
+    filesize::Int64
+end
+Base.show(io::IO, t::MLFlowArtifactFileInfo) = show(io, ShowCase(t, new_lines=true))
+get_path(mlfafi::MLFlowArtifactFileInfo) = mlfafi.filepath
+get_size(mlfafi::MLFlowArtifactFileInfo) = mlfafi.filesize
+
+"""
+    MLFlowArtifactDirInfo
+
+Metadata of a single artifact directory -- result of [`listartifacts`](@ref).
+
+# Fields
+- `dirpath::String`: Directory path, including the root artifact directory of a run.
+"""
+struct MLFlowArtifactDirInfo
+    dirpath::String
+end
+Base.show(io::IO, t::MLFlowArtifactDirInfo) = show(io, ShowCase(t, new_lines=true))
+get_path(mlfadi::MLFlowArtifactDirInfo) = mlfadi.dirpath
+get_size(mlfadi::MLFlowArtifactDirInfo) = 0
