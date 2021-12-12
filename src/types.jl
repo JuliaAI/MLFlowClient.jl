@@ -168,7 +168,7 @@ Base.show(io::IO, t::MLFlowRunDataMetric) = show(io, ShowCase(t, new_lines=true)
 Represents run data.
 
 # Fields
-- `metrics::Vector{MLFlowRunDataMetric}`: run metrics.
+- `metrics::Dict{String,MLFlowRunDataMetric}`: run metrics.
 - `params::Dict{String,String}`: run parameters.
 - `tags`: list of run tags.
 
@@ -178,12 +178,18 @@ Represents run data.
 
 """
 struct MLFlowRunData
-    metrics::Vector{MLFlowRunDataMetric}
+    metrics::Dict{String,MLFlowRunDataMetric}
     params::Union{Dict{String,String},Missing}
     tags
 end
 function MLFlowRunData(data::Dict{String,Any})
-    metrics = haskey(data, "metrics") ? MLFlowRunDataMetric.(data["metrics"]) : MLFlowRunDataMetric[]
+    metrics = Dict{String,MLFlowRunDataMetric}()
+    if haskey(data, "metrics")
+        for metric in data["metrics"]
+            v = MLFlowRunDataMetric(metric)
+            metrics[v.key] = v
+        end
+    end
     if haskey(data, "params")
         params = Dict{String,String}()
         for p in data["params"]
