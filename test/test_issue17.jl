@@ -15,4 +15,5 @@ include("test_base.jl")
             )
         ]
     )
+    @test isa(mlf_run, MLFlowRun)
 end
