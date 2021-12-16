@@ -123,9 +123,14 @@ function MLFlowRunInfo(info::Dict{String,Any})
 
     experiment_id = ismissing(experiment_id) ? experiment_id : parse(Int64, experiment_id)
     status = ismissing(status) ? status : MLFlowRunStatus(status)
-    start_time = ismissing(start_time) ? start_time : parse(Int64, start_time)
-    end_time = ismissing(end_time) ? end_time : parse(Int64, end_time)
 
+    # support for mlflow 1.21.0
+    if !ismissing(start_time) && !(typeof(start_time) <: Int)
+        start_time = parse(Int64, start_time)
+    end
+    if !ismissing(end_time) && !(typeof(end_time) <: Int)
+        end_time = parse(Int64, end_time)
+    end
     MLFlowRunInfo(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)
 end
 Base.show(io::IO, t::MLFlowRunInfo) = show(io, ShowCase(t, new_lines=true))
@@ -156,8 +161,16 @@ end
 function MLFlowRunDataMetric(d::Dict{String,Any})
     key = d["key"]
     value = d["value"]
-    step = parse(Int64, d["step"])
-    timestamp = parse(Int64, d["timestamp"])
+    if typeof(d["step"]) <: Int
+        step = d["step"]
+    else
+        step = parse(Int64, d["step"])
+    end
+    if typeof(d["timestamp"]) <: Int
+        timestamp = d["timestamp"]
+    else
+        timestamp = parse(Int64, d["timestamp"])
+    end
     MLFlowRunDataMetric(key, value, step, timestamp)
 end
 Base.show(io::IO, t::MLFlowRunDataMetric) = show(io, ShowCase(t, new_lines=true))
