@@ -19,7 +19,7 @@ function createrun(mlf::MLFlow, experiment_id; start_time=missing, tags=missing)
     if ismissing(start_time)
         start_time = Int(trunc(datetime2unix(now()) * 1000))
     end
-    result = mlfpost(mlf, endpoint; experiment_id=experiment_id, start_time=string(start_time), tags=tags)
+    result = mlfpost(mlf, endpoint; experiment_id=experiment_id, start_time=start_time, tags=tags)
     MLFlowRun(result["run"]["info"], result["run"]["data"])
 end
 """
@@ -356,7 +356,12 @@ function listartifacts(mlf::MLFlow, run_id::String; path::String="", maxdepth::I
     for resultentry ∈ httpresult["files"]
         if resultentry["is_dir"] == false
             filepath = joinpath(root_uri, resultentry["path"])
-            filesize = parse(Int, resultentry["file_size"])
+            file_size = resultentry["file_size"]
+            if typeof(file_size) <: Int
+                filesize = file_size
+            else
+                filesize = parse(Int, file_size)
+            end
             push!(result, MLFlowArtifactFileInfo(filepath, filesize))
         elseif resultentry["is_dir"] == true
             dirpath = joinpath(root_uri, resultentry["path"])
