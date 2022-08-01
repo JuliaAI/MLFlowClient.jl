@@ -4,9 +4,17 @@ include("test_base.jl")
     mlf = MLFlow()
     @test mlf.baseuri == "http://localhost:5000"
     @test mlf.apiversion == 2.0
+    @test mlf.headers == Dict()
     mlf = MLFlow("https://localhost:5001", apiversion=3.0)
     @test mlf.baseuri == "https://localhost:5001"
     @test mlf.apiversion == 3.0
+    @test mlf.headers == Dict()
+    let custom_headers=Dict("Authorization"=>"Bearer EMPTY")
+        mlf = MLFLow("https://localhost:5001", apiversion=3.0,headers=custom_headers)
+        @test mlf.baseuri == "https://localhost:5001"
+        @test mlf.apiversion == 3.0
+        @test mlf.headers == custom_headers
+    end
 end
 
 @testset "createexperiment" begin

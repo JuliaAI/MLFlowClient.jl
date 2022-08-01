@@ -6,10 +6,11 @@ Base type which defines location and version for MLFlow API service.
 # Fields
 - `baseuri::String`: base MLFlow tracking URI, e.g. `http://localhost:5000`
 - `apiversion`: used API version, e.g. `2.0`
+- `headers`: HTTP headers to be provided with the REST API requests (useful for authetication tokens)
 
 # Constructors
 
-- `MLFlow(baseuri; apiversion=2.0)`
+- `MLFlow(baseuri; apiversion=2.0,headers=Dict())`
 - `MLFlow()` - defaults to `MLFlow("http://localhost:5000")`
 
 # Examples
@@ -18,14 +19,21 @@ Base type which defines location and version for MLFlow API service.
 mlf = MLFlow()
 ```
 
+```@example
+ENV["DATABRICKS_HOST"]="https://<your-server>.cloud.databricks.com"; # address of your remote server
+ENV["DATABRICKS_TOKEN"]="<your-secret-PAT>"; # Personal Access Token
+mlf = MLFlow(ENV["DATABRICKS_HOST"]; headers=Dict("Authorization" => "Bearer $(ENV["DATABRICKS_TOKEN"])"))
+```
+
 """
 struct MLFlow
     baseuri::String
     apiversion
+    headers::Dict
 end
-MLFlow(baseuri; apiversion=2.0) = MLFlow(baseuri, apiversion)
-MLFlow() = MLFlow("http://localhost:5000", 2.0)
-Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, new_lines=true))
+MLFlow(baseuri; apiversion=2.0,headers=Dict()) = MLFlow(baseuri, apiversion,headers)
+MLFlow() = MLFlow("http://localhost:5000", 2.0, Dict())
+Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, [:baseuri,:apiversion], new_lines=true))
 
 """
     MLFlowExperiment

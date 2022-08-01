@@ -15,15 +15,22 @@ function uri(mlf::MLFlow, endpoint="", query=missing)
 end
 
 """
+    headers(mlf::MLFlow,custom_headers::AbstractDict)
+
+Retrieves HTTP headers based on `mlf` and merges with user-provided `custom_headers`
+"""
+headers(mlf::MLFlow,custom_headers::AbstractDict)=merge(mlf.headers, custom_headers)
+
+"""
     mlfget(mlf, endpoint; kwargs...)
 
 Performs a HTTP GET to a specifid endpoint. kwargs are turned into GET params.
 """
 function mlfget(mlf, endpoint; kwargs...)
     apiuri = uri(mlf, endpoint, kwargs)
-    headers = ["Content-Type: application/json"]
+    apiheaders = headers(mlf,Dict("Content-Type"=>"application/json"))
     try
-        response = HTTP.get(apiuri, headers)
+        response = HTTP.get(apiuri, apiheaders)
         return JSON.parse(String(response.body))
     catch e
         throw(e)
@@ -37,10 +44,10 @@ Performs a HTTP POST to the specified endpoint. kwargs are converted to JSON and
 """
 function mlfpost(mlf, endpoint; kwargs...)
     apiuri = uri(mlf, endpoint)
-    headers = ["Content-Type: application/json"]
+    apiheaders = headers(mlf,Dict("Content-Type"=>"application/json"))
     body = JSON.json(kwargs)
     try
-        response = HTTP.post(apiuri, headers, body)
+        response = HTTP.post(apiuri, apiheaders, body)
         return JSON.parse(String(response.body))
     catch e
         throw(e)
