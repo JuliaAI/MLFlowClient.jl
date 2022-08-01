@@ -10,10 +10,26 @@ include("test_base.jl")
     @test mlf.apiversion == 3.0
     @test mlf.headers == Dict()
     let custom_headers=Dict("Authorization"=>"Bearer EMPTY")
-        mlf = MLFLow("https://localhost:5001", apiversion=3.0,headers=custom_headers)
+        mlf = MLFlow("https://localhost:5001", apiversion=3.0,headers=custom_headers)
         @test mlf.baseuri == "https://localhost:5001"
         @test mlf.apiversion == 3.0
         @test mlf.headers == custom_headers
+    end
+end
+
+# test that sensitive fields are not displayed by show()
+@testset "MLFLow/show" begin
+    let io=IOBuffer(),
+        secret_token="SECRET"
+
+        custom_headers=Dict("Authorization"=>"Bearer $secret_token")
+        mlf = MLFlow("https://localhost:5001", apiversion=3.0,headers=custom_headers)
+        @test mlf.baseuri == "https://localhost:5001"
+        @test mlf.apiversion == 3.0
+        @test mlf.headers == custom_headers
+        show(io,mlf)
+        show_output=String(take!(io))
+        @test !(occursin(secret_token,show_output))
     end
 end
 

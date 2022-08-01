@@ -20,9 +20,8 @@ mlf = MLFlow()
 ```
 
 ```@example
-ENV["DATABRICKS_HOST"]="https://<your-server>.cloud.databricks.com"; # address of your remote server
-ENV["DATABRICKS_TOKEN"]="<your-secret-PAT>"; # Personal Access Token
-mlf = MLFlow(ENV["DATABRICKS_HOST"]; headers=Dict("Authorization" => "Bearer $(ENV["DATABRICKS_TOKEN"])"))
+remote_url="https://<your-server>.cloud.databricks.com"; # address of your remote server
+mlf = MLFlow(remote_url, headers=Dict("Authorization" => "Bearer <your-secret-token>"))
 ```
 
 """
