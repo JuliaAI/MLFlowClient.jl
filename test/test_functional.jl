@@ -4,9 +4,49 @@ include("test_base.jl")
     mlf = MLFlow()
     @test mlf.baseuri == "http://localhost:5000"
     @test mlf.apiversion == 2.0
+    @test mlf.headers == Dict()
     mlf = MLFlow("https://localhost:5001", apiversion=3.0)
     @test mlf.baseuri == "https://localhost:5001"
     @test mlf.apiversion == 3.0
+    @test mlf.headers == Dict()
+    let custom_headers=Dict("Authorization"=>"Bearer EMPTY")
+        mlf = MLFlow("https://localhost:5001", apiversion=3.0,headers=custom_headers)
+        @test mlf.baseuri == "https://localhost:5001"
+        @test mlf.apiversion == 3.0
+        @test mlf.headers == custom_headers
+    end
+end
+
+# test that sensitive fields are not displayed by show()
+@testset "MLFLow/show" begin
+    let io=IOBuffer(),
+        secret_token="SECRET"
+
+        custom_headers=Dict("Authorization"=>"Bearer $secret_token")
+        mlf = MLFlow("https://localhost:5001", apiversion=3.0,headers=custom_headers)
+        @test mlf.baseuri == "https://localhost:5001"
+        @test mlf.apiversion == 3.0
+        @test mlf.headers == custom_headers
+        show(io,mlf)
+        show_output=String(take!(io))
+        @test !(occursin(secret_token,show_output))
+    end
+end
+
+@testset "utils" begin
+    using MLFlowClient: uri, headers
+    using URIs: URI
+    let baseuri = "http://localhost:5001", apiversion = "2.0", endpoint = "experiments/get"
+        mlf = MLFlow(baseuri; apiversion)
+        apiuri = uri(mlf, endpoint)
+        @test apiuri == URI("$baseuri/api/$apiversion/mlflow/$endpoint")
+    end
+    let baseuri = "http://localhost:5001", auth_headers = Dict("Authorization" => "Bearer 123456"),
+        custom_headers = Dict("Content-Type" => "application/json")
+        mlf = MLFlow(baseuri; headers=auth_headers)
+        apiheaders = headers(mlf, custom_headers)
+        @test apiheaders == Dict("Authorization" => "Bearer 123456", "Content-Type" => "application/json")
+    end
 end
 
 @testset "createexperiment" begin
@@ -120,7 +160,7 @@ end
         artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "new4", "randbytesindir2.bin"), b"bytes here")
 
         # artifact tree should now look like this:
-        # 
+        #
         # ├── newdir
         # │   ├── new2
         # │   │   ├── new3
@@ -193,7 +233,7 @@ end
     @test running_run.info.status == MLFlowRunStatus("RUNNING")
     finished_run = updaterun(mlf, exprun, MLFlowRunStatus("FINISHED"))
     finishedrun = getrun(mlf, finished_run.info.run_id)
-    
+
     @test !ismissing(finishedrun.info.end_time)
 
     exprun2 = createrun(mlf, experiment_id)

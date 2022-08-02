@@ -6,8 +6,8 @@ include("test_base.jl")
 
     mlf_experiment = getorcreateexperiment(mlf, "issue17")
     mlf_run = createrun(
-        mlf, 
-        mlf_experiment, 
+        mlf,
+        mlf_experiment,
         tags=[
             Dict(
                 "key" => "mlflow.runName",
