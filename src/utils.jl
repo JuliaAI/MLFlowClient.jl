@@ -18,6 +18,11 @@ end
     headers(mlf::MLFlow,custom_headers::AbstractDict)
 
 Retrieves HTTP headers based on `mlf` and merges with user-provided `custom_headers`
+
+# Examples
+```@example
+headers(mlf,Dict("Content-Type"=>"application/json"))
+```
 """
 headers(mlf::MLFlow,custom_headers::AbstractDict)=merge(mlf.headers, custom_headers)
 

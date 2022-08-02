@@ -33,6 +33,22 @@ end
     end
 end
 
+@testset "utils" begin
+    using MLFlowClient: uri, headers
+    using URIs: URI
+    let baseuri = "http://localhost:5001", apiversion = "2.0", endpoint = "experiments/get"
+        mlf = MLFlow(baseuri; apiversion)
+        apiuri = uri(mlf, endpoint)
+        @test apiuri == URI("$baseuri/api/$apiversion/mlflow/$endpoint")
+    end
+    let baseuri = "http://localhost:5001", auth_headers = Dict("Authorization" => "Bearer 123456"),
+        custom_headers = Dict("Content-Type" => "application/json")
+        mlf = MLFlow(baseuri; headers=auth_headers)
+        apiheaders = headers(mlf, custom_headers)
+        @test apiheaders == Dict("Authorization" => "Bearer 123456", "Content-Type" => "application/json")
+    end
+end
+
 @testset "createexperiment" begin
     @ensuremlf
     exp = createexperiment(mlf)
@@ -144,7 +160,7 @@ end
         artifactpath = logartifact(mlf, exprun, joinpath("newdir", "new2", "new3", "new4", "randbytesindir2.bin"), b"bytes here")
 
         # artifact tree should now look like this:
-        # 
+        #
         # ├── newdir
         # │   ├── new2
         # │   │   ├── new3
@@ -217,7 +233,7 @@ end
     @test running_run.info.status == MLFlowRunStatus("RUNNING")
     finished_run = updaterun(mlf, exprun, MLFlowRunStatus("FINISHED"))
     finishedrun = getrun(mlf, finished_run.info.run_id)
-    
+
     @test !ismissing(finishedrun.info.end_time)
 
     exprun2 = createrun(mlf, experiment_id)
