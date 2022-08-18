@@ -14,7 +14,7 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
 FilePathsBase = "0.9"
-HTTP = "0.9"
+HTTP = "0.9,1.2"
 JSON = "0.21"
 ShowCases = "0.1"
 URIs = "1"
