@@ -17,7 +17,7 @@ Creates a run associated to an experiment.
 function createrun(mlf::MLFlow, experiment_id; start_time=missing, tags=missing)
     endpoint = "runs/create"
     if ismissing(start_time)
-        start_time = Int(trunc(datetime2unix(now()) * 1000))
+        start_time = Int(trunc(datetime2unix(now(UTC)) * 1000))
     end
     result = mlfpost(mlf, endpoint; experiment_id=experiment_id, start_time=start_time, tags=tags)
     MLFlowRun(result["run"]["info"], result["run"]["data"])
@@ -69,7 +69,7 @@ function updaterun(mlf::MLFlow, run_id::String, status::MLFlowRunStatus; end_tim
         :end_time => end_time
     )
     if ismissing(end_time) && status.status == "FINISHED"
-        end_time = Int(trunc(datetime2unix(now()) * 1000))
+        end_time = Int(trunc(datetime2unix(now(UTC)) * 1000))
         kwargs[:end_time] = string(end_time)
     end
     result = mlfpost(mlf, endpoint; kwargs...)
@@ -233,7 +233,7 @@ Logs a metric value (or values) against a particular run.
 function logmetric(mlf::MLFlow, run_id::String, key, value::T; timestamp=missing, step=missing) where T<:Real
     endpoint = "runs/log-metric"
     if ismissing(timestamp)
-        timestamp = Int(trunc(datetime2unix(now()) * 1000))
+        timestamp = Int(trunc(datetime2unix(now(UTC)) * 1000))
     end
     mlfpost(mlf, endpoint; run_id=run_id, key=key, value=value, timestamp=timestamp, step=step)
 end

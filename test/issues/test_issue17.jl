@@ -1,5 +1,5 @@
 # Addresses https://github.com/JuliaAI/MLFlowClient.jl/issues/17
-include("test_base.jl")
+include("../test_base.jl")
 
 @testset "Issue17" begin
     @ensuremlf
