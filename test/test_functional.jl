@@ -75,11 +75,13 @@ end
 @testset "getorcreateexperiment" begin
     @ensuremlf
     expname = "getorcreate"
-    e = getorcreateexperiment(mlf, expname)
+    artifact_location = "test$(expname)"
+    e = getorcreateexperiment(mlf, expname; artifact_location=artifact_location)
     @test isa(e, MLFlowExperiment)
     ee = getorcreateexperiment(mlf, expname)
     @test isa(ee, MLFlowExperiment)
     @test e === ee
+    @test occursin(artifact_location, e.artifact_location)
     @test deleteexperiment(mlf, ee)
     @test deleteexperiment(mlf, ee)
 end

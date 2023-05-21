@@ -83,22 +83,24 @@ function _getexperimentbyname(mlf::MLFlow, experiment_name::String)
 end
 
 """
-    getorcreateexperiment(mlf::MLFlow, experiment_name::String)
+    getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags=missing)
 
 Gets an experiment if one alrady exists, or creates a new one.
 
 # Arguments
 - `mlf`: [`MLFlow`](@ref) configuration.
 - `experiment_name`: Experiment name.
+- `artifact_location`: directory where artifacts of this experiment will be stored. If not specified, MLFlow uses its default configuration.
+- `tags`: a Dictionary of key-values which tag the experiment.
 
 # Returns
 An instance of type [`MLFlowExperiment`](@ref)
 
 """
-function getorcreateexperiment(mlf::MLFlow, experiment_name::String)
+function getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags=missing)
     exp = getexperiment(mlf, experiment_name)
     if ismissing(exp)
-        exp = createexperiment(mlf, name=experiment_name)
+        exp = createexperiment(mlf, name=experiment_name, artifact_location=artifact_location, tags=tags)
     end
     exp
 end
