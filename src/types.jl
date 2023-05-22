@@ -100,6 +100,7 @@ Represents run metadata.
 - `run_id::String`: run identifier.
 - `experiment_id::Integer`: experiment identifier.
 - `status::MLFlowRunStatus`: run status.
+- `run_name::String`: run name.
 - `start_time::Union{Int64,Missing}`: when was the run started, UNIX time in milliseconds.
 - `end_time::Union{Int64,Missing}`: when did the run end, UNIX time in milliseconds.
 - `artifact_uri::String`: where are artifacts from this run stored.
@@ -107,13 +108,14 @@ Represents run metadata.
 
 # Constructors
 
-- `MLFlowRunInfo(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)`
+- `MLFlowRunInfo(run_id, experiment_id, status, run_name, start_time, end_time, artifact_uri, lifecycle_stage)`
 - `MLFlowRunInfo(info::Dict{String,Any})`
 """
 struct MLFlowRunInfo
     run_id::String
     experiment_id::Integer
     status::MLFlowRunStatus
+    run_name::String
     start_time::Union{Int64,Missing}
     end_time::Union{Int64,Missing}
     artifact_uri::String
@@ -123,6 +125,7 @@ function MLFlowRunInfo(info::Dict{String,Any})
     run_id = get(info, "run_id", missing)
     experiment_id = get(info, "experiment_id", missing)
     status = get(info, "status", missing)
+    run_name = get(info, "run_name", missing)
     start_time = get(info, "start_time", missing)
     end_time = get(info, "end_time", missing)
     artifact_uri = get(info, "artifact_uri", "")
@@ -138,7 +141,7 @@ function MLFlowRunInfo(info::Dict{String,Any})
     if !ismissing(end_time) && !(typeof(end_time) <: Int)
         end_time = parse(Int64, end_time)
     end
-    MLFlowRunInfo(run_id, experiment_id, status, start_time, end_time, artifact_uri, lifecycle_stage)
+    MLFlowRunInfo(run_id, experiment_id, status, run_name, start_time, end_time, artifact_uri, lifecycle_stage)
 end
 Base.show(io::IO, t::MLFlowRunInfo) = show(io, ShowCase(t, new_lines=true))
 get_run_id(runinfo::MLFlowRunInfo) = runinfo.run_id
