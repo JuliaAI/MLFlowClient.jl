@@ -15,7 +15,7 @@ jobs:
 
     services:
       mlflow:
-        image: adacotechjp/mlflow:1.21.0
+        image: adacotechjp/mlflow:2.3.1
         ports:
           - 5000:5000
 

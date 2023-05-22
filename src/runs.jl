@@ -1,5 +1,5 @@
 """
-    createrun(mlf::MLFlow, experiment_id; start_time=missing, tags=missing)
+    createrun(mlf::MLFlow, experiment_id; run_name=missing, start_time=missing, tags=missing)
 
 Creates a run associated to an experiment.
 
@@ -8,27 +8,28 @@ Creates a run associated to an experiment.
 - `experiment_id`: experiment identifier.
 
 # Keywords
+- `run_name`: run name. If not specified, MLFlow sets it.
 - `start_time`: if provided, must be a UNIX timestamp in milliseconds. By default, set to current time.
 - `tags`: if provided, must be a key-value structure such as a dictionary.
 
 # Returns
 - an instance of type [`MLFlowRun`](@ref)
 """
-function createrun(mlf::MLFlow, experiment_id; start_time=missing, tags=missing)
+function createrun(mlf::MLFlow, experiment_id; run_name=missing, start_time=missing, tags=missing)
     endpoint = "runs/create"
     if ismissing(start_time)
         start_time = Int(trunc(datetime2unix(now(UTC)) * 1000))
     end
-    result = mlfpost(mlf, endpoint; experiment_id=experiment_id, start_time=start_time, tags=tags)
+    result = mlfpost(mlf, endpoint; experiment_id=experiment_id, run_name=run_name, start_time=start_time, tags=tags)
     MLFlowRun(result["run"]["info"], result["run"]["data"])
 end
 """
-    createrun(mlf::MLFlow, experiment::MLFlowExperiment; start_time=missing, tags=missing)
+    createrun(mlf::MLFlow, experiment::MLFlowExperiment; run_name=missing, start_time=missing, tags=missing)
 
-Dispatches to `createrun(mlf::MLFlow, experiment_id; start_time=start_time, tags=tags)`
+Dispatches to `createrun(mlf::MLFlow, experiment_id; run_name=run_name, start_time=start_time, tags=tags)`
 """
-createrun(mlf::MLFlow, experiment::MLFlowExperiment; start_time=missing, tags=missing) =
-    createrun(mlf, experiment.experiment_id; start_time=start_time, tags=tags)
+createrun(mlf::MLFlow, experiment::MLFlowExperiment; run_name=missing, start_time=missing, tags=missing) =
+    createrun(mlf, experiment.experiment_id; run_name=run_name, start_time=start_time, tags=tags)
 
 """
     getrun(mlf::MLFlow, run_id)
@@ -59,13 +60,15 @@ Updates the status of an experiment's run.
 - `status`: either `String` and one of ["RUNNING", "SCHEDULED", "FINISHED", "FAILED", "KILLED"], or an instance of `MLFlowRunStatus`
 
 # Keywords
+- `run_name`: if provided, must be a String. By default, not set.
 - `end_time`: if provided, must be a UNIX timestamp in milliseconds. By default, set to current time.
 """
-function updaterun(mlf::MLFlow, run_id::String, status::MLFlowRunStatus; end_time=missing)
+function updaterun(mlf::MLFlow, run_id::String, status::MLFlowRunStatus; run_name=missing, end_time=missing)
     endpoint = "runs/update"
     kwargs = Dict(
         :run_id => run_id,
         :status => status.status,
+        :run_name => run_name,
         :end_time => end_time
     )
     if ismissing(end_time) && status.status == "FINISHED"
@@ -75,16 +78,16 @@ function updaterun(mlf::MLFlow, run_id::String, status::MLFlowRunStatus; end_tim
     result = mlfpost(mlf, endpoint; kwargs...)
     MLFlowRun(result["run_info"])
 end
-updaterun(mlf::MLFlow, run_id::String, status::String; end_time=missing) =
-    updaterun(mlf, run_id, MLFlowRunStatus(status); end_time=end_time)
-updaterun(mlf::MLFlow, run_info::MLFlowRunInfo, status::String; end_time=missing) =
-    updaterun(mlf, run_info.run_id, MLFlowRunStatus(status); end_time=end_time)
-updaterun(mlf::MLFlow, run::MLFlowRun, status::String; end_time=missing) =
-    updaterun(mlf, run.info, MLFlowRunStatus(status), end_time=end_time)
-updaterun(mlf::MLFlow, run_info::MLFlowRunInfo, status::MLFlowRunStatus; end_time=missing) =
-    updaterun(mlf, run_info.run_id, status, end_time=end_time)
-updaterun(mlf::MLFlow, run::MLFlowRun, status::MLFlowRunStatus; end_time=missing) =
-    updaterun(mlf, run.info, status; end_time=end_time)
+updaterun(mlf::MLFlow, run_id::String, status::String; run_name=missing, end_time=missing) =
+    updaterun(mlf, run_id, MLFlowRunStatus(status); run_name=run_name, end_time=end_time)
+updaterun(mlf::MLFlow, run_info::MLFlowRunInfo, status::String; run_name=missing, end_time=missing) =
+    updaterun(mlf, run_info.run_id, MLFlowRunStatus(status); run_name=run_name, end_time=end_time)
+updaterun(mlf::MLFlow, run::MLFlowRun, status::String; run_name=missing, end_time=missing) =
+    updaterun(mlf, run.info, MLFlowRunStatus(status); run_name=run_name, end_time=end_time)
+updaterun(mlf::MLFlow, run_info::MLFlowRunInfo, status::MLFlowRunStatus; run_name=missing, end_time=missing) =
+    updaterun(mlf, run_info.run_id, status; run_name=run_name, end_time=end_time)
+updaterun(mlf::MLFlow, run::MLFlowRun, status::MLFlowRunStatus; run_name=missing, end_time=missing) =
+    updaterun(mlf, run.info, status; run_name=run_name, end_time=end_time)
 
 """
     deleterun(mlf::MLFlow, run)

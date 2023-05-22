@@ -61,25 +61,55 @@ end
 
 @testset "createrun" begin
     @ensuremlf
-    expname = "getorcreate-$(UUIDs.uuid4())"
+    expname = "createrun-$(UUIDs.uuid4())"
+    e = getorcreateexperiment(mlf, expname)
+    runname = "run-$(UUIDs.uuid4())"
+    r = createrun(mlf, e.experiment_id; run_name=runname)
+
+    @test isa(r, MLFlowRun)
+    @test r.info.run_name == runname
+    deleteexperiment(mlf, e)
+end
+
+@testset "deleterun" begin
+    @ensuremlf
+    expname = "deleterun-$(UUIDs.uuid4())"
     e = getorcreateexperiment(mlf, expname)
     r = createrun(mlf, e.experiment_id)
-    @test isa(r, MLFlowRun)
+
     @test deleterun(mlf, r)
-    rr = createrun(mlf, e)
-    @test isa(rr, MLFlowRun)
-    @test deleterun(mlf, rr)
-    @test deleteexperiment(mlf, e)
+    deleteexperiment(mlf, e)
+end
+
+@testset "updaterun" begin
+    @ensuremlf
+    expname = "updaterun-$(UUIDs.uuid4())"
+    e = getorcreateexperiment(mlf, expname)
+    runname = "run-$(UUIDs.uuid4())"
+    r = createrun(mlf, e.experiment_id; run_name=runname)
+
+    new_runname = "new_updaterun-$(UUIDs.uuid4())"
+    new_status = "FINISHED"
+    r_updated = updaterun(mlf, r, new_status; run_name=new_runname)
+
+    @test isa(r_updated, MLFlowRun)
+    @test r_updated.info.run_name != r.info.run_name
+    @test r_updated.info.status.status != r.info.status
+    @test r_updated.info.run_name == new_runname
+    @test r_updated.info.status.status == new_status
+    deleteexperiment(mlf, e)
 end
 
 @testset "getorcreateexperiment" begin
     @ensuremlf
     expname = "getorcreate"
-    e = getorcreateexperiment(mlf, expname)
+    artifact_location = "test$(expname)"
+    e = getorcreateexperiment(mlf, expname; artifact_location=artifact_location)
     @test isa(e, MLFlowExperiment)
     ee = getorcreateexperiment(mlf, expname)
     @test isa(ee, MLFlowExperiment)
     @test e === ee
+    @test occursin(artifact_location, e.artifact_location)
     @test deleteexperiment(mlf, ee)
     @test deleteexperiment(mlf, ee)
 end
@@ -255,4 +285,5 @@ end
     deleterun(mlf, exprun2)
 
     deleteexperiment(mlf, exp)
+    deleteexperiment(mlf, experiment)
 end
