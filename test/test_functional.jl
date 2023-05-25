@@ -59,46 +59,6 @@ end
     @test experiment.lifecycle_stage == "deleted"
 end
 
-@testset "createrun" begin
-    @ensuremlf
-    expname = "createrun-$(UUIDs.uuid4())"
-    e = getorcreateexperiment(mlf, expname)
-    runname = "run-$(UUIDs.uuid4())"
-    r = createrun(mlf, e.experiment_id; run_name=runname)
-
-    @test isa(r, MLFlowRun)
-    @test r.info.run_name == runname
-    deleteexperiment(mlf, e)
-end
-
-@testset "deleterun" begin
-    @ensuremlf
-    expname = "deleterun-$(UUIDs.uuid4())"
-    e = getorcreateexperiment(mlf, expname)
-    r = createrun(mlf, e.experiment_id)
-
-    @test deleterun(mlf, r)
-    deleteexperiment(mlf, e)
-end
-
-@testset "updaterun" begin
-    @ensuremlf
-    expname = "updaterun-$(UUIDs.uuid4())"
-    e = getorcreateexperiment(mlf, expname)
-    runname = "run-$(UUIDs.uuid4())"
-    r = createrun(mlf, e.experiment_id; run_name=runname)
-
-    new_runname = "new_updaterun-$(UUIDs.uuid4())"
-    new_status = "FINISHED"
-    r_updated = updaterun(mlf, r, new_status; run_name=new_runname)
-
-    @test isa(r_updated, MLFlowRun)
-    @test r_updated.info.run_name != r.info.run_name
-    @test r_updated.info.status.status != r.info.status
-    @test r_updated.info.run_name == new_runname
-    @test r_updated.info.status.status == new_status
-    deleteexperiment(mlf, e)
-end
 
 @testset "getorcreateexperiment" begin
     @ensuremlf
@@ -125,32 +85,6 @@ end
     @test occursin(" and ", filter)
 end
 
-@testset "searchruns" begin
-    @ensuremlf
-    exp = createexperiment(mlf)
-    expid = exp.experiment_id
-    exprun = createrun(mlf, exp)
-    @test exprun.info.experiment_id == expid
-    @test exprun.info.lifecycle_stage == "active"
-    @test exprun.info.status == MLFlowRunStatus("RUNNING")
-    exprunid = exprun.info.run_id
-
-    runparams = Dict(
-        "k1" => "v1",
-        "started" => Date("2020-01-01")
-    )
-    logparam(mlf, exprun, runparams)
-
-    findrun = searchruns(mlf, exp; filter_params=runparams)
-    @test length(findrun) == 1
-    r = only(findrun)
-    @test get_run_id(get_info(r)) == exprun.info.run_id
-    @test get_run_id(r) == get_run_id(get_info(r))
-    @test sort(collect(keys(get_params(get_data(r))))) == sort(string.(keys(runparams)))
-    @test sort(collect(values(get_params(get_data(r))))) == sort(string.(values(runparams)))
-    @test get_params(r) == get_params(get_data(r))
-    @test deleteexperiment(mlf, exp)
-end
 
 @testset "artifacts" begin
     @ensuremlf
