@@ -42,19 +42,19 @@ Logs a metric value (or values) against a particular run.
 - `timestamp`: if provided, must be a UNIX timestamp in milliseconds. By default, set to current time.
 - `step`: step at which the metric value has been taken.
 """
-function logmetric(mlf::MLFlow, run_id::String, key, value::T; timestamp=missing, step=missing) where T<:Real
+function logmetric(mlf::MLFlow, run_id::String, key, value::T; timestamp=missing, step=missing) where {T<:Real}
     endpoint = "runs/log-metric"
     if ismissing(timestamp)
         timestamp = Int(trunc(datetime2unix(now(UTC)) * 1000))
     end
     mlfpost(mlf, endpoint; run_id=run_id, key=key, value=value, timestamp=timestamp, step=step)
 end
-logmetric(mlf::MLFlow, run_info::MLFlowRunInfo, key, value::T; timestamp=missing, step=missing) where T<:Real =
+logmetric(mlf::MLFlow, run_info::MLFlowRunInfo, key, value::T; timestamp=missing, step=missing) where {T<:Real} =
     logmetric(mlf::MLFlow, run_info.run_id, key, value; timestamp=timestamp, step=step)
-logmetric(mlf::MLFlow, run::MLFlowRun, key, value::T; timestamp=missing, step=missing) where T<:Real =
+logmetric(mlf::MLFlow, run::MLFlowRun, key, value::T; timestamp=missing, step=missing) where {T<:Real} =
     logmetric(mlf, run.info, key, value; timestamp=timestamp, step=step)
 
-function logmetric(mlf::MLFlow, run::Union{String,MLFlowRun,MLFlowRunInfo}, key, values::AbstractArray{T}; timestamp=missing, step=missing) where T<:Real
+function logmetric(mlf::MLFlow, run::Union{String,MLFlowRun,MLFlowRunInfo}, key, values::AbstractArray{T}; timestamp=missing, step=missing) where {T<:Real}
     for v in values
         logmetric(mlf, run, key, v; timestamp=timestamp, step=step)
     end
@@ -179,7 +179,7 @@ function listartifacts(mlf::MLFlow, run_id::String; path::String="", maxdepth::I
             dirpath = joinpath(root_uri, resultentry["path"])
             push!(result, MLFlowArtifactDirInfo(dirpath))
             if maxdepth != 0
-                nextdepthresult = listartifacts(mlf, run_id, path=resultentry["path"], maxdepth=maxdepth-1)
+                nextdepthresult = listartifacts(mlf, run_id, path=resultentry["path"], maxdepth=maxdepth - 1)
                 result = vcat(result, nextdepthresult)
             end
         else

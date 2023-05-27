@@ -73,12 +73,12 @@ function getexperiment(mlf::MLFlow, experiment_name::String)
 end
 function _getexperimentbyid(mlf::MLFlow, experiment_id::Integer)
     endpoint = "experiments/get"
-    arguments = (:experiment_id => experiment_id, )
+    arguments = (:experiment_id => experiment_id,)
     mlfget(mlf, endpoint; arguments...)["experiment"]
 end
 function _getexperimentbyname(mlf::MLFlow, experiment_name::String)
     endpoint = "experiments/get-by-name"
-    arguments = (:experiment_name => experiment_name, )
+    arguments = (:experiment_name => experiment_name,)
     mlfget(mlf, endpoint; arguments...)["experiment"]
 end
 

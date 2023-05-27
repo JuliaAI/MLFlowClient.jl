@@ -132,13 +132,13 @@ Searches for runs in an experiment.
 
 """
 function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
-                    filter::String="",
-                    filter_params::AbstractDict{K,V}=Dict{}(),
-                    run_view_type::String="ACTIVE_ONLY",
-                    max_results::Int64=50000,
-                    order_by::AbstractVector{<:String}=["attribute.end_time"],
-                    page_token::String=""
-                    ) where {K,V}
+    filter::String="",
+    filter_params::AbstractDict{K,V}=Dict{}(),
+    run_view_type::String="ACTIVE_ONLY",
+    max_results::Int64=50000,
+    order_by::AbstractVector{<:String}=["attribute.end_time"],
+    page_token::String=""
+) where {K,V}
     endpoint = "runs/search"
     run_view_type ∈ ["ACTIVE_ONLY", "DELETED_ONLY", "ALL"] || error("Unsupported run_view_type = $run_view_type")
 
@@ -186,4 +186,4 @@ searchruns(mlf::MLFlow, experiment_id::Integer; kwargs...) =
 searchruns(mlf::MLFlow, exp::MLFlowExperiment; kwargs...) =
     searchruns(mlf, exp.experiment_id; kwargs...)
 searchruns(mlf::MLFlow, exps::AbstractVector{MLFlowExperiment}; kwargs...) =
-    searchruns(mlf, [getfield.(exps, :experiment_id)]; kwargs...)
+    searchruns(mlf, getfield.(exps, :experiment_id); kwargs...)

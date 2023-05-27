@@ -1,4 +1,4 @@
-@testset verbose=true "createrun" begin
+@testset verbose = true "createrun" begin
     @ensuremlf
     expname = "createrun-$(UUIDs.uuid4())"
     e = getorcreateexperiment(mlf, expname)
@@ -10,13 +10,13 @@
     end
 
     @testset "createrun_by_experiment_id" begin
-    r = createrun(mlf, e.experiment_id; run_name=runname)
-    runtests(r)
+        r = createrun(mlf, e.experiment_id; run_name=runname)
+        runtests(r)
     end
 
     @testset "createrun_by_experiment_type" begin
-    r = createrun(mlf, e; run_name=runname)
-    runtests(r)
+        r = createrun(mlf, e; run_name=runname)
+        runtests(r)
     end
 
     deleteexperiment(mlf, e)
@@ -24,7 +24,7 @@ end
 
 @testset "getrun" begin
     @ensuremlf
-    expname = "createrun-$(UUIDs.uuid4())"
+    expname = "getrun-$(UUIDs.uuid4())"
     e = getorcreateexperiment(mlf, expname)
     runname = "run-$(UUIDs.uuid4())"
     r = createrun(mlf, e.experiment_id; run_name=runname)
@@ -35,7 +35,7 @@ end
     @test retrieved_r.info.run_id == r.info.run_id
 end
 
-@testset verbose=true "updaterun" begin
+@testset verbose = true "updaterun" begin
     @ensuremlf
     expname = "updaterun-$(UUIDs.uuid4())"
     e = getorcreateexperiment(mlf, expname)
@@ -66,7 +66,7 @@ end
         r_updated = updaterun(mlf, r, new_status; run_name=new_runname)
         runtests(r_updated)
     end
-    
+
     @testset "updaterun_by_run_info_and_defined_status" begin
         r_updated = updaterun(mlf, r.info, new_status_using_type; run_name=new_runname)
         runtests(r_updated)
@@ -79,7 +79,7 @@ end
     deleteexperiment(mlf, e)
 end
 
-@testset verbose=true "deleterun" begin
+@testset verbose = true "deleterun" begin
     @ensuremlf
     expname = "deleterun-$(UUIDs.uuid4())"
     e = getorcreateexperiment(mlf, expname)
@@ -99,4 +99,44 @@ end
     end
 
     deleteexperiment(mlf, e)
+end
+
+@testset verbose = true "searchruns" begin
+    @ensuremlf
+    getexpname() = "searchruns-$(UUIDs.uuid4())"
+    e1 = getorcreateexperiment(mlf, getexpname())
+    e2 = getorcreateexperiment(mlf, getexpname())
+
+    run_array1 = MLFlowRun[]
+    run_array2 = MLFlowRun[]
+    run_status = ["FINISHED", "FINISHED", "FAILED"]
+
+    function addruns!(run_array, experiment, run_status)
+        for status in run_status
+            run = createrun(mlf, experiment.experiment_id)
+            run = updaterun(mlf, run, status)
+            push!(run_array, run)
+        end
+    end
+
+    addruns!(run_array1, e1, run_status)
+    addruns!(run_array2, e2, run_status)
+
+    @testset "searchruns_by_experiment_id" begin
+        runs = searchruns(mlf, e1.experiment_id)
+        @test runs |> length == run_array1 |> length
+    end
+
+    @testset "searchruns_by_experiment" begin
+        runs = searchruns(mlf, e1)
+        @test runs |> length == run_array1 |> length
+    end
+
+    @testset "searchruns_by_experiments_array" begin
+        runs = searchruns(mlf, [e1, e2])
+        @test runs |> length == (run_array1 |> length) + (run_array2 |> length)
+    end
+
+    deleteexperiment(mlf, e1)
+    deleteexperiment(mlf, e2)
 end
