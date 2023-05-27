@@ -1,5 +1,3 @@
-include("test_base.jl")
-
 @testset "MLFlow" begin
     mlf = MLFlow()
     @test mlf.baseuri == "http://localhost:5000"

@@ -110,11 +110,18 @@ end
     run_array1 = MLFlowRun[]
     run_array2 = MLFlowRun[]
     run_status = ["FINISHED", "FINISHED", "FAILED"]
+    failed_runs = 0
 
     function addruns!(run_array, experiment, run_status)
         for status in run_status
             run = createrun(mlf, experiment.experiment_id)
             run = updaterun(mlf, run, status)
+            if status == "FAILED"
+                logparam(mlf, run, "test", "failed")
+                failed_runs += 1
+            else
+                logparam(mlf, run, "test", "test")
+            end
             push!(run_array, run)
         end
     end
@@ -135,6 +142,20 @@ end
     @testset "searchruns_by_experiments_array" begin
         runs = searchruns(mlf, [e1, e2])
         @test runs |> length == (run_array1 |> length) + (run_array2 |> length)
+    end
+
+    @testset "searchruns_by_filter" begin
+        runs = searchruns(mlf, [e1, e2]; filter="param.test = \"failed\"")
+        @test failed_runs == runs |> length
+    end
+
+    @testset "searchruns_by_filter_params" begin
+        runs = searchruns(mlf, [e1, e2]; filter_params=Dict("test" => "failed"))
+        @test failed_runs == runs |> length
+    end
+
+    @testset "searchruns_filter_exception" begin
+        @test_throws ErrorException searchruns(mlf, [e1, e2]; filter="test", filter_params=Dict("test" => "test"))
     end
 
     deleteexperiment(mlf, e1)
