@@ -47,6 +47,8 @@ export
 include("utils.jl")
 export
     generatefilterfromparams
+    generatefilterfromattributes
+    generatefilterfromentity_type
 
 include("experiments.jl")
 export

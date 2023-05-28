@@ -84,5 +84,4 @@ function generatefilterfromentity_type(filter_params::AbstractDict{K,V}, entity_
     join(filters, " and ")
 end
 generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V} = generatefilterfromentity_type(filter_params, "param")
-generatefilterfrommetrics(filter_attributes::AbstractDict{K,V}) where {K,V} = generatefilterfromentity_type(filter_attributes, "metric")
 generatefilterfromattributes(filter_attributes::AbstractDict{K,V}) where {K,V} = generatefilterfromentity_type(filter_attributes, "attribute")

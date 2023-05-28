@@ -50,5 +50,8 @@ listartifacts
 mlfget
 mlfpost
 uri
+generatefilterfromentity_type
 generatefilterfromparams
+generatefilterfromattributes
+
 ```

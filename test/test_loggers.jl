@@ -86,7 +86,7 @@ end
     r = createrun(mlf, e.experiment_id)
     artifact_uri = r.info.artifact_uri
 
-    tmpfile = "tempfile.txt"
+    tmpfile = "/tmp/mlflowclient-tempfile.txt"
     open(tmpfile, "w") do f
         write(f, "test")
     end
