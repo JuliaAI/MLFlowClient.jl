@@ -33,6 +33,7 @@ end
 
     @test isa(retrieved_r, MLFlowRun)
     @test retrieved_r.info.run_id == r.info.run_id
+    deleteexperiment(mlf, e)
 end
 
 @testset verbose = true "updaterun" begin
@@ -156,6 +157,14 @@ end
 
     @testset "searchruns_filter_exception" begin
         @test_throws ErrorException searchruns(mlf, [e1, e2]; filter="test", filter_params=Dict("test" => "test"))
+    end
+
+    @testset "runs_get_methods" begin
+        runs = searchruns(mlf, [e1, e2]; filter_params=Dict("test" => "failed"))
+        @test get_info(runs[1]) == runs[1].info
+        @test get_data(runs[1]) == runs[1].data
+        @test get_run_id(runs[1]) == runs[1].info.run_id
+        @test get_params(runs[1]) == runs[1].data.params
     end
 
     deleteexperiment(mlf, e1)

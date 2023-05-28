@@ -26,8 +26,8 @@ MLFlowArtifactDirInfo
 createexperiment
 getexperiment
 getorcreateexperiment
-listexperiments
 deleteexperiment
+searchexperiments
 ```
 
 # Runs

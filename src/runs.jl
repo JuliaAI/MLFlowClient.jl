@@ -175,8 +175,8 @@ function searchruns(mlf::MLFlow, experiment_ids::AbstractVector{<:Integer};
             order_by=order_by,
             page_token=result["next_page_token"]
         )
-        nextruns = searchruns(mlf, experiment_ids; kwargs...)
-        return vcat(runs, nextruns)
+        next_runs = searchruns(mlf, experiment_ids; kwargs...)
+        return vcat(runs, next_runs)
     end
 
     runs

@@ -54,7 +54,7 @@ export
     getexperiment,
     getorcreateexperiment,
     deleteexperiment,
-    listexperiments
+    searchexperiments
 
 include("runs.jl")
 export

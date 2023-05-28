@@ -147,13 +147,70 @@ deleteexperiment(mlf::MLFlow, experiment::MLFlowExperiment) =
     deleteexperiment(mlf, experiment.experiment_id)
 
 """
-    listexperiments(mlf::MLFlow)
+    searchexperiments(mlf::MLFlow)
 
-Returns a list of MLFlow experiments.
+Searches for experiments in an MLFlow instance.
 
-TODO: not yet entirely implemented
+# Arguments
+- `mlf`: [`MLFlow`](@ref) configuration.
+
+# Keywords
+- `filter::String`: filter as defined in [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-experiments)
+- `filter_attributes::AbstractDict{K,V}`: if provided, `filter` is automatically generated based on `filter_attributes` using [`generatefilterfromattributes`](@ref). One can only provide either `filter` or `filter_attributes`, but not both.
+- `run_view_type::String`: one of `ACTIVE_ONLY`, `DELETED_ONLY`, or `ALL`.
+- `max_results::Integer`: 50,000 by default.
+- `order_by::String`: as defined in [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-experiments)
+- `page_token::String`: paging functionality, handled automatically. Not meant to be passed by the user.
+
+# Returns
+- vector of [`MLFlowExperiment`](@ref) experiments that were found in the MLFlow instance
+
 """
-function listexperiments(mlf::MLFlow)
-    endpoint = "experiments/list"
-    mlfget(mlf, endpoint)
+function searchexperiments(mlf::MLFlow;
+    filter::String="",
+    filter_attributes::AbstractDict{K,V}=Dict{}(),
+    run_view_type::String="ACTIVE_ONLY",
+    max_results::Int64=50000,
+    order_by::AbstractVector{<:String}=["attribute.last_update_time"],
+    page_token::String=""
+) where {K,V}
+    endpoint = "experiments/search"
+    run_view_type ∈ ["ACTIVE_ONLY", "DELETED_ONLY", "ALL"] || error("Unsupported run_view_type = $run_view_type")
+
+    if length(filter_attributes) > 0 && length(filter) > 0
+        error("Cannot specify both filter and filter_attributes")
+    end
+
+    if length(filter_attributes) > 0
+        filter = generatefilterfromattributes(filter_attributes)
+    end
+
+    kwargs = (
+        filter=filter,
+        run_view_type=run_view_type,
+        max_results=max_results,
+        order_by=order_by
+    )
+    if !isempty(page_token)
+        kwargs = (; kwargs..., page_token=page_token)
+    end
+
+    result = mlfpost(mlf, endpoint; kwargs...)
+    haskey(result, "experiments") || return MLFlowExperiment[]
+
+    experiments = map(x -> MLFlowExperiment(x), result["experiments"])
+
+    if haskey(result, "next_page_token") && !isempty(result["next_page_token"])
+        kwargs = (
+            filter=filter,
+            run_view_type=run_view_type,
+            max_results=max_results,
+            order_by=order_by,
+            page_token=result["next_page_token"]
+        )
+        next_experiments = searchexperiments(mlf; kwargs...)
+        return vcat(experiments, next_experiments)
+    end
+
+    experiments
 end
