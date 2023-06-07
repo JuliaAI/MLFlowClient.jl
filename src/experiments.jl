@@ -185,12 +185,7 @@ function searchexperiments(mlf::MLFlow;
         filter = generatefilterfromattributes(filter_attributes)
     end
 
-    kwargs = (
-        filter=filter,
-        run_view_type=run_view_type,
-        max_results=max_results,
-        order_by=order_by
-    )
+    kwargs = (; filter, run_view_type, max_results, order_by)
     if !isempty(page_token)
         kwargs = (; kwargs..., page_token=page_token)
     end
@@ -201,13 +196,7 @@ function searchexperiments(mlf::MLFlow;
     experiments = map(x -> MLFlowExperiment(x), result["experiments"])
 
     if haskey(result, "next_page_token") && !isempty(result["next_page_token"])
-        kwargs = (
-            filter=filter,
-            run_view_type=run_view_type,
-            max_results=max_results,
-            order_by=order_by,
-            page_token=result["next_page_token"]
-        )
+        kwargs = (; filter, run_view_type, max_results, order_by, page_token=result["next_page_token"])
         next_experiments = searchexperiments(mlf; kwargs...)
         return vcat(experiments, next_experiments)
     end

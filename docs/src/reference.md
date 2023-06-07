@@ -28,6 +28,7 @@ getexperiment
 getorcreateexperiment
 deleteexperiment
 searchexperiments
+listexperiments
 ```
 
 # Runs
