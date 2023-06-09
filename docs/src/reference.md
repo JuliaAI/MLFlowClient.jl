@@ -26,8 +26,9 @@ MLFlowArtifactDirInfo
 createexperiment
 getexperiment
 getorcreateexperiment
-listexperiments
 deleteexperiment
+searchexperiments
+listexperiments
 ```
 
 # Runs
@@ -50,5 +51,8 @@ listartifacts
 mlfget
 mlfpost
 uri
+generatefilterfromentity_type
 generatefilterfromparams
+generatefilterfromattributes
+
 ```

@@ -11,16 +11,16 @@ makedocs(;
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://juliaai.github.io/MLFlowClient.jl",
-        assets=String[],
+        assets=String[]
     ),
     pages=[
         "Home" => "index.md",
         "Tutorial" => "tutorial.md",
         "Reference" => "reference.md"
-    ],
+    ]
 )
 
 deploydocs(;
     repo="github.com/JuliaAI/MLFlowClient.jl",
-    devbranch="main",
+    devbranch="main"
 )

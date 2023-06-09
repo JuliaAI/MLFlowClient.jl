@@ -20,19 +20,25 @@ using JSON
 using ShowCases
 using FilePathsBase: AbstractPath
 
-include("types.jl")
+include("types/core.jl")
 export
     MLFlow,
-    MLFlowExperiment,
+    MLFlowExperiment
+
+include("types/runs.jl")
+export
     MLFlowRunStatus,
     MLFlowRunInfo,
-    get_run_id,
-    MLFlowRunData,
-    get_params,
     MLFlowRunDataMetric,
+    MLFlowRunData,
     MLFlowRun,
     get_info,
     get_data,
+    get_run_id,
+    get_params
+
+include("types/artifacts.jl")
+export
     MLFlowArtifactFileInfo,
     MLFlowArtifactDirInfo,
     get_path,
@@ -41,6 +47,8 @@ export
 include("utils.jl")
 export
     generatefilterfromparams
+    generatefilterfromattributes
+    generatefilterfromentity_type
 
 include("experiments.jl")
 export
@@ -48,7 +56,7 @@ export
     getexperiment,
     getorcreateexperiment,
     deleteexperiment,
-    listexperiments
+    searchexperiments
 
 include("runs.jl")
 export
@@ -56,10 +64,12 @@ export
     getrun,
     updaterun,
     deleterun,
-    searchruns,
+    searchruns
+
+include("loggers.jl")
+export
     logparam,
     logmetric,
     logartifact,
     listartifacts
-
 end
