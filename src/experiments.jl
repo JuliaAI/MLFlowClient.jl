@@ -121,7 +121,7 @@ Deletes an MLFlow experiment.
 function deleteexperiment(mlf::MLFlow, experiment_id::Integer)
     endpoint = "experiments/delete"
     try
-        result = mlfpost(mlf, endpoint; experiment_id=experiment_id)
+        mlfpost(mlf, endpoint; experiment_id=experiment_id)
     catch e
         if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
             # experiment already deleted
@@ -131,6 +131,7 @@ function deleteexperiment(mlf::MLFlow, experiment_id::Integer)
     end
     true
 end
+
 """
     deleteexperiment(mlf::MLFlow, experiment::MLFlowExperiment)
 
@@ -145,6 +146,36 @@ Dispatches to `deleteexperiment(mlf::MLFlow, experiment_id::Integer)`.
 """
 deleteexperiment(mlf::MLFlow, experiment::MLFlowExperiment) =
     deleteexperiment(mlf, experiment.experiment_id)
+
+"""
+    restoreexperiment(mlf::MLFlow, experiment_id::Integer)
+
+Restores a deleted MLFlow experiment.
+
+# Arguments
+- `mlf`: [`MLFlow`](@ref) configuration.
+- `experiment_id`: experiment identifier.
+
+# Returns
+
+`true` if successful. Otherwise, raises exception.
+"""
+function restoreexperiment(mlf::MLFlow, experiment_id::Integer)
+    endpoint = "experiments/restore"
+    try
+        mlfpost(mlf, endpoint; experiment_id=experiment_id)
+    catch e
+        if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
+            # experiment already restored
+            return true
+        end
+        throw(e)
+    end
+    true
+end
+
+restoreexperiment(mlf::MLFlow, experiment::MLFlowExperiment) =
+    restoreexperiment(mlf, experiment.experiment_id)
 
 """
     searchexperiments(mlf::MLFlow)

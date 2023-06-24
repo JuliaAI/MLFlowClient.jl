@@ -26,6 +26,7 @@ function logparam(mlf::MLFlow, run::Union{String,MLFlowRun,MLFlowRunInfo}, kv)
     end
 end
 
+
 """
     logmetric(mlf::MLFlow, run, key, value::T; timestamp, step) where T<:Real
     logmetric(mlf::MLFlow, run, key, values::AbstractArray{T}; timestamp, step) where T<:Real
@@ -194,3 +195,37 @@ listartifacts(mlf::MLFlow, run::MLFlowRun; kwargs...) =
     listartifacts(mlf, run.info.run_id; kwargs...)
 listartifacts(mlf::MLFlow, run_info::MLFlowRunInfo; kwargs...) =
     listartifacts(mlf, run_info.run_id; kwargs...)
+
+"""
+    logbatch(mlf::MLFlow, run_id::String, metrics, params, tags)
+
+Logs a batch of metrics, parameters and tags to an experiment run.
+
+# Arguments
+- `mlf::MLFlow`: [`MLFlow`](@ref) onfiguration.
+- `run_id::String`: ID of the run to log to.
+- `metrics`: a vector of [`MLFlowRunDataMetric`](@ref) or a vector of
+NamedTuples of `(name, value, timestamp)`.
+- `params`: a vector of [`MLFlowRunDataParam`](@ref) or a vector of NamedTuples
+of `(name, value)`.
+- `tags`: a vector of strings.
+"""
+logbatch(mlf::MLFlow, run_id::String; tags=String[], metrics=Any[],
+    params=Any[]) = logbatch(mlf, run_id, tags, metrics, params)
+function logbatch(mlf::MLFlow, run_id::String,
+    tags::Union{AbstractVector{<:String}, AbstractVector{Any}},
+    metrics::Union{AbstractVector{<:MLFlowRunDataMetric}, AbstractVector{Any}},
+    params::Union{AbstractVector{<:MLFlowRunDataParam}, AbstractVector{Any}})
+    endpoint = "runs/log-batch"
+    mlfpost(mlf, endpoint;
+        run_id=run_id, metrics=metrics, params=params, tags=tags)
+end
+function logbatch(mlf::MLFlow, run_id::String,
+    tags::Union{AbstractVector{<:String}, AbstractVector{Any}},
+    metrics::Union{AbstractVector{<:AbstractDict}, AbstractVector{Any}},
+    params::Union{AbstractVector{<:AbstractDict}, AbstractVector{Any}})
+    endpoint = "runs/log-batch"
+    mlfpost(mlf, endpoint; run_id=run_id,
+        metrics=MLFlowRunDataMetric.(metrics),
+        params=MLFlowRunDataParam.(params), tags=tags)
+end

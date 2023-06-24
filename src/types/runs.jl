@@ -115,13 +115,38 @@ end
 Base.show(io::IO, t::MLFlowRunDataMetric) = show(io, ShowCase(t, new_lines=true))
 
 """
+    MLFlowRunDataParam
+
+Represents a parameter.
+
+# Fields
+- `key::String`: parameter identifier.
+- `value::String`: parameter value.
+
+# Constructors
+- `MLFlowRunDataParam(d::Dict{String,String})`
+
+"""
+
+struct MLFlowRunDataParam
+    key::String
+    value::String
+end
+function MLFlowRunDataParam(d::Dict{String,String})
+    key = d["key"]
+    value = d["value"]
+    MLFlowRunDataParam(key, value)
+end
+Base.show(io::IO, t::MLFlowRunDataParam) = show(io, ShowCase(t, new_lines=true))
+
+"""
     MLFlowRunData
 
 Represents run data.
 
 # Fields
 - `metrics::Dict{String,MLFlowRunDataMetric}`: run metrics.
-- `params::Dict{String,String}`: run parameters.
+- `params::Dict{String,MLFlowRunDataParam}`: run parameters.
 - `tags`: list of run tags.
 
 # Constructors
@@ -131,24 +156,23 @@ Represents run data.
 """
 struct MLFlowRunData
     metrics::Dict{String,MLFlowRunDataMetric}
-    params::Union{Dict{String,String},Missing}
+    params::Union{Dict{String,MLFlowRunDataParam},Missing}
     tags
 end
 function MLFlowRunData(data::Dict{String,Any})
     metrics = Dict{String,MLFlowRunDataMetric}()
     if haskey(data, "metrics")
         for metric in data["metrics"]
-            v = MLFlowRunDataMetric(metric)
-            metrics[v.key] = v
+            new_metric = MLFlowRunDataMetric(metric)
+            metrics[new_metric.key] = new_metric
         end
     end
+    params = Dict{String,MLFlowRunDataParam}()
     if haskey(data, "params")
-        params = Dict{String,String}()
-        for p in data["params"]
-            params[p["key"]] = p["value"]
+        for param in data["params"]
+            new_param = MLFlowRunDataParam(param["key"], param["value"])
+            params[new_param.key] = new_param
         end
-    else
-        params = Dict{String,String}()
     end
     tags = haskey(data, "tags") ? data["tags"] : missing
     MLFlowRunData(metrics, params, tags)

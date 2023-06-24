@@ -30,6 +30,7 @@ export
     MLFlowRunStatus,
     MLFlowRunInfo,
     MLFlowRunDataMetric,
+    MLFlowRunDataParam,
     MLFlowRunData,
     MLFlowRun,
     get_info,
@@ -56,6 +57,7 @@ export
     getexperiment,
     getorcreateexperiment,
     deleteexperiment,
+    restoreexperiment,
     searchexperiments
 
 include("runs.jl")
@@ -68,6 +70,7 @@ export
 
 include("loggers.jl")
 export
+    logbatch,
     logparam,
     logmetric,
     logartifact,
