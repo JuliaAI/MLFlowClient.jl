@@ -111,6 +111,14 @@ end
         @test isfile(artifact)
     end
 
+    @testset "logartifact_using_IOBuffer" begin
+        io = IOBuffer()
+        write(io, "testing IOBuffer")
+        seekstart(io)
+        artifact = logartifact(mlf, r, tmpfile, io)
+        @test isfile(artifact)
+    end
+
     @testset "logartifact_error" begin
         @test_broken logartifact(mlf, r, "/etc/shadow")
     end
