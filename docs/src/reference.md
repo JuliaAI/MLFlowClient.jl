@@ -41,6 +41,7 @@ deleterun
 searchruns
 logparam
 logmetric
+logbatch
 logartifact
 listartifacts
 ```

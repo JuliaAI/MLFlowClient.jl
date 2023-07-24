@@ -6,7 +6,7 @@
     deleteexperiment(mlf, exp)
 end
 
-@testset verbose=true "getexperiment" begin
+@testset verbose = true "getexperiment" begin
     @ensuremlf
     exp = createexperiment(mlf)
     experiment = getexperiment(mlf, exp.experiment_id)
@@ -45,13 +45,28 @@ end
 @testset "deleteexperiment" begin
     @ensuremlf
     exp = createexperiment(mlf)
+    deleteexperiment(mlf, exp)
 
-    @test deleteexperiment(mlf, exp)
-    # deleting again to test if the experiment is already deleted
-    @test deleteexperiment(mlf, exp)
+    experiments = searchexperiments(mlf)
+    @test length(experiments) == 1 # 1 for the default experiment
 end
 
-@testset verbose=true "searchexperiments" begin
+@testset "restoreexperiment" begin
+    @ensuremlf
+    exp = createexperiment(mlf)
+    deleteexperiment(mlf, exp)
+
+    experiments = searchexperiments(mlf)
+    @test length(experiments) == 1 # 1 for the default experiment
+
+    restoreexperiment(mlf, exp)
+    experiments = searchexperiments(mlf)
+    @test length(experiments) == 2 # the restored experiment and the default one
+
+    deleteexperiment(mlf, exp)
+end
+
+@testset verbose = true "searchexperiments" begin
     @ensuremlf
     n_experiments = 3
     for i in 2:n_experiments

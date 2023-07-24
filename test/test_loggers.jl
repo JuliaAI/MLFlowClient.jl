@@ -111,10 +111,52 @@ end
         @test isfile(artifact)
     end
 
+    @testset "logartifact_using_IOBuffer" begin
+        io = IOBuffer()
+        write(io, "testing IOBuffer")
+        seekstart(io)
+        artifact = logartifact(mlf, r, tmpfile, io)
+        @test isfile(artifact)
+    end
+
     @testset "logartifact_error" begin
         @test_broken logartifact(mlf, r, "/etc/shadow")
     end
 
+    deleteexperiment(mlf, e)
+end
+
+@testset verbose=true "logbatch" begin
+    @ensuremlf
+    expname = "logbatch-$(UUIDs.uuid4())"
+    e = getorcreateexperiment(mlf, expname)
+    runname = "run-$(UUIDs.uuid4())"
+    r = createrun(mlf, e.experiment_id)
+
+    @testset "logbatch_by_types" begin
+        param_array = [MLFlowRunDataParam("test_param_type", "test")]
+        metric_array = [MLFlowRunDataMetric("test_metric", 5, 3, 1)]
+        logbatch(mlf, r.info.run_id; params=param_array, metrics=metric_array)
+
+        retrieved_run = searchruns(mlf, e;
+            filter_params=Dict("test_param_type" => "test"))
+        @test length(retrieved_run) == 1
+        @test retrieved_run[1].info.run_id == r.info.run_id
+    end
+
+    @testset "logbatch_by_dicts" begin
+        param_dict_array = [Dict("key"=>"test_param_dict", "value"=>"test")]
+        metric_dict_array = [
+            Dict("key"=>"test_metric", "value"=>5, "step"=>3, "timestamp"=>1)]
+        logbatch(mlf, r.info.run_id;
+            params=param_dict_array, metrics=metric_dict_array)
+
+        retrieved_run = searchruns(mlf, e;
+            filter_params=Dict("test_param_dict" => "test"))
+        @test length(retrieved_run) == 1
+        @test retrieved_run[1].info.run_id == r.info.run_id
+    end
+    
     deleteexperiment(mlf, e)
 end
 
