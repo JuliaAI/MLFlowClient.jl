@@ -34,6 +34,9 @@ end
 @testset "utils" begin
     using MLFlowClient: uri, headers
     using URIs: URI
+
+    @test healthcheck(MLFlow()) == true
+
     let baseuri = "http://localhost:5001", apiversion = "2.0", endpoint = "experiments/get"
         mlf = MLFlow(baseuri; apiversion)
         apiuri = uri(mlf, endpoint)

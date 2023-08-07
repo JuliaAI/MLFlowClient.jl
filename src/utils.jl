@@ -1,4 +1,20 @@
 """
+    healthcheck(mlf::MLFlow)
+
+Checks if MLFlow server is up and running. Returns `true` if it is, `false`
+otherwise.
+"""
+function healthcheck(mlf)
+    uri = "$(mlf.baseuri)/health"
+    try
+        response = HTTP.get(uri)
+        return String(response.body) == "OK"
+    catch e
+        return false
+    end
+end
+
+"""
     uri(mlf::MLFlow, endpoint="", query=missing)
 
 Retrieves an URI based on `mlf`, `endpoint`, and, optionally, `query`.
