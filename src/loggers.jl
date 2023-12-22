@@ -99,6 +99,10 @@ function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::Abstract
         end
     else
         region = get(ENV, "AWS_REGION", "")  # Optional, defaults to empty if not set
+        
+        if region == ""
+          region = get(ENV, "AWS_DEFUALT_REGION", "") 
+        end
 
         if haskey(ENV, "MLFLOW_S3_ENDPOINT_URL")
           s3creds = AWSCredentials()
@@ -108,6 +112,7 @@ function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::Abstract
         end
 
         filepath = joinpath(artifact_uri, basefilename)
+        artifact_uri = artifact_uri[6:end]
 
         try
             open(joinpath("/tmp/",basefilename), "w") do f
@@ -115,8 +120,9 @@ function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::Abstract
             end
             open(joinpath("/tmp/",basefilename), "r") do f
                 file_data = read(f)
-                s3_put(s3config, artifact_uri, filepath, file_data)
+                s3_put(s3config, artifact_uri, basefilename, data)
             end
+            rm(joinpath("/tmp",basefilename))
         catch e
             error("Unable to upload artifact to S3 $(filepath): $e")
         end
