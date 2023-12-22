@@ -4,6 +4,8 @@ authors = ["@deyandyankov and contributors"]
 version = "0.4.4"
 
 [deps]
+AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
+AWSS3 = "1c724243-ef5b-51ab-93f4-b0a88ac62a95"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 FilePathsBase = "48062228-2e41-5def-b9a4-89aafe57970f"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
