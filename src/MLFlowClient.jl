@@ -19,6 +19,9 @@ using URIs
 using JSON
 using ShowCases
 using FilePathsBase: AbstractPath
+using AWSS3
+using AWS # For configuring the AWS credentials and region
+
 
 include("types/core.jl")
 export

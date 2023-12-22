@@ -86,16 +86,37 @@ path of the artifact that was created.
 function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::AbstractString, data)
     mlflowrun = getrun(mlf, run_id)
     artifact_uri = mlflowrun.info.artifact_uri
-    mkpath(artifact_uri)
-    filepath = joinpath(artifact_uri, basefilename)
-    try
-        f = open(filepath, "w")
-        write(f, data)
-        close(f)
-    catch e
-        error("Unable to create artifact $(filepath): $e")
+
+    if !startswith(artifact_uri, "s3://")
+        mkpath(artifact_uri)
+        filepath = joinpath(artifact_uri, basefilename)
+        try
+            open(filepath, "w") do f
+                write(f, data)
+            end
+        catch e
+            error("Unable to create artifact $(filepath): $e")
+        end
+    else
+        # Configure for MinIO or AWS S3 based on environment variable
+        s3config = haskey(ENV, "MLFLOW_S3_ENDPOINT_URL") ?
+            AWSConfig(aws_access_key_id = ENV["AWS_ACCESS_KEY_ID"],
+                      aws_secret_access_key = ENV["AWS_SECRET_ACCESS_KEY"],
+                      aws_region = ENV["AWS_REGION"], # or any specific region
+                      s3_endpoint = ENV["MLFLOW_S3_ENDPOINT_URL"]) :
+            global_aws_config() # default AWS configuration
+
+        bucket, path = split_s3_uri(artifact_uri)
+        filepath = joinpath(path, basefilename)
+
+        try
+            s3_put(s3config, bucket, filepath, data)
+        catch e
+            error("Unable to upload artifact to S3 $(filepath): $e")
+        end
     end
-    filepath
+
+    return filepath
 end
 logartifact(mlf::MLFlow, run::MLFlowRun, basefilename::AbstractString, data) =
     logartifact(mlf, run.info, basefilename, data)
