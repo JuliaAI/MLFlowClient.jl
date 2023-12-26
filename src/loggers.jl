@@ -112,9 +112,10 @@ function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::Abstract
         end
 
         filepath = joinpath(artifact_uri, basefilename)
-        artifact_uri = artifact_uri[6:end]
+        artifact_uri = artifact_uri[6:end] # get rid of s3:// so s3_put doesnt' complain
 
         try
+            #TODO: Figure out the correct IO stream way of doing this
             open(joinpath("/tmp/",basefilename), "w") do f
                 write(f, data)
             end

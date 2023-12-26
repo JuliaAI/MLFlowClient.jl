@@ -21,7 +21,7 @@ using ShowCases
 using FilePathsBase: AbstractPath
 using AWSS3
 using Minio
-using AWS: AbstractAWSConfig, AWSConfig, AWSCredentials, global_aws_config, set_global_aws_config
+using AWS: AbstractAWSConfig, AWSConfig, AWSCredentials, global_aws_config
 
 
 include("types/core.jl")
