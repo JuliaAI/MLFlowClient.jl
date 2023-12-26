@@ -85,7 +85,8 @@ path of the artifact that was created.
 """
 function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::AbstractString, data)
     mlflowrun = getrun(mlf, run_id)
-    artifact_uri = mlflowrun.info.artifact_uri
+    artifact_uri = joinpath(mlflowrun.info.artifact_uri,dirname(basefilename))
+    basefilename = basename(basefilename)
 
     if !startswith(artifact_uri, "s3://")
         mkpath(artifact_uri)
