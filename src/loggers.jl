@@ -101,7 +101,7 @@ function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::Abstract
         region = get(ENV, "AWS_REGION", "")  # Optional, defaults to empty if not set
         
         if region == ""
-          region = get(ENV, "AWS_DEFUALT_REGION", "") 
+          region = get(ENV, "AWS_DEFAULT_REGION", "") 
         end
 
         if haskey(ENV, "MLFLOW_S3_ENDPOINT_URL")
