@@ -74,7 +74,7 @@ Stores an artifact (file) in the run's artifact location.
 # Arguments
 - `mlf::MLFlow`: [`MLFlow`](@ref) onfiguration. Currently not used, but when this method is extended to support `S3`, information from `mlf` will be needed.
 - `run`: one of [`MLFlowRun`](@ref), [`MLFlowRunInfo`](@ref) or `String`.
-- `basefilename`: name of the file to be written.
+- `basefilename`: name of the file to be written; can contain a folder such as `model/mycode.jl` which the folder will be created in the artifact directory.
 - `data`: artifact content, an object that can be written directly to a file handle.
 
 # Throws
