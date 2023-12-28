@@ -122,7 +122,7 @@ function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::Abstract
             end
             open(joinpath("/tmp/",basefilename), "r") do f
                 file_data = read(f)
-                s3_put(s3config, artifact_uri, basefilename, data)
+                s3_put(s3config, artifact_uri, basefilename, file_data)
             end
             rm(joinpath("/tmp",basefilename))
         catch e
