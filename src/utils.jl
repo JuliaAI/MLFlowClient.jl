@@ -25,7 +25,7 @@ MLFlowClient.uri(mlf, "experiments/get", Dict(:experiment_id=>10))
 ```
 """
 function uri(mlf::MLFlow, endpoint="", query=missing)
-    u = URI("$(mlf.baseuri)/api/$(mlf.apiversion)/mlflow/$(endpoint)")
+    u = URI("$(mlf.baseuri)/ajax-api/$(mlf.apiversion)/mlflow/$(endpoint)")
     !ismissing(query) && return URI(u; query=query)
     u
 end

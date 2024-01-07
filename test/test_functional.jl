@@ -40,7 +40,7 @@ end
     let baseuri = "http://localhost:5001", apiversion = "2.0", endpoint = "experiments/get"
         mlf = MLFlow(baseuri; apiversion)
         apiuri = uri(mlf, endpoint)
-        @test apiuri == URI("$baseuri/api/$apiversion/mlflow/$endpoint")
+        @test apiuri == URI("$baseuri/ajax-api/$apiversion/mlflow/$endpoint")
     end
     let baseuri = "http://localhost:5001", auth_headers = Dict("Authorization" => "Bearer 123456"),
         custom_headers = Dict("Content-Type" => "application/json")
