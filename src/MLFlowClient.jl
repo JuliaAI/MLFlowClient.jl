@@ -20,12 +20,15 @@ using JSON
 using ShowCases
 using FilePathsBase: AbstractPath
 
-include("types/core.jl")
+include("types/mlflow.jl")
 export
-    MLFlow,
+    MLFlow
+
+include("types/experiment.jl")
+export
     MLFlowExperiment
 
-include("types/runs.jl")
+include("types/run.jl")
 export
     MLFlowRunStatus,
     MLFlowRunInfo,
@@ -38,12 +41,14 @@ export
     get_run_id,
     get_params
 
-include("types/artifacts.jl")
+include("types/artifact.jl")
 export
     MLFlowArtifactFileInfo,
     MLFlowArtifactDirInfo,
     get_path,
     get_size
+
+include("api.jl")
 
 include("utils.jl")
 export
@@ -75,4 +80,7 @@ export
     logmetric,
     logartifact,
     listartifacts
+
+include("deprecated.jl")
+
 end

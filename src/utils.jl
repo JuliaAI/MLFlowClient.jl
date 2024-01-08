@@ -43,39 +43,6 @@ headers(mlf,Dict("Content-Type"=>"application/json"))
 headers(mlf::MLFlow, custom_headers::AbstractDict) = merge(mlf.headers, custom_headers)
 
 """
-    mlfget(mlf, endpoint; kwargs...)
-
-Performs a HTTP GET to a specifid endpoint. kwargs are turned into GET params.
-"""
-function mlfget(mlf, endpoint; kwargs...)
-    apiuri = uri(mlf, endpoint, kwargs)
-    apiheaders = headers(mlf, Dict("Content-Type" => "application/json"))
-    try
-        response = HTTP.get(apiuri, apiheaders)
-        return JSON.parse(String(response.body))
-    catch e
-        throw(e)
-    end
-end
-
-"""
-    mlfpost(mlf, endpoint; kwargs...)
-
-Performs a HTTP POST to the specified endpoint. kwargs are converted to JSON and become the POST body.
-"""
-function mlfpost(mlf, endpoint; kwargs...)
-    apiuri = uri(mlf, endpoint)
-    apiheaders = headers(mlf, Dict("Content-Type" => "application/json"))
-    body = JSON.json(kwargs)
-    try
-        response = HTTP.post(apiuri, apiheaders, body)
-        return JSON.parse(String(response.body))
-    catch e
-        throw(e)
-    end
-end
-
-"""
     generatefilterfromentity_type(filter_params::AbstractDict{K,V}, entity_type::String) where {K,V}
 
 Generates a `filter` string from `filter_params` dictionary and `entity_type`.
@@ -101,3 +68,8 @@ function generatefilterfromentity_type(filter_params::AbstractDict{K,V}, entity_
 end
 generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V} = generatefilterfromentity_type(filter_params, "param")
 generatefilterfromattributes(filter_attributes::AbstractDict{K,V}) where {K,V} = generatefilterfromentity_type(filter_attributes, "attribute")
+
+const MLFLOW_ERROR_CODES = (;
+    RESOURCE_ALREADY_EXISTS = "RESOURCE_ALREADY_EXISTS",
+    RESOURCE_DOES_NOT_EXIST = "RESOURCE_DOES_NOT_EXIST",
+)
