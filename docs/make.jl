@@ -17,7 +17,8 @@ makedocs(;
         "Home" => "index.md",
         "Tutorial" => "tutorial.md",
         "Reference" => "reference.md"
-    ]
+    ],
+    checkdocs=:exports
 )
 
 deploydocs(;

@@ -66,7 +66,18 @@ function generatefilterfromentity_type(filter_params::AbstractDict{K,V}, entity_
     filters = ["$(entity_type).\"$(k)\" = \"$(v)\"" for (k, v) ∈ filter_params]
     join(filters, " and ")
 end
+
+"""
+    generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V}
+
+Generates a `filter` string from `filter_params` dictionary and `param` entity type.
+"""
 generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V} = generatefilterfromentity_type(filter_params, "param")
+"""
+    generatefilterfrommattributes(filter_attributes::AbstractDict{K,V}) where {K,V}
+
+Generates a `filter` string from `filter_attributes` dictionary and `attribute` entity type.
+"""
 generatefilterfromattributes(filter_attributes::AbstractDict{K,V}) where {K,V} = generatefilterfromentity_type(filter_attributes, "attribute")
 
 const MLFLOW_ERROR_CODES = (;
