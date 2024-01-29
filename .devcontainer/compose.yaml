@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  project:
+    image: mcr.microsoft.com/devcontainers/base:debian
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity # Overrides default command so things don't shut down after the process ends.
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.10.0
+    entrypoint: ["mlflow", "server", "--host", "0.0.0.0"]
+    ports:
+      - "5000"
