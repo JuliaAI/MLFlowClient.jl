@@ -11,7 +11,7 @@ Base type which defines location and version for MLFlow API service.
 # Constructors
 
 - `MLFlow(baseuri; apiversion=2.0,headers=Dict())`
-- `MLFlow()` - defaults to `MLFlow("http://localhost:5000")`
+- `MLFlow()` - defaults to `MLFlow(ENV["MLFLOW_URI"])`
 
 # Examples
 
@@ -31,7 +31,7 @@ struct MLFlow
     headers::Dict
 end
 MLFlow(baseuri; apiversion=2.0,headers=Dict()) = MLFlow(baseuri, apiversion,headers)
-MLFlow() = MLFlow("http://localhost:5000", 2.0, Dict())
+MLFlow() = MLFlow(ENV["MLFLOW_URI"], 2.0, Dict())
 Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, [:baseuri,:apiversion], new_lines=true))
 
 """
