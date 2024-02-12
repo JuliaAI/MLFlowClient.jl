@@ -83,9 +83,9 @@ Stores an artifact (file) in the run's artifact location.
 # Returns
 path of the artifact that was created.
 """
-function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::AbstractString, data)
+function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::AbstractString, data; artifact_path="")
     mlflowrun = getrun(mlf, run_id)
-    artifact_uri = joinpath(mlflowrun.info.artifact_uri,dirname(basefilename))
+    artifact_uri = joinpath(mlflowrun.info.artifact_uri,artifact_path,dirname(basefilename))
     basefilename = basename(basefilename)
 
     if !startswith(artifact_uri, "s3://")
