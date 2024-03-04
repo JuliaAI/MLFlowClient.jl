@@ -15,12 +15,24 @@ An object of type [`MLFlowExperiment`](@ref).
 """
 function createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags=missing)
     endpoint = "experiments/create"
+
     if ismissing(name)
         name = string(UUIDs.uuid4())
     end
-    result = mlfpost(mlf, endpoint; name=name, artifact_location=artifact_location, tags=tags)
-    experiment_id = parse(Int, result["experiment_id"])
-    getexperiment(mlf, experiment_id)
+
+    try
+        result = mlfpost(mlf, endpoint; name=name, artifact_location=artifact_location, tags=tags)
+        experiment_id = parse(Int, result["experiment_id"])
+        return getexperiment(mlf, experiment_id)
+    catch e
+        if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 400
+            error_code = JSON.parse(String(e.response.body))["error_code"]
+            if error_code == MLFLOW_ERROR_CODES.RESOURCE_ALREADY_EXISTS
+                error("Experiment with name \"$name\" already exists")
+            end
+        end
+        throw(e)
+    end
 end
 
 """
@@ -38,7 +50,9 @@ An instance of type [`MLFlowExperiment`](@ref)
 """
 function getexperiment(mlf::MLFlow, experiment_id::Integer)
     try
-        result = _getexperimentbyid(mlf, experiment_id)
+        endpoint = "experiments/get"
+        arguments = (:experiment_id => experiment_id,)
+        result = mlfget(mlf, endpoint; arguments...)["experiment"]
         return MLFlowExperiment(result)
     catch e
         if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
@@ -62,7 +76,9 @@ An instance of type [`MLFlowExperiment`](@ref)
 """
 function getexperiment(mlf::MLFlow, experiment_name::String)
     try
-        result = _getexperimentbyname(mlf, experiment_name)
+        endpoint = "experiments/get-by-name"
+        arguments = (:experiment_name => experiment_name,)
+        result = mlfget(mlf, endpoint; arguments...)["experiment"]
         return MLFlowExperiment(result)
     catch e
         if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
@@ -70,16 +86,6 @@ function getexperiment(mlf::MLFlow, experiment_name::String)
         end
         throw(e)
     end
-end
-function _getexperimentbyid(mlf::MLFlow, experiment_id::Integer)
-    endpoint = "experiments/get"
-    arguments = (:experiment_id => experiment_id,)
-    mlfget(mlf, endpoint; arguments...)["experiment"]
-end
-function _getexperimentbyname(mlf::MLFlow, experiment_name::String)
-    endpoint = "experiments/get-by-name"
-    arguments = (:experiment_name => experiment_name,)
-    mlfget(mlf, endpoint; arguments...)["experiment"]
 end
 
 """
@@ -98,11 +104,12 @@ An instance of type [`MLFlowExperiment`](@ref)
 
 """
 function getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags=missing)
-    exp = getexperiment(mlf, experiment_name)
-    if ismissing(exp)
-        exp = createexperiment(mlf, name=experiment_name, artifact_location=artifact_location, tags=tags)
+    experiment = getexperiment(mlf, experiment_name)
+
+    if ismissing(experiment)
+        return createexperiment(mlf, name=experiment_name, artifact_location=artifact_location, tags=tags)
     end
-    exp
+    return experiment
 end
 
 """
@@ -122,6 +129,7 @@ function deleteexperiment(mlf::MLFlow, experiment_id::Integer)
     endpoint = "experiments/delete"
     try
         mlfpost(mlf, endpoint; experiment_id=experiment_id)
+        return true
     catch e
         if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
             # experiment already deleted
@@ -129,7 +137,6 @@ function deleteexperiment(mlf::MLFlow, experiment_id::Integer)
         end
         throw(e)
     end
-    true
 end
 
 """
@@ -164,14 +171,16 @@ function restoreexperiment(mlf::MLFlow, experiment_id::Integer)
     endpoint = "experiments/restore"
     try
         mlfpost(mlf, endpoint; experiment_id=experiment_id)
+        return true
     catch e
         if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
-            # experiment already restored
-            return true
+            error_code = JSON.parse(String(e.response.body))["error_code"]
+            if error_code == MLFLOW_ERROR_CODES.RESOURCE_DOES_NOT_EXIST
+                error("Experiment with id \"$experiment_id\" does not exist")
+            end
         end
         throw(e)
     end
-    true
 end
 
 restoreexperiment(mlf::MLFlow, experiment::MLFlowExperiment) =

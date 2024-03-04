@@ -3,6 +3,8 @@
     exp = createexperiment(mlf)
 
     @test isa(exp, MLFlowExperiment)
+    @test_throws ErrorException createexperiment(mlf; name=exp.name)
+
     deleteexperiment(mlf, exp)
 end
 

@@ -14,6 +14,7 @@ MLFlowExperiment
 MLFlowRun
 MLFlowRunInfo
 MLFlowRunData
+MLFlowRunDataParam
 MLFlowRunDataMetric
 MLFlowRunStatus
 MLFlowArtifactFileInfo
@@ -28,7 +29,7 @@ getexperiment
 getorcreateexperiment
 deleteexperiment
 searchexperiments
-listexperiments
+restoreexperiment
 ```
 
 # Runs
@@ -55,5 +56,5 @@ uri
 generatefilterfromentity_type
 generatefilterfromparams
 generatefilterfromattributes
-
+healthcheck
 ```
