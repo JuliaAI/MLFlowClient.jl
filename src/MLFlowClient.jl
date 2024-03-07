@@ -19,6 +19,10 @@ using URIs
 using JSON
 using ShowCases
 using FilePathsBase: AbstractPath
+using AWSS3
+using Minio
+using AWS: AbstractAWSConfig, AWSConfig, AWSCredentials, global_aws_config
+
 
 include("types/mlflow.jl")
 export
