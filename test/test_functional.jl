@@ -35,10 +35,12 @@ end
     using MLFlowClient: uri, headers
     using URIs: URI
 
-    @test healthcheck(MLFlow()) == true
+    let baseuri = "http://localhost:5001", apiversion = 2.0, endpoint = "experiments/get"
+        mlf = MLFlow(baseuri; apiversion=apiversion)
+        apiuri = uri(mlf, endpoint)
+        @test apiuri == URI("$baseuri/api/$apiversion/mlflow/$endpoint")
 
-    let baseuri = "http://localhost:5001", apiversion = "2.0", endpoint = "experiments/get"
-        mlf = MLFlow(baseuri; apiversion)
+        mlf = MLFlow(baseuri; apiversion=apiversion, use_ajax=true)
         apiuri = uri(mlf, endpoint)
         @test apiuri == URI("$baseuri/ajax-api/$apiversion/mlflow/$endpoint")
     end

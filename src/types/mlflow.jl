@@ -5,12 +5,14 @@ Base type which defines location and version for MLFlow API service.
 
 # Fields
 - `baseuri::String`: base MLFlow tracking URI, e.g. `http://localhost:5000`
-- `apiversion`: used API version, e.g. `2.0`
-- `headers`: HTTP headers to be provided with the REST API requests (useful for authetication tokens)
+- `apiversion::Union{Integer, AbstractFloat}`: used API version, e.g. `2.0`
+- `headers::Dict`: HTTP headers to be provided with the REST API requests (useful for authetication tokens)
+- `use_ajax::Bool`: whether to use the AJAX endpoint for the MLFlow service.
+Default is `false`, using the REST API endpoint.
 
 # Constructors
 
-- `MLFlow(baseuri; apiversion=2.0,headers=Dict())`
+- `MLFlow(baseuri; apiversion=2.0,headers=Dict(),use_ajax=false)`
 - `MLFlow()` - defaults to `MLFlow(ENV["MLFLOW_TRACKING_URI"])` or `MLFlow("http://localhost:5000")`
 
 # Examples
@@ -29,8 +31,9 @@ struct MLFlow
     baseuri::String
     apiversion::Union{Integer, AbstractFloat}
     headers::Dict
+    use_ajax::Bool
 end
-MLFlow(baseuri; apiversion=2.0,headers=Dict()) = MLFlow(baseuri, apiversion,headers)
+MLFlow(baseuri; apiversion=2.0, headers=Dict(), use_ajax=false) = MLFlow(baseuri, apiversion, headers, use_ajax)
 function MLFlow()
     baseuri = "http://localhost:5000"
     if haskey(ENV, "MLFLOW_TRACKING_URI")
@@ -38,5 +41,4 @@ function MLFlow()
     end
     return MLFlow(baseuri)
 end
-
 Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, [:baseuri,:apiversion], new_lines=true))
