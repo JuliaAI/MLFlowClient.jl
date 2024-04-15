@@ -1,0 +1,14 @@
+{
+    "dockerComposeFile": "compose.yaml",
+    "service": "project",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "features": {
+        "ghcr.io/julialang/devcontainer-features/julia:1": {
+            "channel": "release"
+        }
+    },
+    "containerEnv": {
+        "JULIA_PROJECT": "/workspaces/${localWorkspaceFolderBasename}",
+        "MLFLOW_TRACKING_URI": "http://mlflow:5000",
+    }
+}
