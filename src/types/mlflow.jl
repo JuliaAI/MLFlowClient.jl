@@ -12,7 +12,7 @@ Default is `false`, using the REST API endpoint.
 # Constructors
 
 - `MLFlow(apiroot; apiversion=2.0,headers=Dict())`
-- `MLFlow()` - defaults to `MLFlow(ENV["MLFLOW_TRACKING_URI"])` or `MLFlow("http://localhost:5000")`
+- `MLFlow()` - defaults to `MLFlow(ENV["MLFLOW_API_URI"])` or `MLFlow("http://localhost:5000")`
 
 # Examples
 
@@ -34,8 +34,8 @@ end
 MLFlow(apiroot; apiversion=2.0, headers=Dict()) = MLFlow(apiroot, apiversion, headers)
 function MLFlow()
     apiroot = "http://localhost:5000/api"
-    if haskey(ENV, "MLFLOW_TRACKING_URI")
-        apiroot = ENV["MLFLOW_TRACKING_URI"]
+    if haskey(ENV, "MLFLOW_API_URI")
+        apiroot = ENV["MLFLOW_API_URI"]
     end
     return MLFlow(apiroot)
 end

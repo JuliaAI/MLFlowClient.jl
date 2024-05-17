@@ -1,6 +1,6 @@
 @testset "MLFlow" begin
     mlf = MLFlow()
-    @test mlf.apiroot == ENV["MLFLOW_TRACKING_URI"]
+    @test mlf.apiroot == ENV["MLFLOW_API_URI"]
     @test mlf.apiversion == 2.0
     @test mlf.headers == Dict()
     mlf = MLFlow("https://localhost:5001/api", apiversion=3.0)
