@@ -13,7 +13,7 @@ function mlflow_server_is_running(mlf::MLFlow)
 end
 
 # creates an instance of mlf
-# skips test if mlflow is not available on default location, ENV["MLFLOW_API_URI"]
+# skips test if mlflow is not available on default location, ENV["MLFLOW_TRACKING_URI"]
 macro ensuremlf()
     e = quote
         mlf = MLFlow()

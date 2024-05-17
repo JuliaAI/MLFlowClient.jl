@@ -1,5 +1,5 @@
-if ~haskey(ENV, "MLFLOW_API_URI")
-    error("WARNING: MLFLOW_API_URI is not set. To run this tests, you need to set the URI of your MLFlow server API")
+if ~haskey(ENV, "MLFLOW_TRACKING_URI")
+    error("WARNING: MLFLOW_TRACKING_URI is not set. To run this tests, you need to set the URI of your MLFlow server API")
 end
 
 include("base.jl")
