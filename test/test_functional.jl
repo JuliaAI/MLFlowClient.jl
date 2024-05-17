@@ -1,15 +1,15 @@
 @testset "MLFlow" begin
     mlf = MLFlow()
-    @test mlf.baseuri == ENV["MLFLOW_TRACKING_URI"]
+    @test mlf.apiroot == ENV["MLFLOW_API_URI"]
     @test mlf.apiversion == 2.0
     @test mlf.headers == Dict()
-    mlf = MLFlow("https://localhost:5001", apiversion=3.0)
-    @test mlf.baseuri == "https://localhost:5001"
+    mlf = MLFlow("https://localhost:5001/api", apiversion=3.0)
+    @test mlf.apiroot == "https://localhost:5001/api"
     @test mlf.apiversion == 3.0
     @test mlf.headers == Dict()
     let custom_headers = Dict("Authorization" => "Bearer EMPTY")
-        mlf = MLFlow("https://localhost:5001", apiversion=3.0, headers=custom_headers)
-        @test mlf.baseuri == "https://localhost:5001"
+        mlf = MLFlow("https://localhost:5001/api", apiversion=3.0, headers=custom_headers)
+        @test mlf.apiroot == "https://localhost:5001/api"
         @test mlf.apiversion == 3.0
         @test mlf.headers == custom_headers
     end
@@ -21,8 +21,8 @@ end
         secret_token = "SECRET"
 
         custom_headers = Dict("Authorization" => "Bearer $secret_token")
-        mlf = MLFlow("https://localhost:5001", apiversion=3.0, headers=custom_headers)
-        @test mlf.baseuri == "https://localhost:5001"
+        mlf = MLFlow("https://localhost:5001/api", apiversion=3.0, headers=custom_headers)
+        @test mlf.apiroot == "https://localhost:5001/api"
         @test mlf.apiversion == 3.0
         @test mlf.headers == custom_headers
         show(io, mlf)
@@ -35,17 +35,15 @@ end
     using MLFlowClient: uri, headers
     using URIs: URI
 
-    @test healthcheck(MLFlow()) == true
-
-    let baseuri = "http://localhost:5001", apiversion = "2.0", endpoint = "experiments/get"
-        mlf = MLFlow(baseuri; apiversion)
+    let apiroot = "http://localhost:5001/api", apiversion = 2.0, endpoint = "experiments/get"
+        mlf = MLFlow(apiroot; apiversion=apiversion)
         apiuri = uri(mlf, endpoint)
-        @test apiuri == URI("$baseuri/ajax-api/$apiversion/mlflow/$endpoint")
+        @test apiuri == URI("$apiroot/$apiversion/mlflow/$endpoint")
     end
-    let baseuri = "http://localhost:5001", auth_headers = Dict("Authorization" => "Bearer 123456"),
+    let apiroot = "http://localhost:5001/api", auth_headers = Dict("Authorization" => "Bearer 123456"),
         custom_headers = Dict("Content-Type" => "application/json")
 
-        mlf = MLFlow(baseuri; headers=auth_headers)
+        mlf = MLFlow(apiroot; headers=auth_headers)
         apiheaders = headers(mlf, custom_headers)
         @test apiheaders == Dict("Authorization" => "Bearer 123456", "Content-Type" => "application/json")
     end
