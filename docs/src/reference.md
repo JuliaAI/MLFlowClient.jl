@@ -56,5 +56,4 @@ uri
 generatefilterfromentity_type
 generatefilterfromparams
 generatefilterfromattributes
-healthcheck
 ```
