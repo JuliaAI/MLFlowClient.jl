@@ -68,3 +68,68 @@ const MLFLOW_ERROR_CODES = (;
     RESOURCE_ALREADY_EXISTS = "RESOURCE_ALREADY_EXISTS",
     RESOURCE_DOES_NOT_EXIST = "RESOURCE_DOES_NOT_EXIST",
 )
+
+"""
+    transform_pair_array_to_dict_array(pair_array::Array{Pair{Any, Any}})
+
+Transforms an array of `Pair` into an array of `Dict`.
+
+```@example
+# Having an array of pairs
+["foo" => "bar", "missy" => "gala"]
+
+# Will be transformed into an array of dictionaries
+[Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
+```
+"""
+function transform_pair_array_to_dict_array(pair_array::Array{Pair{Any, Any}})
+    dict_array = Dict{String, String}[]
+    for pair in pair_array
+        key = string(pair.first)
+        value = string(pair.second)
+        push!(dict_array, Dict(key => value))
+    end
+    return dict_array
+end
+
+"""
+    transform_dict_to_dict_array(dict::Dict{Any, Any})
+
+Transforms a dictionary into an array of `Dict`.
+
+```@example
+# Having a dictionary
+Dict("foo" => "bar", "missy" => "gala")
+
+# Will be transformed into an array of dictionaries
+[Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
+```
+"""
+function transform_dict_to_dict_array(dict::Dict{Any, Any})
+    dict_array = Dict{String, String}[]
+    for (key, value) in dict
+        push!(dict_array, Dict(string(key) => string(value)))
+    end
+    return dict_array
+end
+
+"""
+    transform_tag_array_to_dict_array(tag_array::Array{Tag})
+
+Transforms an array of `Tag` into an array of `Dict`.
+
+```@example
+# Having an array of tags
+[Tag("foo", "bar"), Tag("missy", "gala")]
+
+# Will be transformed into an array of dictionaries
+[Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
+```
+"""
+function transform_tag_array_to_dict_array(tag_array::Array{Tag})
+    dict_array = Dict{String, String}[]
+    for tag in tag_array
+        push!(dict_array, Dict(tag.key => tag.value))
+    end
+    return dict_array
+end

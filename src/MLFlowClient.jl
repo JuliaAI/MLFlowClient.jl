@@ -20,68 +20,19 @@ using JSON
 using ShowCases
 using FilePathsBase: AbstractPath
 
-include("types/mlflow.jl")
-export
-    MLFlow
-
-include("types/experiment.jl")
-export
-    MLFlowExperiment
-
-include("types/run.jl")
-export
-    MLFlowRunStatus,
-    MLFlowRunInfo,
-    MLFlowRunDataMetric,
-    MLFlowRunDataParam,
-    MLFlowRunData,
-    MLFlowRun,
-    get_info,
-    get_data,
-    get_run_id,
-    get_params
-
+include("types/tag.jl")
+include("types/enums.jl")
+include("types/dataset.jl")
 include("types/artifact.jl")
-export
-    MLFlowArtifactFileInfo,
-    MLFlowArtifactDirInfo,
-    get_path,
-    get_size
-
-include("api.jl")
+include("types/model_version.jl")
+include("types/registered_model.jl")
+include("types/experiment.jl")
+include("types/run.jl")
+include("types/mlflow.jl")
 
 include("utils.jl")
-export
-    generatefilterfromparams
-    generatefilterfromattributes
-    generatefilterfromentity_type
+include("api.jl")
 
-include("experiments.jl")
-export
-    createexperiment,
-    getexperiment,
-    getorcreateexperiment,
-    deleteexperiment,
-    restoreexperiment,
-    searchexperiments
-
-include("runs.jl")
-export
-    createrun,
-    getrun,
-    updaterun,
-    deleterun,
-    searchruns
-
-include("loggers.jl")
-export
-    logbatch,
-    logparam,
-    logmetric,
-    logartifact,
-    listartifacts,
-    settag
-
-include("deprecated.jl")
+include("services/experiment.jl")
 
 end
