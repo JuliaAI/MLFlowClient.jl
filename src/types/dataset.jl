@@ -1,0 +1,49 @@
+"""
+    Dataset
+
+Represents a reference to data used for training, testing, or evaluation during
+the model development process.
+
+# Fields
+- `name::String`: The name of the dataset.
+- `digest::String`: The digest of the dataset.
+- `source_type::String`: The type of the dataset source.
+- `source::String`: Source information for the dataset.
+- `schema::String`: The schema of the dataset. This field is optional.
+- `profile::String`: The profile of the dataset. This field is optional.
+
+# Constructors
+- `Dataset(name, digest, source_type, source, schema, profile)`
+- `Dataset(name, digest, source_type, source; schema=nothing, profile=nothing)`
+"""
+struct Dataset
+    name::String
+    digest::String
+    source_type::String
+    source::String
+    schema::Union{String, Nothing}
+    profile::Union{String, Nothing}
+end
+Dataset(name, digest, source_type, source; schema=nothing, profile=nothing) =
+    Dataset(name, digest, source_type, source, schema, profile)
+Base.show(io::IO, t::Dataset) = show(io, ShowCase(t, new_lines=true))
+
+"""
+    DatasetInput
+
+Represents a dataset and input tags.
+
+# Fields
+- `tags::Array{Tag}`: A list of tags for the dataset input.
+- `dataset::Dataset`: The dataset being used as a Run input.
+
+# Constructors
+- `DatasetInput(tags, dataset)`
+- `DatasetInput(dataset; tags=[])`
+"""
+struct DatasetInput
+    tags::Array{Tag}
+    dataset::Dataset
+end
+DatasetInput(dataset; tags=[]) = DatasetInput(tags, dataset)
+Base.show(io::IO, t::DatasetInput) = show(io, ShowCase(t, new_lines=true))

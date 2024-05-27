@@ -1,31 +1,14 @@
 """
-    MLFlowArtifactFileInfo
-
-Metadata of a single artifact file -- result of [`listartifacts`](@ref).
+    FileInfo
 
 # Fields
-- `filepath::String`: File path, including the root artifact directory of a run.
-- `filesize::Int64`: Size in bytes.
+- `path::String`: Path relative to the root artifact directory run.
+- `is_dir::Bool`: Whether the path is a directory.
+- `file_size::Int64`: Size in bytes. Unset for directories.
 """
-struct MLFlowArtifactFileInfo
-    filepath::String
-    filesize::Int64
+struct FileInfo
+    path::String
+    is_dir::Bool
+    file_size::Int64
 end
-Base.show(io::IO, t::MLFlowArtifactFileInfo) = show(io, ShowCase(t, new_lines=true))
-get_path(mlfafi::MLFlowArtifactFileInfo) = mlfafi.filepath
-get_size(mlfafi::MLFlowArtifactFileInfo) = mlfafi.filesize
-
-"""
-    MLFlowArtifactDirInfo
-
-Metadata of a single artifact directory -- result of [`listartifacts`](@ref).
-
-# Fields
-- `dirpath::String`: Directory path, including the root artifact directory of a run.
-"""
-struct MLFlowArtifactDirInfo
-    dirpath::String
-end
-Base.show(io::IO, t::MLFlowArtifactDirInfo) = show(io, ShowCase(t, new_lines=true))
-get_path(mlfadi::MLFlowArtifactDirInfo) = mlfadi.dirpath
-get_size(mlfadi::MLFlowArtifactDirInfo) = 0
+Base.show(io::IO, t::FileInfo) = show(io, ShowCase(t, new_lines=true))
