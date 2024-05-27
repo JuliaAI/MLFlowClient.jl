@@ -18,7 +18,7 @@ end
 p = plot()
 
 # Create MLFlow instance
-mlf = MLFlow("http://localhost:5000")
+mlf = MLFlow("http://localhost:5000/api")
 
 # Initiate new experiment
 experiment_id = createexperiment(mlf; name="price-paths")
