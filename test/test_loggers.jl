@@ -120,7 +120,7 @@ end
     end
 
     @testset "logartifact_error" begin
-        @test_broken logartifact(mlf, r, "/etc/shadow")
+        @test_broken logartifact(mlf, r, "/etc/misina")
     end
 
     deleteexperiment(mlf, e)
@@ -167,20 +167,29 @@ end
     runname = "run-$(UUIDs.uuid4())"
     r = createrun(mlf, e.experiment_id)
 
+    tempfilename = "./mlflowclient-tempfile.txt"
+
+    open(tempfilename, "w") do file
+        write(file, "Hello, world!\n")
+    end
+
+    logartifact(mlf, r, tempfilename)
+
     @testset "listartifacts_by_run_id" begin
         artifacts = listartifacts(mlf, r.info.run_id)
-        @test length(artifacts) == 0
+        @test length(artifacts) == 1
     end
 
     @testset "listartifacts_by_run" begin
         artifacts = listartifacts(mlf, r)
-        @test length(artifacts) == 0
+        @test length(artifacts) == 1
     end
 
     @testset "listartifacts_by_run_info" begin
         artifacts = listartifacts(mlf, r.info)
-        @test length(artifacts) == 0
+        @test length(artifacts) == 1
     end
 
+    rm(tempfilename)
     deleteexperiment(mlf, e)
 end

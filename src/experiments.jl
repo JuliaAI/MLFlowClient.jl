@@ -6,14 +6,16 @@ Creates an MLFlow experiment.
 # Arguments
 - `mlf`: [`MLFlow`](@ref) configuration.
 - `name`: experiment name. If not specified, MLFlow sets it.
-- `artifact_location`: directory where artifacts of this experiment will be stored. If not specified, MLFlow uses its default configuration.
+- `artifact_location`: directory where artifacts of this experiment will be
+stored. If not specified, `./mlruns` will be used (it will take the directory
+where you are running `mlflow` as the root one).
 - `tags`: a Dictionary of key-values which tag the experiment.
 
 # Returns
 An object of type [`MLFlowExperiment`](@ref).
 
 """
-function createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags=missing)
+function createexperiment(mlf::MLFlow; name=missing, artifact_location="./mlruns", tags=missing)
     endpoint = "experiments/create"
 
     if ismissing(name)
@@ -103,7 +105,7 @@ Gets an experiment if one alrady exists, or creates a new one.
 An instance of type [`MLFlowExperiment`](@ref)
 
 """
-function getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags=missing)
+function getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location="./mlruns", tags=missing)
     experiment = getexperiment(mlf, experiment_name)
 
     if ismissing(experiment)
