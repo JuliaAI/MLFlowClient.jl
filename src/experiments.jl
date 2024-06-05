@@ -1,5 +1,5 @@
 """
-    createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags=missing)
+    createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags::Vector{Dict{String, String}}=missing)
 
 Creates an MLFlow experiment.
 
@@ -7,13 +7,14 @@ Creates an MLFlow experiment.
 - `mlf`: [`MLFlow`](@ref) configuration.
 - `name`: experiment name. If not specified, MLFlow sets it.
 - `artifact_location`: directory where artifacts of this experiment will be stored. If not specified, MLFlow uses its default configuration.
-- `tags`: a Dictionary of key-values which tag the experiment.
+- `tags`: a Vector of Dictionaries which tag the experiment.
+    - example tags: [Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
 
 # Returns
 An object of type [`MLFlowExperiment`](@ref).
 
 """
-function createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags=missing)
+function createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags::Vector{Dict{String, String}}=missing)
     endpoint = "experiments/create"
 
     if ismissing(name)
@@ -89,7 +90,7 @@ function getexperiment(mlf::MLFlow, experiment_name::String)
 end
 
 """
-    getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags=missing)
+    getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags::Vector{Dict{String, String}}=missing)
 
 Gets an experiment if one alrady exists, or creates a new one.
 
@@ -97,13 +98,14 @@ Gets an experiment if one alrady exists, or creates a new one.
 - `mlf`: [`MLFlow`](@ref) configuration.
 - `experiment_name`: Experiment name.
 - `artifact_location`: directory where artifacts of this experiment will be stored. If not specified, MLFlow uses its default configuration.
-- `tags`: a Dictionary of key-values which tag the experiment.
+- `tags`: a Vector of Dictionaries which tag the experiment.
+    - example tags: [Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
 
 # Returns
 An instance of type [`MLFlowExperiment`](@ref)
 
 """
-function getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags=missing)
+function getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags::Vector{Dict{String, String}}=missing)
     experiment = getexperiment(mlf, experiment_name)
 
     if ismissing(experiment)

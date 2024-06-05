@@ -10,12 +10,13 @@ Creates a run associated to an experiment.
 # Keywords
 - `run_name`: run name. If not specified, MLFlow sets it.
 - `start_time`: if provided, must be a UNIX timestamp in milliseconds. By default, set to current time.
-- `tags`: if provided, must be a key-value structure such as a dictionary.
+- `tags`: if provided, must be a key-value structure such as for example:
+    - [Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
 
 # Returns
 - an instance of type [`MLFlowRun`](@ref)
 """
-function createrun(mlf::MLFlow, experiment_id; run_name=missing, start_time=missing, tags=missing)
+function createrun(mlf::MLFlow, experiment_id; run_name=missing, start_time=missing, tags::Vector{Dict{String, String}}=missing)
     endpoint = "runs/create"
     if ismissing(start_time)
         start_time = Int(trunc(datetime2unix(now(UTC)) * 1000))
@@ -24,11 +25,11 @@ function createrun(mlf::MLFlow, experiment_id; run_name=missing, start_time=miss
     MLFlowRun(result["run"]["info"], result["run"]["data"])
 end
 """
-    createrun(mlf::MLFlow, experiment::MLFlowExperiment; run_name=missing, start_time=missing, tags=missing)
+    createrun(mlf::MLFlow, experiment::MLFlowExperiment; run_name=missing, start_time=missing, tags::Vector{Dict{String, String}}=missing)
 
 Dispatches to `createrun(mlf::MLFlow, experiment_id; run_name=run_name, start_time=start_time, tags=tags)`
 """
-createrun(mlf::MLFlow, experiment::MLFlowExperiment; run_name=missing, start_time=missing, tags=missing) =
+createrun(mlf::MLFlow, experiment::MLFlowExperiment; run_name=missing, start_time=missing, tags::Vector{Dict{String, String}}=missing) =
     createrun(mlf, experiment.experiment_id; run_name=run_name, start_time=start_time, tags=tags)
 
 """
