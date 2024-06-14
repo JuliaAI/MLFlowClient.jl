@@ -1,5 +1,5 @@
 """
-    createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags::Vector{Dict{String, String}}=missing)
+    createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags=missing)
 
 Creates an MLFlow experiment.
 
@@ -14,7 +14,7 @@ Creates an MLFlow experiment.
 An object of type [`MLFlowExperiment`](@ref).
 
 """
-function createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags::Vector{Dict{String, String}}=missing)
+function createexperiment(mlf::MLFlow; name=missing, artifact_location=missing, tags=missing)
     endpoint = "experiments/create"
 
     if ismissing(name)
@@ -90,7 +90,7 @@ function getexperiment(mlf::MLFlow, experiment_name::String)
 end
 
 """
-    getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags::Vector{Dict{String, String}}=missing)
+    getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags=missing)
 
 Gets an experiment if one alrady exists, or creates a new one.
 
@@ -105,7 +105,7 @@ Gets an experiment if one alrady exists, or creates a new one.
 An instance of type [`MLFlowExperiment`](@ref)
 
 """
-function getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags::Vector{Dict{String, String}}=missing)
+function getorcreateexperiment(mlf::MLFlow, experiment_name::String; artifact_location=missing, tags=missing)
     experiment = getexperiment(mlf, experiment_name)
 
     if ismissing(experiment)
