@@ -1,3 +1,41 @@
+@testset verbose = true "settag" begin
+    @ensuremlf
+    expname = "settag-$(UUIDs.uuid4())"
+    e = getorcreateexperiment(mlf, expname)
+    runname = "run-$(UUIDs.uuid4())"
+    r = createrun(mlf, e.experiment_id)
+
+    @testset "settag_by_run_id_and_key_value" begin
+        settag(mlf, r.info.run_id, "run_id_key_value", "test")
+        retrieved_run = searchruns(mlf, e; filter="tags.run_id_key_value = 'test'")
+        @test length(retrieved_run) == 1
+        @test retrieved_run[1].info.run_id == r.info.run_id
+    end
+
+    @testset "settag_by_run_info_and_key_value" begin
+        settag(mlf, r.info, "run_id_key_value", "test")
+        retrieved_run = searchruns(mlf, e; filter="tags.run_id_key_value = 'test'")
+        @test length(retrieved_run) == 1
+        @test retrieved_run[1].info.run_id == r.info.run_id
+    end
+
+    @testset "settag_by_run_and_key_value" begin
+        settag(mlf, r, "run_id_key_value", "test")
+        retrieved_run = searchruns(mlf, e; filter="tags.run_id_key_value = 'test'")
+        @test length(retrieved_run) == 1
+        @test retrieved_run[1].info.run_id == r.info.run_id
+    end
+
+    @testset "settag_by_union_and_dict_key_value" begin
+        settag(mlf, r, Dict("run_id_key_value" => "test"))
+        retrieved_run = searchruns(mlf, e; filter="tags.run_id_key_value = 'test'")
+        @test length(retrieved_run) == 1
+        @test retrieved_run[1].info.run_id == r.info.run_id
+    end
+
+    deleteexperiment(mlf, e)
+end
+
 @testset verbose = true "logparam" begin
     @ensuremlf
     expname = "logparam-$(UUIDs.uuid4())"
