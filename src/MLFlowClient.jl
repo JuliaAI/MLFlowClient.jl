@@ -60,4 +60,9 @@ export
     restoreexperiment,
     searchexperiments,
     getexperimentbyname
+
+include("services/run.jl")
+export 
+    createrun
+
 end

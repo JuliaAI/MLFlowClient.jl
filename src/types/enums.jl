@@ -32,6 +32,7 @@ Status of a run.
     FAILED=4
     KILLED=5
 end
+RunStatus(status::String) = Dict(value => key for (key, value) in RunStatus |> Base.Enums.namemap)[status |> Symbol] |> RunStatus
 
 """
     ViewType

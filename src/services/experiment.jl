@@ -1,5 +1,5 @@
 """
-    createexperiment(instance::MLFlow; name::String="",
+    createexperiment(instance::MLFlow, name::String;
         artifact_location::String="",
         tags::Union{Dict{<:Any}, Array{<:Any}}=[])
 
@@ -18,13 +18,9 @@ default.
 # Returns
 The ID of the newly created experiment.
 """
-function createexperiment(instance::MLFlow; name::String="",
-    artifact_location::String="",
+function createexperiment(instance::MLFlow, name::String;
+    artifact_location::Union{String, Missing}=missing,
     tags::Union{Dict{<:Any}, Array{<:Any}}=[])::String
-    if name |> isempty
-        name = UUIDs.uuid4() |> string
-    end
-
     tags = tags |> parsetags
 
     try
@@ -100,26 +96,26 @@ function getexperimentbyname(instance::MLFlow, experiment_name::String)
 end
 
 """
-    deleteexperiment(mlf::MLFlow, experiment_id::String)
-    deleteexperiment(mlf::MLFlow, experiment_id::Integer)
-    deleteexperiment(mlf::MLFlow, experiment::Experiment)
+    deleteexperiment(instance::MLFlow, experiment_id::String)
+    deleteexperiment(instance::MLFlow, experiment_id::Integer)
+    deleteexperiment(instance::MLFlow, experiment::Experiment)
 
 Mark an experiment and associated metadata, runs, metrics, params, and tags for
 deletion. If the experiment uses FileStore, artifacts associated with
 experiment are also deleted.
 
 # Arguments
-- `mlf`: [`MLFlow`](@ref) configuration.
+- `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: ID of the associated experiment.
 
 # Returns
 
 `true` if successful. Otherwise, raises exception.
 """
-function deleteexperiment(mlf::MLFlow, experiment_id::String)
+function deleteexperiment(instance::MLFlow, experiment_id::String)
     endpoint = "experiments/delete"
     try
-        mlfpost(mlf, endpoint; experiment_id=experiment_id)
+        mlfpost(instance, endpoint; experiment_id=experiment_id)
         return true
     catch e
         if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
@@ -129,32 +125,32 @@ function deleteexperiment(mlf::MLFlow, experiment_id::String)
         throw(e)
     end
 end
-deleteexperiment(mlf::MLFlow, experiment_id::Integer) =
-    deleteexperiment(mlf, string(experiment_id))
-deleteexperiment(mlf::MLFlow, experiment::Experiment) =
-    deleteexperiment(mlf, experiment.experiment_id)
+deleteexperiment(instance::MLFlow, experiment_id::Integer) =
+    deleteexperiment(instance, string(experiment_id))
+deleteexperiment(instance::MLFlow, experiment::Experiment) =
+    deleteexperiment(instance, experiment.experiment_id)
 
 """
-    restoreexperiment(mlf::MLFlow, experiment_id::String)
-    restoreexperiment(mlf::MLFlow, experiment_id::Integer)
-    restoreexperiment(mlf::MLFlow, experiment::Experiment)
+    restoreexperiment(instance::MLFlow, experiment_id::String)
+    restoreexperiment(instance::MLFlow, experiment_id::Integer)
+    restoreexperiment(instance::MLFlow, experiment::Experiment)
 
 Restore an experiment marked for deletion. This also restores associated
 metadata, runs, metrics, params, and tags. If experiment uses FileStore,
 underlying artifacts associated with experiment are also restored.
 
 # Arguments
-- `mlf`: [`MLFlow`](@ref) configuration.
+- `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: ID of the associated experiment.
 
 # Returns
 
 `true` if successful. Otherwise, raises exception.
 """
-function restoreexperiment(mlf::MLFlow, experiment_id::String)
+function restoreexperiment(instance::MLFlow, experiment_id::String)
     endpoint = "experiments/restore"
     try
-        mlfpost(mlf, endpoint; experiment_id=experiment_id)
+        mlfpost(instance, endpoint; experiment_id=experiment_id)
         return true
     catch e
         if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
@@ -166,20 +162,22 @@ function restoreexperiment(mlf::MLFlow, experiment_id::String)
         throw(e)
     end
 end
-restoreexperiment(mlf::MLFlow, experiment_id::Integer) =
-    deleteexperiment(mlf, string(experiment_id))
-restoreexperiment(mlf::MLFlow, experiment::Experiment) =
-    deleteexperiment(mlf, experiment.experiment_id)
+restoreexperiment(instance::MLFlow, experiment_id::Integer) =
+    deleteexperiment(instance, string(experiment_id))
+restoreexperiment(instance::MLFlow, experiment::Experiment) =
+    deleteexperiment(instance, experiment.experiment_id)
 
 """
-    updateexperiment(mlf::MLFlow, experiment_id::String, new_name::String)
-    updateexperiment(mlf::MLFlow, experiment_id::Integer, new_name::String)
-    updateexperiment(mlf::MLFlow, experiment::Experiment, new_name::String)
+    updateexperiment(instance::MLFlow, experiment_id::String, new_name::String)
+    updateexperiment(instance::MLFlow, experiment_id::Integer,
+        new_name::String)
+    updateexperiment(instance::MLFlow, experiment::Experiment,
+        new_name::String)
 
 Update experiment metadata.
 
 # Arguments
-- `mlf`: [`MLFlow`](@ref) configuration.
+- `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: ID of the associated experiment.
 - `new_name`: If provided, the experiment’s name is changed to the new name.
 The new name must be unique.
@@ -187,27 +185,28 @@ The new name must be unique.
 # Returns
 `true` if successful. Otherwise, raises exception.
 """
-function updateexperiment(mlf::MLFlow, experiment_id::String, new_name::String)
+function updateexperiment(instance::MLFlow, experiment_id::String,
+    new_name::String)
     endpoint = "experiments/update"
     try
-        mlfpost(mlf, endpoint; experiment_id=experiment_id, new_name=new_name)
+        mlfpost(instance, endpoint; experiment_id=experiment_id, new_name=new_name)
         return true
     catch e
         throw(e)
     end
 end
-updateexperiment(mlf::MLFlow, experiment_id::Integer, new_name::String) =
-    updateexperiment(mlf, string(experiment_id), new_name)
-updateexperiment(mlf::MLFlow, experiment::Experiment, new_name::String) =
-    updateexperiment(mlf, experiment.experiment_id, new_name::String)
+updateexperiment(instance::MLFlow, experiment_id::Integer, new_name::String) =
+    updateexperiment(instance, string(experiment_id), new_name)
+updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String) =
+    updateexperiment(instance, experiment.experiment_id, new_name::String)
 
 """
-    searchexperiments(mlf::MLFlow; max_results::Integer=20000,
+    searchexperiments(instance::MLFlow; max_results::Integer=20000,
         page_token::String="", filter::String="", order_by::Array{String}=[],
         view_type::ViewType=ACTIVE_ONLY)
 
 # Arguments
-- `mlf`: [`MLFlow`](@ref) configuration.
+- `instance`: [`MLFlow`](@ref) configuration.
 - `max_results`: Maximum number of experiments desired.
 - `page_token`: Token indicating the page of experiments to fetch.
 - `filter`: A filter expression over experiment attributes and tags that allows
@@ -221,9 +220,9 @@ unspecified, return only active experiments.
 # Returns
 - vector of [`MLFlowExperiment`](@ref) experiments that were found in the MLFlow instance
 """
-function searchexperiments(mlf::MLFlow; max_results::Integer=20000,
+function searchexperiments(instance::MLFlow; max_results::Integer=20000,
     page_token::String="", filter::String="", order_by::Array{String}=String[],
-    view_type::ViewType=ACTIVE_ONLY)
+    view_type::ViewType=ACTIVE_ONLY)::Tuple{Array{Experiment}, Union{String, Nothing}}
     endpoint = "experiments/search"
     parameters = (; max_results, page_token, filter,
         :view_type => view_type |> Integer)
@@ -233,8 +232,12 @@ function searchexperiments(mlf::MLFlow; max_results::Integer=20000,
     end
 
     try
-        result = mlfget(mlf, endpoint; parameters...)
-        return result["experiments"] |> (x -> [Experiment(y) for y in x])
+        result = mlfget(instance, endpoint; parameters...)
+
+        experiments = result["experiments"] |> (x -> [Experiment(y) for y in x])
+        next_page_token = get(result, "next_page_token", nothing)
+
+        return experiments, next_page_token
     catch e
         throw(e)
     end
