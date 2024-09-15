@@ -1,30 +1,4 @@
-"""
-    uri(mlf::MLFlow, endpoint="", query=missing)
-
-Retrieves an URI based on `mlf`, `endpoint`, and, optionally, `query`.
-
-# Examples
-```@example
-MLFlowClient.uri(mlf, "experiments/get", Dict(:experiment_id=>10))
-```
-"""
-function uri(mlf::MLFlow, endpoint="", query=missing)
-    u = URI("$(mlf.apiroot)/$(mlf.apiversion)/mlflow/$(endpoint)")
-    !ismissing(query) && return URI(u; query=query)
-    u
-end
-
-"""
-    headers(mlf::MLFlow,custom_headers::AbstractDict)
-
-Retrieves HTTP headers based on `mlf` and merges with user-provided `custom_headers`
-
-# Examples
-```@example
-headers(mlf,Dict("Content-Type"=>"application/json"))
-```
-"""
-headers(mlf::MLFlow, custom_headers::AbstractDict) = merge(mlf.headers, custom_headers)
+IntOrString = Union{Int, String}
 
 """
     generatefilterfromentity_type(filter_params::AbstractDict{K,V}, entity_type::String) where {K,V}
@@ -70,9 +44,10 @@ const MLFLOW_ERROR_CODES = (;
 )
 
 """
-    transform_pair_array_to_dict_array(pair_array::Array{Pair{Any, Any}})
+    pairtags_to_dictarray(pair_array::Array{Pair{Any, Any}})
 
-Transforms an array of `Pair` into an array of `Dict`.
+Transforms an array of `Pair` tags into an array of MLFlow compatible `Dict`
+format tags.
 
 ```@example
 # Having an array of pairs
@@ -82,18 +57,19 @@ Transforms an array of `Pair` into an array of `Dict`.
 [Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
 ```
 """
-function transform_pair_array_to_dict_array(pair_array::Array{Pair{Any, Any}})
-    dict_array = Dict{String, String}[]
+function pairtags_to_dictarray(pair_array::Array{<:Pair})::Array{<:Dict}
+    dict_array = Dict[]
     for pair in pair_array
         key = string(pair.first)
         value = string(pair.second)
-        push!(dict_array, Dict(key => value))
+        push!(dict_array, Dict("key" => key, "value" => value))
     end
+
     return dict_array
 end
 
 """
-    transform_dict_to_dict_array(dict::Dict{Any, Any})
+    tagsdict_to_dictarray(dict::Dict{Any, Any})
 
 Transforms a dictionary into an array of `Dict`.
 
@@ -105,16 +81,18 @@ Dict("foo" => "bar", "missy" => "gala")
 [Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
 ```
 """
-function transform_dict_to_dict_array(dict::Dict{Any, Any})
-    dict_array = Dict{String, String}[]
+function tagsdict_to_dictarray(dict::Dict{<:Any})::Array{<:Dict}
+    dict_array = Dict[]
     for (key, value) in dict
-        push!(dict_array, Dict(string(key) => string(value)))
+        push!(dict_array, Dict("key" => key |> string,
+            "value" => value |> string))
     end
+
     return dict_array
 end
 
 """
-    transform_tag_array_to_dict_array(tag_array::Array{Tag})
+    tagarray_to_dictarray(tag_array::Array{Tag})
 
 Transforms an array of `Tag` into an array of `Dict`.
 
@@ -126,10 +104,24 @@ Transforms an array of `Tag` into an array of `Dict`.
 [Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
 ```
 """
-function transform_tag_array_to_dict_array(tag_array::Array{Tag})
-    dict_array = Dict{String, String}[]
+function tagarray_to_dictarray(tag_array::Array{Tag})::Array{<:Dict}
+    dict_array = Dict[]
     for tag in tag_array
-        push!(dict_array, Dict(tag.key => tag.value))
+        push!(dict_array, Dict("key" => tag.key , "value" => tag.value))
     end
+
     return dict_array
+end
+
+function parsetags(tags::Union{Dict{<:Any}, Array{<:Any}})::Array{<:Dict}
+    parsed_tags = Dict[]
+    if tags isa Array{Tag}
+        parsed_tags = tags |> tagarray_to_dictarray
+    elseif tags isa Array{<:Pair}
+        parsed_tags = tags |> pairtags_to_dictarray
+    elseif tags isa Dict{<:Any}
+        parsed_tags = tags |> tagsdict_to_dictarray
+    end
+
+    return parsed_tags
 end

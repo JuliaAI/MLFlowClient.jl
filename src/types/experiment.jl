@@ -21,4 +21,8 @@ struct Experiment
     creation_time::Int64
     tags::Array{Tag}
 end
+Experiment(data::Dict{String, Any}) = Experiment(data["experiment_id"],
+    data["name"], data["artifact_location"], data["lifecycle_stage"],
+    data["last_update_time"], data["creation_time"],
+    [Tag(tag) for tag in get(data, "tags", [])])
 Base.show(io::IO, t::Experiment) = show(io, ShowCase(t, new_lines=true))

@@ -8,9 +8,9 @@ server performs background tasks.
 - `READY`: Model version is ready for use.
 """
 @enum ModelVersionStatus begin
-    PENDING_REGISTRATION
-    FAILED_REGISTRATION
-    READY
+    PENDING_REGISTRATION=1
+    FAILED_REGISTRATION=2
+    READY=3
 end
 
 """
@@ -26,11 +26,11 @@ Status of a run.
 - `KILLED`: Run killed by user.
 """
 @enum RunStatus begin
-    RUNNING
-    SCHEDULED
-    FINISHED
-    FAILED
-    KILLED
+    RUNNING=1
+    SCHEDULED=2
+    FINISHED=3
+    FAILED=4
+    KILLED=5
 end
 
 """
@@ -44,7 +44,7 @@ View type for ListExperiments query.
 - `ALL`: Get all experiments.
 """
 @enum ViewType begin
-    ACTIVE_ONLY
-    DELETED_ONLY
-    ALL
+    ACTIVE_ONLY=1
+    DELETED_ONLY=2
+    ALL=3
 end

@@ -1,11 +1,38 @@
 """
+    uri(mlf::MLFlow, endpoint::String; parameters=missing)
+
+Retrieves an URI based on `mlf`, `endpoint`, and, optionally, `parameters`.
+
+# Examples
+```@example
+MLFlowClient.uri(mlf, "experiments/get", Dict(:experiment_id=>10))
+```
+"""
+uri(mlf::MLFlow, endpoint::String;
+    parameters::Dict{Symbol, <:Any}=Dict{Symbol, IntOrString}()) =
+    URI("$(mlf.apiroot)/$(mlf.apiversion)/mlflow/$(endpoint)";
+        query=parameters)
+
+"""
+    headers(mlf::MLFlow,custom_headers::AbstractDict)
+
+Retrieves HTTP headers based on `mlf` and merges with user-provided `custom_headers`
+
+# Examples
+```@example
+headers(mlf,Dict("Content-Type"=>"application/json"))
+```
+"""
+headers(mlf::MLFlow, custom_headers::AbstractDict) = merge(mlf.headers, custom_headers)
+
+"""
     mlfget(mlf, endpoint; kwargs...)
 
 Performs a HTTP GET to a specified endpoint. kwargs are turned into GET params.
 """
 function mlfget(mlf, endpoint; kwargs...)
-    apiuri = uri(mlf, endpoint, kwargs)
-    apiheaders = headers(mlf, Dict("Content-Type" => "application/json"))
+    apiuri = uri(mlf, endpoint; parameters=kwargs |> Dict)
+    apiheaders = headers(mlf, ("Content-Type" => "application/json") |> Dict)
 
     try
         response = HTTP.get(apiuri, apiheaders)
@@ -21,7 +48,7 @@ end
 Performs a HTTP POST to the specified endpoint. kwargs are converted to JSON and become the POST body.
 """
 function mlfpost(mlf, endpoint; kwargs...)
-    apiuri = uri(mlf, endpoint)
+    apiuri = uri(mlf, endpoint;)
     apiheaders = headers(mlf, Dict("Content-Type" => "application/json"))
     body = JSON.json(kwargs)
 
