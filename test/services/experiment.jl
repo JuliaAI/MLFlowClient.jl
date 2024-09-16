@@ -67,10 +67,6 @@ end
         @test isa(experiment, Experiment)
     end
 
-    @testset "not found" begin
-        @test isa(getexperiment(mlf, 123), Missing)
-    end
-
     deleteexperiment(mlf, experiment_id)
 end
 
@@ -119,6 +115,12 @@ end
         deleteexperiment(mlf, experiment_id)
         @test restoreexperiment(mlf, experiment)
     end
+
+    @testset "restore not found" begin
+        @test_throws ErrorException restoreexperiment(mlf, 123)
+    end
+
+    deleteexperiment(mlf, experiment_id)
 end
 
 @testset verbose = true "update experiment" begin

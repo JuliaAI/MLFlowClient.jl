@@ -63,6 +63,8 @@ export
 
 include("services/run.jl")
 export 
-    createrun
-
+    createrun,
+    deleterun,
+    restorerun,
+    getrun
 end

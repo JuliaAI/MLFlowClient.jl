@@ -49,7 +49,7 @@ Get metadata for an experiment. This method works on deleted experiments.
 - `experiment_id`: ID of the associated experiment.
 
 # Returns
-An object of type [`Experiment`](@ref).
+An instance of type [`Experiment`](@ref).
 """
 function getexperiment(instance::MLFlow, experiment_id::String)
     try
@@ -57,9 +57,6 @@ function getexperiment(instance::MLFlow, experiment_id::String)
         result = mlfget(instance, "experiments/get"; arguments...)
         return result["experiment"] |> Experiment
     catch e
-        if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
-            return missing
-        end
         throw(e)
     end
 end
@@ -80,7 +77,7 @@ deleted experiments share the same name, the API will return one of them.
 - `experiment_name`: Name of the associated experiment.
 
 # Returns
-An object of type [`Experiment`](@ref).
+An instance of type [`Experiment`](@ref).
 """
 function getexperimentbyname(instance::MLFlow, experiment_name::String)
     try
@@ -163,9 +160,9 @@ function restoreexperiment(instance::MLFlow, experiment_id::String)
     end
 end
 restoreexperiment(instance::MLFlow, experiment_id::Integer) =
-    deleteexperiment(instance, string(experiment_id))
+    restoreexperiment(instance, string(experiment_id))
 restoreexperiment(instance::MLFlow, experiment::Experiment) =
-    deleteexperiment(instance, experiment.experiment_id)
+    restoreexperiment(instance, experiment.experiment_id)
 
 """
     updateexperiment(instance::MLFlow, experiment_id::String, new_name::String)
