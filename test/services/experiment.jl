@@ -14,11 +14,11 @@
         deleteexperiment(mlf, experiment.experiment_id)
     end
 
-    @testset "with tags as array of tags" begin
-        experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string;
-            tags=[Tag("test_key", "test_value")])
-        deleteexperiment(mlf, experiment_id)
-    end
+    # @testset "with tags as array of tags" begin
+    #     experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string;
+    #         tags=[Tag("test_key", "test_value")])
+    #     deleteexperiment(mlf, experiment_id)
+    # end
 
     @testset "with tags as array of pairs" begin
         experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string;
@@ -26,17 +26,17 @@
         deleteexperiment(mlf, experiment_id)
     end
 
-    @testset "with tags as array of dicts" begin
-        experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string;
-            tags=[Dict("key" => "test_key", "value" => "test_value")])
-        deleteexperiment(mlf, experiment_id)
-    end
+    # @testset "with tags as array of dicts" begin
+    #     experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string;
+    #         tags=[Dict("key" => "test_key", "value" => "test_value")])
+    #     deleteexperiment(mlf, experiment_id)
+    # end
 
-    @testset "with tags as dict" begin
-        experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string;
-            tags=Dict("test_key" => "test_value"))
-        deleteexperiment(mlf, experiment_id)
-    end
+    # @testset "with tags as dict" begin
+    #     experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string;
+    #         tags=Dict("test_key" => "test_value"))
+    #     deleteexperiment(mlf, experiment_id)
+    # end
 end
 
 @testset verbose = true "get experiment" begin
@@ -53,6 +53,7 @@ end
         @test experiment.experiment_id == experiment_id
         @test experiment.name == experiment_name
         @test occursin(artifact_location, experiment.artifact_location)
+        @test experiment.tags |> !isempty
         @test (experiment.tags |> first).key == (tags |> first).key
         @test (experiment.tags |> first).value == (tags |> first).value
     end

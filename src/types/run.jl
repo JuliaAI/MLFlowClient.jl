@@ -9,12 +9,14 @@ Metric associated with a run, represented as a key-value pair.
 - `timestamp::Int64`: The timestamp at which this metric was recorded.
 - `step::Int64`: Step at which to log the metric.
 """
-struct Metric
+struct Metric <: LoggingData
     key::String
     value::Float64
     timestamp::Int64
     step::Int64
 end
+Metric(data::Dict{String, Any}) = Metric(data["key"], data["value"],
+    data["timestamp"], data["step"])
 Base.show(io::IO, t::Metric) = show(io, ShowCase(t, new_lines=true))
 
 """
@@ -26,10 +28,11 @@ Param associated with a run.
 - `key::String`: Key identifying this param.
 - `value::String`: Value associated with this param.
 """
-struct Param
+struct Param <: LoggingData
     key::String
     value::String
 end
+Param(data::Dict{String, Any}) = Param(data["key"], data["value"])
 Base.show(io::IO, t::Param) = show(io, ShowCase(t, new_lines=true))
 
 """

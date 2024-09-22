@@ -1,7 +1,7 @@
 """
     createrun(instance::MLFlow, experiment_id::String;
         run_name::Union{String, Missing}=missing,
-        start_time::Union{Integer, Missing}=missing,
+        start_time::Union{Int64, Missing}=missing,
         tags::Union{Dict{<:Any}, Array{<:Any}}=[])
 
 Create a new run within an experiment. A run is usually a single execution of a
@@ -19,13 +19,11 @@ An instance of type [`Run`](@ref).
 """
 function createrun(instance::MLFlow, experiment_id::String;
     run_name::Union{String, Missing}=missing,
-    start_time::Union{Integer, Missing}=missing,
-    tags::Union{Dict{<:Any}, Array{<:Any}}=[])
-    tags = tags |> parsetags
-
+    start_time::Union{Int64, Missing}=missing,
+    tags::MLFlowUpsertData{Tag}=Tag[])
     try
         result = mlfpost(instance, "runs/create"; experiment_id=experiment_id,
-            run_name=run_name, start_time=start_time, tags=tags)
+            run_name=run_name, start_time=start_time, tags=(tags |> parse))
         return result["run"] |> Run
     catch e
         throw(e)
@@ -34,13 +32,13 @@ end
 createrun(instance::MLFlow, experiment_id::Integer;
     run_name::Union{String, Missing}=missing,
     start_time::Union{Integer, Missing}=missing,
-    tags::Union{Dict{<:Any}, Array{<:Any}}=[]) =
+    tags::MLFlowUpsertData{Tag}=Tag[]) =
     createrun(instance, string(experiment_id); run_name=run_name,
         start_time=start_time, tags=tags)
 createrun(instance::MLFlow, experiment::Experiment;
     run_name::Union{String, Missing}=missing,
     start_time::Union{Integer, Missing}=missing,
-    tags::Union{Dict{<:Any}, Array{<:Any}}=[]) =
+    tags::MLFlowUpsertData{Tag}=Tag[]) =
     createrun(instance, string(experiment.experiment_id); run_name=run_name,
         start_time=start_time, tags=tags)
 

@@ -28,7 +28,7 @@ mlf = MLFlow(remote_url, headers=Dict("Authorization" => "Bearer <your-secret-to
 """
 struct MLFlow
     apiroot::String
-    apiversion::Union{Integer, AbstractFloat}
+    apiversion::AbstractFloat
     headers::Dict
 end
 MLFlow(apiroot; apiversion=2.0, headers=Dict()) = MLFlow(apiroot, apiversion, headers)
@@ -40,3 +40,5 @@ function MLFlow()
     return MLFlow(apiroot)
 end
 Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, [:apiroot,:apiversion], new_lines=true))
+
+abstract type LoggingData end

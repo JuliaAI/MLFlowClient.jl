@@ -20,12 +20,10 @@ The ID of the newly created experiment.
 """
 function createexperiment(instance::MLFlow, name::String;
     artifact_location::Union{String, Missing}=missing,
-    tags::Union{Dict{<:Any}, Array{<:Any}}=[])::String
-    tags = tags |> parsetags
-
+    tags::MLFlowUpsertData{Tag}=Tag[])::String
     try
         result = mlfpost(instance, "experiments/create"; name=name,
-            artifact_location=artifact_location, tags=tags)
+            artifact_location=artifact_location, tags=(tags |> parse))
         return result["experiment_id"]
     catch e
         if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 400
@@ -51,7 +49,7 @@ Get metadata for an experiment. This method works on deleted experiments.
 # Returns
 An instance of type [`Experiment`](@ref).
 """
-function getexperiment(instance::MLFlow, experiment_id::String)
+function getexperiment(instance::MLFlow, experiment_id::String)::Experiment
     try
         arguments = (:experiment_id => experiment_id,)
         result = mlfget(instance, "experiments/get"; arguments...)
@@ -60,7 +58,7 @@ function getexperiment(instance::MLFlow, experiment_id::String)
         throw(e)
     end
 end
-getexperiment(instance::MLFlow, experiment_id::Integer) =
+getexperiment(instance::MLFlow, experiment_id::Integer)::Experiment =
     getexperiment(instance, string(experiment_id))
 
 """
@@ -79,7 +77,8 @@ deleted experiments share the same name, the API will return one of them.
 # Returns
 An instance of type [`Experiment`](@ref).
 """
-function getexperimentbyname(instance::MLFlow, experiment_name::String)
+function getexperimentbyname(instance::MLFlow,
+    experiment_name::String)::Experiment
     try
         arguments = (:experiment_name => experiment_name,)
         result = mlfget(instance, "experiments/get-by-name"; arguments...)
@@ -198,7 +197,7 @@ updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String) =
     updateexperiment(instance, experiment.experiment_id, new_name::String)
 
 """
-    searchexperiments(instance::MLFlow; max_results::Integer=20000,
+    searchexperiments(instance::MLFlow; max_results::Int64=20000,
         page_token::String="", filter::String="", order_by::Array{String}=[],
         view_type::ViewType=ACTIVE_ONLY)
 
@@ -217,7 +216,7 @@ unspecified, return only active experiments.
 # Returns
 - vector of [`MLFlowExperiment`](@ref) experiments that were found in the MLFlow instance
 """
-function searchexperiments(instance::MLFlow; max_results::Integer=20000,
+function searchexperiments(instance::MLFlow; max_results::Int64=20000,
     page_token::String="", filter::String="", order_by::Array{String}=String[],
     view_type::ViewType=ACTIVE_ONLY)::Tuple{Array{Experiment}, Union{String, Nothing}}
     endpoint = "experiments/search"

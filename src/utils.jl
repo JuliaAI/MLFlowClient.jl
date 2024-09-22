@@ -1,89 +1,55 @@
-IntOrString = Union{Int, String}
+const IntOrString = Union{Int, String}
+const MLFlowUpsertData{T} = Union{Array{T}, Dict{String, String},
+    Array{Pair{String, String}}, Array{Dict{String, String}}}
 
 const MLFLOW_ERROR_CODES = (;
     RESOURCE_ALREADY_EXISTS = "RESOURCE_ALREADY_EXISTS",
     RESOURCE_DOES_NOT_EXIST = "RESOURCE_DOES_NOT_EXIST",
 )
 
-"""
-    pairtags_to_dictarray(pair_array::Array{Pair{Any, Any}})
-
-Transforms an array of `Pair` tags into an array of MLFlow compatible `Dict`
-format tags.
-
-```@example
-# Having an array of pairs
-["foo" => "bar", "missy" => "gala"]
-
-# Will be transformed into an array of dictionaries
-[Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
-```
-"""
-function pairtags_to_dictarray(pair_array::Array{<:Pair})::Array{<:Dict}
-    dict_array = Dict[]
-    for pair in pair_array
-        key = string(pair.first)
-        value = string(pair.second)
-        push!(dict_array, Dict("key" => key, "value" => value))
-    end
-
-    return dict_array
-end
-
-"""
-    tagsdict_to_dictarray(dict::Dict{Any, Any})
-
-Transforms a dictionary into an array of `Dict`.
-
-```@example
-# Having a dictionary
-Dict("foo" => "bar", "missy" => "gala")
-
-# Will be transformed into an array of dictionaries
-[Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
-```
-"""
-function tagsdict_to_dictarray(dict::Dict{<:Any})::Array{<:Dict}
-    dict_array = Dict[]
+function dict_to_array(dict::Dict{String, String})::MLFlowUpsertData
+    tags = Tag[]
     for (key, value) in dict
-        push!(dict_array, Dict("key" => key |> string,
-            "value" => value |> string))
+        push!(tags, Tag(key, value))
     end
 
-    return dict_array
+    return tags
 end
 
-"""
-    tagarray_to_dictarray(tag_array::Array{Tag})
-
-Transforms an array of `Tag` into an array of `Dict`.
-
-```@example
-# Having an array of tags
-[Tag("foo", "bar"), Tag("missy", "gala")]
-
-# Will be transformed into an array of dictionaries
-[Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
-```
-"""
-function tagarray_to_dictarray(tag_array::Array{Tag})::Array{<:Dict}
-    dict_array = Dict[]
-    for tag in tag_array
-        push!(dict_array, Dict("key" => tag.key , "value" => tag.value))
+function pairsarray_to_array(pair_array::Array{<:Pair})::MLFlowUpsertData
+    entity_array = Tag[]
+    for pair in pair_array
+        println(pair)
+        key = pair.first |> string
+        value = pair.second |> string
+        push!(entity_array, Tag(key, value))
     end
 
-    return dict_array
+    return entity_array
 end
 
-function parsetags(tags::Union{Dict{<:Any}, Array{<:Any}})::Array{<:Dict}
-    parsed_tags = Dict[]
-    if tags isa Array{Tag}
-        parsed_tags = tags |> tagarray_to_dictarray
-    elseif tags isa Array{<:Pair}
-        parsed_tags = tags |> pairtags_to_dictarray
-    elseif tags isa Dict{<:Any}
-        parsed_tags = tags |> tagsdict_to_dictarray
+function dictarray_to_array(dict_array::Array{Dict{String, String}})::MLFlowUpsertData
+    tags = Tag[]
+    for dict in dict_array
+        push!(tags, Tag(dict["key"], dict["value"]))
     end
 
-    return parsed_tags
+    return tags
 end
+
+function parse(entities::MLFlowUpsertData{T}) where T<:LoggingData
+    println(typeof(entities))
+    if entities isa Dict{String, String}
+        return entities |> dict_to_array
+    elseif entities isa Array{Pair{String, String}}
+        return entities |> pairsarray_to_array
+    elseif entities isa Array{Dict{String, String}}
+        return entities |> dictarray_to_array
+    end
+    return entities
+end
+
+refresh(instance::MLFlow, experiment::Experiment)::Experiment = 
+    getexperiment(instance, experiment.experiment_id)
+refresh(instance::MLFlow, run::Run)::Run = 
+    getrun(instance, run.info.run_id)

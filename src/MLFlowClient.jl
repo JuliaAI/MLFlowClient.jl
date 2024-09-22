@@ -8,6 +8,9 @@ using JSON
 using ShowCases
 using FilePathsBase: AbstractPath
 
+include("types/mlflow.jl")
+export MLFlow
+
 include("types/tag.jl")
 export Tag
 
@@ -45,10 +48,8 @@ export
     RunInfo,
     RunInputs
 
-include("types/mlflow.jl")
-export MLFlow
-
 include("utils.jl")
+export refresh
 include("api.jl")
 
 include("services/experiment.jl")
@@ -67,4 +68,9 @@ export
     deleterun,
     restorerun,
     getrun
+include("services/loggers.jl")
+export
+    logmetric,
+    logbatch
+
 end
