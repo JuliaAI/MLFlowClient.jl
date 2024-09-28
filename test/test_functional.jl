@@ -60,6 +60,16 @@ end
     # when running mlflow in a container, the below tests will be skipped
     # this is what happens in github actions - mlflow runs in a container, the artifact_uri is not immediately available, and tests are skipped
     artifact_uri = exprun.info.artifact_uri
+    if startswith(artifact_uri, "mlflow-artifacts:/")
+        tmp = tempdir()
+        mkpath(tmp)
+        tmpfiletoupload = "$(tmp)/sometempfilename.txt"
+        f = open(tmpfiletoupload, "w")
+        write(f, "samplecontents")
+        close(f)
+        logartifact(mlf, exprun, tmpfiletoupload)
+    end
+
     if isdir(artifact_uri)
         @test_throws ErrorException logartifact(mlf, exprun, "/etc/shadow")
 

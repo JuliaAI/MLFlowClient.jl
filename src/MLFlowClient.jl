@@ -19,6 +19,7 @@ using URIs
 using JSON
 using ShowCases
 using FilePathsBase: AbstractPath
+using FileTypes
 
 include("types/mlflow.jl")
 export

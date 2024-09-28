@@ -87,11 +87,8 @@ function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::Abstract
     mlflowrun = getrun(mlf, run_id)
     artifact_uri = mlflowrun.info.artifact_uri
     filepath = joinpath(artifact_uri, basefilename)
-    scheme = URI(artifact_uri).scheme
-    if scheme == "mlflow-artifacts"
-        u = URI("$(mlf.baseuri)/api/$(mlf.apiversion)/mlflow-artifacts/artifacts/$(basefilename)")
-        apiheaders = headers(mlf, Dict("Content-Type"=>"application/octet-stream"))
-        HTTP.put(u, apiheaders, data)
+    if startswith(artifact_uri, "mlflow-artifacts:/")
+        mlfput_artifact(mlf, artifact_uri, basefilename, data)
         return filepath
     end
     mkpath(artifact_uri)
