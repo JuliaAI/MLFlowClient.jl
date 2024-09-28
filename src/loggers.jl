@@ -86,8 +86,15 @@ path of the artifact that was created.
 function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::AbstractString, data)
     mlflowrun = getrun(mlf, run_id)
     artifact_uri = mlflowrun.info.artifact_uri
-    mkpath(artifact_uri)
     filepath = joinpath(artifact_uri, basefilename)
+    scheme = URI(artifact_uri).scheme
+    if scheme == "mlflow-artifacts"
+        u = URI("$(mlf.baseuri)/api/$(mlf.apiversion)/mlflow-artifacts/artifacts/$(basefilename)")
+        apiheaders = headers(mlf, Dict("Content-Type"=>"application/octet-stream"))
+        HTTP.put(u, apiheaders, data)
+        return filepath
+    end
+    mkpath(artifact_uri)
     try
         f = open(filepath, "w")
         write(f, data)
