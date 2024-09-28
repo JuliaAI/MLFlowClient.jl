@@ -11,7 +11,8 @@ Default is `false`, using the REST API endpoint.
 
 # Constructors
 
-- `MLFlow(apiroot; apiversion=2.0,headers=Dict())`
+- `MLFlow(apiroot; user, password, apiversion=2.0, headers=Dict())` - this constructor will check env 
+variables `MLFLOW_TRACKING_USERNAME` and `MLFLOW_TRACKING_PASSWORD` for credentials.
 - `MLFlow()` - defaults to `MLFlow(ENV["MLFLOW_TRACKING_URI"])` or `MLFlow("http://localhost:5000/api")`
 
 # Examples
