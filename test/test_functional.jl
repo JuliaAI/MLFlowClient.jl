@@ -61,7 +61,7 @@ end
     # this is what happens in github actions - mlflow runs in a container, the artifact_uri is not immediately available, and tests are skipped
     artifact_uri = exprun.info.artifact_uri
     if isdir(artifact_uri)
-        @test_throws SystemError logartifact(mlf, exprun, "/etc/shadow")
+        @test_throws ErrorException logartifact(mlf, exprun, "/etc/shadow")
 
         tmpfiletoupload = "sometempfilename.txt"
         f = open(tmpfiletoupload, "w")
