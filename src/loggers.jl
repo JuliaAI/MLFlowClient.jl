@@ -68,8 +68,7 @@ end
 Stores an artifact (file) in the run's artifact location.
 
 !!! note
-    Assumes that artifact_uri is mapped to a local directory.
-    At the moment, this only works if both MLFlow and the client are running on the same host or they map a directory that leads to the same location over NFS, for example.
+    Only supports local and proxied artifact stores.
 
 # Arguments
 - `mlf::MLFlow`: [`MLFlow`](@ref) onfiguration. Currently not used, but when this method is extended to support `S3`, information from `mlf` will be needed.
