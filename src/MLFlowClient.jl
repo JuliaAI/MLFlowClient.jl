@@ -71,6 +71,7 @@ export
 include("services/loggers.jl")
 export
     logmetric,
-    logbatch
+    logbatch,
+    loginputs
 
 end

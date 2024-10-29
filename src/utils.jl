@@ -17,7 +17,7 @@ function dict_to_T_array(::Type{T}, dict::Dict{String, <:NumberOrString}) where 
     for (key, value) in dict
         if T<:Metric
             push!(entities, Metric(key, Float64(value),
-                round(Int, now() |> datetime2unix), missing))
+                round(Int, now() |> datetime2unix), nothing))
         else
             push!(entities, T(key, value |> string))
         end
@@ -33,7 +33,7 @@ function pairarray_to_T_array(::Type{T}, pair_array::Array{<:Pair}) where T<:Log
         if T<:Metric
             value = pair.second
             push!(entities, Metric(key, Float64(value),
-                round(Int, now() |> datetime2unix), missing))
+                round(Int, now() |> datetime2unix), nothing))
         else
             value = pair.second |> string
             push!(entities, T(key, value))
@@ -55,7 +55,7 @@ function tuplearray_to_T_array(::Type{T},
         if T<: Metric
             value = tuple |> last
             push!(entities, Metric(key, Float64(value),
-                round(Int, now() |> datetime2unix), missing))
+                round(Int, now() |> datetime2unix), nothing))
         else
             value = tuple |> last |> string
             push!(entities, T(key, value))
@@ -77,7 +77,7 @@ function dictarray_to_T_array(::Type{T},
             else
                 timestamp = round(Int, now() |> datetime2unix)
             end
-            push!(entities, Metric(key, value, timestamp, missing))
+            push!(entities, Metric(key, value, timestamp, nothing))
         else
             value = dict["value"] |> string
             push!(entities, T(key, value))

@@ -7,13 +7,13 @@ Metric associated with a run, represented as a key-value pair.
 - `key::String`: Key identifying this metric.
 - `value::Float64`: Value associated with this metric.
 - `timestamp::Int64`: The timestamp at which this metric was recorded.
-- `step::Union{Int64, Missing}`: Step at which to log the metric.
+- `step::Union{Int64, Nothing}`: Step at which to log the metric.
 """
 struct Metric <: LoggingData
     key::String
     value::Float64
     timestamp::Int64
-    step::Union{Int64, Missing}
+    step::Union{Int64, Nothing}
 end
 Metric(data::Dict{String, Any}) = Metric(data["key"], data["value"],
     data["timestamp"], data["step"])
