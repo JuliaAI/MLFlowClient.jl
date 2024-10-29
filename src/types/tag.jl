@@ -1,5 +1,5 @@
 """
-    Tag
+    Tag <: LoggingData
 
 Generic tag type for MLFlow entities.
 

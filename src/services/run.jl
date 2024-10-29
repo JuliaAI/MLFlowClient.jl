@@ -23,7 +23,7 @@ function createrun(instance::MLFlow, experiment_id::String;
     tags::MLFlowUpsertData{Tag}=Tag[])
     try
         result = mlfpost(instance, "runs/create"; experiment_id=experiment_id,
-            run_name=run_name, start_time=start_time, tags=(tags |> parse))
+            run_name=run_name, start_time=start_time, tags=parse(Tag, tags))
         return result["run"] |> Run
     catch e
         throw(e)

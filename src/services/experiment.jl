@@ -23,7 +23,8 @@ function createexperiment(instance::MLFlow, name::String;
     tags::MLFlowUpsertData{Tag}=Tag[])::String
     try
         result = mlfpost(instance, "experiments/create"; name=name,
-            artifact_location=artifact_location, tags=(tags |> parse))
+            artifact_location=artifact_location,
+            tags=parse(Tag, tags))
         return result["experiment_id"]
     catch e
         if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 400
