@@ -21,13 +21,9 @@ function createrun(instance::MLFlow, experiment_id::String;
     run_name::Union{String, Missing}=missing,
     start_time::Union{Int64, Missing}=missing,
     tags::MLFlowUpsertData{Tag}=Tag[])
-    try
-        result = mlfpost(instance, "runs/create"; experiment_id=experiment_id,
-            run_name=run_name, start_time=start_time, tags=parse(Tag, tags))
-        return result["run"] |> Run
-    catch e
-        throw(e)
-    end
+    result = mlfpost(instance, "runs/create"; experiment_id=experiment_id,
+        run_name=run_name, start_time=start_time, tags=parse(Tag, tags))
+    return result["run"] |> Run
 end
 createrun(instance::MLFlow, experiment_id::Integer;
     run_name::Union{String, Missing}=missing,
@@ -53,17 +49,11 @@ Mark a run for deletion.
 - `run_id`: ID of the run to delete.
 
 # Returns
-
 `true` if successful. Otherwise, raises exception.
 """
 function deleterun(instance::MLFlow, run_id::String)
-    endpoint = "runs/delete"
-    try
-        mlfpost(instance, endpoint; run_id=run_id)
-        return true
-    catch e
-        throw(e)
-    end
+    mlfpost(instance, "runs/delete"; run_id=run_id)
+    return true
 end
 deleterun(instance::MLFlow, run::Run) = deleterun(instance, run.info.run_id)
 
@@ -78,17 +68,11 @@ Restore a deleted run.
 - `run_id`: ID of the run to restore.
 
 # Returns
-
 `true` if successful. Otherwise, raises exception.
 """
 function restorerun(instance::MLFlow, run_id::String)
-    endpoint = "runs/restore"
-    try
-        mlfpost(instance, endpoint; run_id=run_id)
-        return true
-    catch e
-        throw(e)
-    end
+    mlfpost(instance, "runs/restore"; run_id=run_id)
+    return true
 end
 restorerun(instance::MLFlow, run::Run) = restorerun(instance, run.info.run_id)
 
@@ -108,11 +92,6 @@ return the maximum of these values.
 An instance of type [`Run`](@ref).
 """
 function getrun(instance::MLFlow, run_id::String)
-    try
-        arguments = (:run_id => run_id,)
-        result = mlfget(instance, "runs/get"; arguments...)
-        return result["run"] |> Run
-    catch e
-        throw(e)
-    end
+    result = mlfget(instance, "runs/get"; run_id=run_id)
+    return result["run"] |> Run
 end

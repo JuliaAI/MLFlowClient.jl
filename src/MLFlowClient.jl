@@ -58,6 +58,7 @@ export
     createexperiment,
     deleteexperiment,
     updateexperiment,
+    setexperimenttag,
     restoreexperiment,
     searchexperiments,
     getexperimentbyname

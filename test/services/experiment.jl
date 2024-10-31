@@ -93,7 +93,7 @@ end
 
     @testset "delete already deleted" begin
         deleteexperiment(mlf, experiment_id)
-        @test deleteexperiment(mlf, experiment_id)
+        @test_throws ErrorException deleteexperiment(mlf, experiment_id)
     end
 end
 
@@ -178,4 +178,39 @@ end
     end
 
     experiment_ids .|> (id -> deleteexperiment(mlf, id))
+end
+
+@testset verbose = true "set experiment tag" begin
+    @ensuremlf
+
+    @testset "set tag with string id" begin
+        experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+        setexperimenttag(mlf, experiment_id, "test_key", "test_value")
+        experiment = getexperiment(mlf, experiment_id)
+        @test experiment.tags |> !isempty
+        @test (experiment.tags |> first).key == "test_key"
+        @test (experiment.tags |> first).value == "test_value"
+        deleteexperiment(mlf, experiment_id)
+    end
+
+    @testset "set tag with integer id" begin
+        experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+        setexperimenttag(mlf, parse(Int, experiment_id), "test_key", "test_value")
+        experiment = getexperiment(mlf, experiment_id)
+        @test experiment.tags |> !isempty
+        @test (experiment.tags |> first).key == "test_key"
+        @test (experiment.tags |> first).value == "test_value"
+        deleteexperiment(mlf, experiment_id)
+    end
+
+    @testset "set tag with Experiment" begin
+        experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+        experiment = getexperiment(mlf, experiment_id)
+        setexperimenttag(mlf, experiment, "test_key", "test_value")
+        experiment = getexperiment(mlf, experiment_id)
+        @test experiment.tags |> !isempty
+        @test (experiment.tags |> first).key == "test_key"
+        @test (experiment.tags |> first).value == "test_value"
+        deleteexperiment(mlf, experiment_id)
+    end
 end

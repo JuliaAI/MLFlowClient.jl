@@ -21,20 +21,9 @@ The ID of the newly created experiment.
 function createexperiment(instance::MLFlow, name::String;
     artifact_location::Union{String, Missing}=missing,
     tags::MLFlowUpsertData{Tag}=Tag[])::String
-    try
-        result = mlfpost(instance, "experiments/create"; name=name,
-            artifact_location=artifact_location,
-            tags=parse(Tag, tags))
-        return result["experiment_id"]
-    catch e
-        if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 400
-            error_code = (e.response.body |> String |> JSON.parse)["error_code"]
-            if error_code == MLFLOW_ERROR_CODES.RESOURCE_ALREADY_EXISTS
-                error("Experiment with name \"$name\" already exists")
-            end
-        end
-        throw(e)
-    end
+    result = mlfpost(instance, "experiments/create"; name=name,
+        artifact_location=artifact_location, tags=parse(Tag, tags))
+    return result["experiment_id"]
 end
 
 """
@@ -51,13 +40,8 @@ Get metadata for an experiment. This method works on deleted experiments.
 An instance of type [`Experiment`](@ref).
 """
 function getexperiment(instance::MLFlow, experiment_id::String)::Experiment
-    try
-        arguments = (:experiment_id => experiment_id,)
-        result = mlfget(instance, "experiments/get"; arguments...)
-        return result["experiment"] |> Experiment
-    catch e
-        throw(e)
-    end
+    result = mlfget(instance, "experiments/get"; experiment_id=experiment_id)
+    return result["experiment"] |> Experiment
 end
 getexperiment(instance::MLFlow, experiment_id::Integer)::Experiment =
     getexperiment(instance, string(experiment_id))
@@ -80,16 +64,9 @@ An instance of type [`Experiment`](@ref).
 """
 function getexperimentbyname(instance::MLFlow,
     experiment_name::String)::Experiment
-    try
-        arguments = (:experiment_name => experiment_name,)
-        result = mlfget(instance, "experiments/get-by-name"; arguments...)
-        return result["experiment"] |> Experiment
-    catch e
-        if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
-            return missing
-        end
-        throw(e)
-    end
+    result = mlfget(instance, "experiments/get-by-name";
+        experiment_name=experiment_name)
+    return result["experiment"] |> Experiment
 end
 
 """
@@ -106,21 +83,11 @@ experiment are also deleted.
 - `experiment_id`: ID of the associated experiment.
 
 # Returns
-
 `true` if successful. Otherwise, raises exception.
 """
 function deleteexperiment(instance::MLFlow, experiment_id::String)
-    endpoint = "experiments/delete"
-    try
-        mlfpost(instance, endpoint; experiment_id=experiment_id)
-        return true
-    catch e
-        if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
-            # experiment already deleted
-            return true
-        end
-        throw(e)
-    end
+    mlfpost(instance, "experiments/delete"; experiment_id=experiment_id)
+    return true
 end
 deleteexperiment(instance::MLFlow, experiment_id::Integer) =
     deleteexperiment(instance, string(experiment_id))
@@ -141,23 +108,11 @@ underlying artifacts associated with experiment are also restored.
 - `experiment_id`: ID of the associated experiment.
 
 # Returns
-
 `true` if successful. Otherwise, raises exception.
 """
 function restoreexperiment(instance::MLFlow, experiment_id::String)
-    endpoint = "experiments/restore"
-    try
-        mlfpost(instance, endpoint; experiment_id=experiment_id)
-        return true
-    catch e
-        if isa(e, HTTP.ExceptionRequest.StatusError) && e.status == 404
-            error_code = JSON.parse(String(e.response.body))["error_code"]
-            if error_code == MLFLOW_ERROR_CODES.RESOURCE_DOES_NOT_EXIST
-                error("Experiment with id \"$experiment_id\" does not exist")
-            end
-        end
-        throw(e)
-    end
+    mlfpost(instance, "experiments/restore"; experiment_id=experiment_id)
+    return true
 end
 restoreexperiment(instance::MLFlow, experiment_id::Integer) =
     restoreexperiment(instance, string(experiment_id))
@@ -184,13 +139,9 @@ The new name must be unique.
 """
 function updateexperiment(instance::MLFlow, experiment_id::String,
     new_name::String)
-    endpoint = "experiments/update"
-    try
-        mlfpost(instance, endpoint; experiment_id=experiment_id, new_name=new_name)
-        return true
-    catch e
-        throw(e)
-    end
+    mlfpost(instance, "experiments/update"; experiment_id=experiment_id,
+        new_name=new_name)
+    return true
 end
 updateexperiment(instance::MLFlow, experiment_id::Integer, new_name::String) =
     updateexperiment(instance, string(experiment_id), new_name)
@@ -219,8 +170,8 @@ unspecified, return only active experiments.
 """
 function searchexperiments(instance::MLFlow; max_results::Int64=20000,
     page_token::String="", filter::String="", order_by::Array{String}=String[],
-    view_type::ViewType=ACTIVE_ONLY)::Tuple{Array{Experiment}, Union{String, Nothing}}
-    endpoint = "experiments/search"
+    view_type::ViewType=ACTIVE_ONLY
+)::Tuple{Array{Experiment}, Union{String, Nothing}}
     parameters = (; max_results, page_token, filter,
         :view_type => view_type |> Integer)
 
@@ -228,14 +179,36 @@ function searchexperiments(instance::MLFlow; max_results::Int64=20000,
         parameters = (; order_by, parameters...)
     end
 
-    try
-        result = mlfget(instance, endpoint; parameters...)
+    result = mlfget(instance, "experiments/search"; parameters...)
 
-        experiments = result["experiments"] |> (x -> [Experiment(y) for y in x])
-        next_page_token = get(result, "next_page_token", nothing)
+    experiments = result["experiments"] |> (x -> [Experiment(y) for y in x])
+    next_page_token = get(result, "next_page_token", nothing)
 
-        return experiments, next_page_token
-    catch e
-        throw(e)
-    end
+    return experiments, next_page_token
 end
+
+"""
+    setexperimenttag(instance::MLFlow, experiment_id::String, key::String,
+        value::String)
+    setexperimenttag(instance::MLFlow, experiment_id::Integer, key::String,
+        value::String)
+    setexperimenttag(instance::MLFlow, experiment::Experiment, key::String,
+        value::String)
+
+Set a tag on an experiment. Experiment tags are metadata that can be updated.
+
+# Arguments
+- `experiment_id`: ID of the experiment under which to log the tag.
+- `key`: Name of the tag.
+- `value`: String value of the tag being logged.
+"""
+setexperimenttag(instance::MLFlow, experiment_id::String, key::String,
+    value::String) =
+    mlfpost(instance, "experiments/set-experiment-tag";
+        experiment_id=experiment_id, key=key, value=value)
+setexperimenttag(instance::MLFlow, experiment_id::Integer, key::String,
+    value::String) =
+    setexperimenttag(instance, string(experiment_id), key, value)
+setexperimenttag(instance::MLFlow, experiment::Experiment, key::String,
+    value::String) =
+    setexperimenttag(instance, experiment.experiment_id, key, value)
