@@ -33,6 +33,12 @@ logmetric(instance::MLFlow, run::Run, key::String, value::Float64;
     step::Union{Int64, Missing}=missing)::Bool =
     logmetric(instance, run.info.run_id, key, value; timestamp=timestamp,
         step=step)
+logmetric(instance::MLFlow, run_id::String, metric::Metric)::Bool =
+    logmetric(instance, run_id, metric.key, metric.value, timestamp=metric.timestamp,
+        step=metric.step)
+logmetric(instance::MLFlow, run::Run, metric::Metric)::Bool =
+    logmetric(instance, run.info.run_id, metric.key, metric.value,
+        timestamp=metric.timestamp, step=metric.step)
 
 """
     logbatch(instance::MLFlow, run_id::String;
@@ -94,3 +100,32 @@ function loginputs(instance::MLFlow, run_id::String,
 end
 loginputs(instance::MLFlow, run::Run, datasets::Array{DatasetInput})::Bool =
     loginputs(instance, run.info.run_id, datasets)
+
+"""
+    logparam(instance::MLFlow, run_id::String, key::String, value::String)
+    logparam(instance::MLFlow, run::Run, key::String, value::String)
+    logparam(instance::MLFlow, run_id::String, param::Param)
+    logparam(instance::MLFlow, run::Run, param::Param)
+
+Log a param used for a run. A param is a key-value pair (string key, string
+value). Examples include hyperparameters used for ML model training and
+constant dates and values used in an ETL pipeline. A param can be logged only
+once for a run.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `run_id`: ID of the run under which to log the param.
+- `key`: Name of the param.
+- `value`: String value of the param being logged.
+"""
+function logparam(instance::MLFlow, run_id::String, key::String,
+    value::String)::Bool
+    mlfpost(instance, "runs/log-parameter"; run_id=run_id, key=key, value=value)
+    return true
+end
+logparam(instance::MLFlow, run::Run, key::String, value::String)::Bool =
+    logparam(instance, run.info.run_id, key, value)
+logparam(instance::MLFlow, run_id::String, param::Param)::Bool =
+    logparam(instance, run_id, param.key, param.value)
+logparam(instance::MLFlow, run::Run, param::Param)::Bool =
+    logparam(instance, run.info.run_id, param.key, param.value)

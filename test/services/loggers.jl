@@ -2,9 +2,9 @@
     @ensuremlf
 
     experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
-    run = createrun(mlf, experiment_id)
 
     @testset "with run id as string" begin
+        run = createrun(mlf, experiment_id)
         logmetric(mlf, run.info.run_id, "missy", 0.9)
         
         run = refresh(mlf, run)
@@ -13,9 +13,11 @@
         @test last_metric isa Metric
         @test last_metric.key == "missy"
         @test last_metric.value == 0.9
+        deleterun(mlf, run)
     end
 
     @testset "with run" begin
+        run = createrun(mlf, experiment_id)
         logmetric(mlf, run, "gala", 0.1)
         
         run = refresh(mlf, run)
@@ -24,6 +26,37 @@
         @test last_metric isa Metric
         @test last_metric.key == "gala"
         @test last_metric.value == 0.1
+        deleterun(mlf, run)
+    end
+
+    @testset "with run id as string and metric" begin
+        run = createrun(mlf, experiment_id)
+        logmetric(mlf, run.info.run_id, Metric("missy", 0.9, 123, 1))
+        
+        run = refresh(mlf, run)
+        last_metric = run.data.metrics |> last
+
+        @test last_metric isa Metric
+        @test last_metric.key == "missy"
+        @test last_metric.value == 0.9
+        @test last_metric.timestamp == 123
+        @test last_metric.step == 1
+        deleterun(mlf, run)
+    end
+
+    @testset "with run and metric" begin
+        run = createrun(mlf, experiment_id)
+        logmetric(mlf, run, Metric("gala", 0.1, 123, 1))
+        
+        run = refresh(mlf, run)
+        last_metric = run.data.metrics |> last
+
+        @test last_metric isa Metric
+        @test last_metric.key == "gala"
+        @test last_metric.value == 0.1
+        @test last_metric.timestamp == 123
+        @test last_metric.step == 1
+        deleterun(mlf, run)
     end
 
     deleteexperiment(mlf, experiment_id)
@@ -197,6 +230,66 @@ end
         @test dataset_input.dataset.source == "dataset_source"
         @test dataset_input.dataset.schema |> isnothing
         @test dataset_input.dataset.profile |> isnothing
+    end
+
+    deleteexperiment(mlf, experiment_id)
+end
+
+@testset verbose = true "log param" begin
+    @ensuremlf
+
+    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+
+    @testset "with run id as string" begin
+        run = createrun(mlf, experiment_id)
+        logparam(mlf, run.info.run_id, "missy", "0.9")
+        
+        run = refresh(mlf, run)
+        last_param = run.data.params |> last
+
+        @test last_param isa Param
+        @test last_param.key == "missy"
+        @test last_param.value == "0.9"
+        deleterun(mlf, run)
+    end
+
+    @testset "with run" begin
+        run = createrun(mlf, experiment_id)
+        logparam(mlf, run, "gala", "0.1")
+        
+        run = refresh(mlf, run)
+        last_param = run.data.params |> last
+
+        @test last_param isa Param
+        @test last_param.key == "gala"
+        @test last_param.value == "0.1"
+        deleterun(mlf, run)
+    end
+
+    @testset "with run id as string and param" begin
+        run = createrun(mlf, experiment_id)
+        logparam(mlf, run.info.run_id, Param("missy", "0.9"))
+        
+        run = refresh(mlf, run)
+        last_param = run.data.params |> last
+
+        @test last_param isa Param
+        @test last_param.key == "missy"
+        @test last_param.value == "0.9"
+        deleterun(mlf, run)
+    end
+
+    @testset "with run and param" begin
+        run = createrun(mlf, experiment_id)
+        logparam(mlf, run, Param("gala", "0.1"))
+        
+        run = refresh(mlf, run)
+        last_param = run.data.params |> last
+
+        @test last_param isa Param
+        @test last_param.key == "gala"
+        @test last_param.value == "0.1"
+        deleterun(mlf, run)
     end
 
     deleteexperiment(mlf, experiment_id)
