@@ -85,13 +85,13 @@ experiment are also deleted.
 # Returns
 `true` if successful. Otherwise, raises exception.
 """
-function deleteexperiment(instance::MLFlow, experiment_id::String)
+function deleteexperiment(instance::MLFlow, experiment_id::String)::Bool
     mlfpost(instance, "experiments/delete"; experiment_id=experiment_id)
     return true
 end
-deleteexperiment(instance::MLFlow, experiment_id::Integer) =
+deleteexperiment(instance::MLFlow, experiment_id::Integer)::Bool =
     deleteexperiment(instance, string(experiment_id))
-deleteexperiment(instance::MLFlow, experiment::Experiment) =
+deleteexperiment(instance::MLFlow, experiment::Experiment)::Bool =
     deleteexperiment(instance, experiment.experiment_id)
 
 """
@@ -110,13 +110,13 @@ underlying artifacts associated with experiment are also restored.
 # Returns
 `true` if successful. Otherwise, raises exception.
 """
-function restoreexperiment(instance::MLFlow, experiment_id::String)
+function restoreexperiment(instance::MLFlow, experiment_id::String)::Bool
     mlfpost(instance, "experiments/restore"; experiment_id=experiment_id)
     return true
 end
-restoreexperiment(instance::MLFlow, experiment_id::Integer) =
+restoreexperiment(instance::MLFlow, experiment_id::Integer)::Bool =
     restoreexperiment(instance, string(experiment_id))
-restoreexperiment(instance::MLFlow, experiment::Experiment) =
+restoreexperiment(instance::MLFlow, experiment::Experiment)::Bool =
     restoreexperiment(instance, experiment.experiment_id)
 
 """
@@ -138,15 +138,17 @@ The new name must be unique.
 `true` if successful. Otherwise, raises exception.
 """
 function updateexperiment(instance::MLFlow, experiment_id::String,
-    new_name::String)
+    new_name::String)::Bool
     mlfpost(instance, "experiments/update"; experiment_id=experiment_id,
         new_name=new_name)
     return true
 end
-updateexperiment(instance::MLFlow, experiment_id::Integer, new_name::String) =
+updateexperiment(instance::MLFlow, experiment_id::Integer,
+    new_name::String)::Bool =
     updateexperiment(instance, string(experiment_id), new_name)
-updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String) =
-    updateexperiment(instance, experiment.experiment_id, new_name::String)
+updateexperiment(instance::MLFlow, experiment::Experiment,
+    new_name::String)::Bool =
+    updateexperiment(instance, experiment.experiment_id, new_name)
 
 """
     searchexperiments(instance::MLFlow; max_results::Int64=20000,
@@ -201,14 +203,19 @@ Set a tag on an experiment. Experiment tags are metadata that can be updated.
 - `experiment_id`: ID of the experiment under which to log the tag.
 - `key`: Name of the tag.
 - `value`: String value of the tag being logged.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
 """
-setexperimenttag(instance::MLFlow, experiment_id::String, key::String,
-    value::String) =
+function setexperimenttag(instance::MLFlow, experiment_id::String, key::String,
+    value::String)::Bool
     mlfpost(instance, "experiments/set-experiment-tag";
         experiment_id=experiment_id, key=key, value=value)
+    return true
+end
 setexperimenttag(instance::MLFlow, experiment_id::Integer, key::String,
-    value::String) =
+    value::String)::Bool =
     setexperimenttag(instance, string(experiment_id), key, value)
 setexperimenttag(instance::MLFlow, experiment::Experiment, key::String,
-    value::String) =
+    value::String)::Bool =
     setexperimenttag(instance, experiment.experiment_id, key, value)

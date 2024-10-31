@@ -90,3 +90,36 @@ end
 
     deleteexperiment(mlf, experiment_id)
 end
+
+@testset verbose = true "set run tag" begin
+    @ensuremlf
+    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+
+    @testset "set tag with run string id" begin
+        run = createrun(mlf, experiment_id)
+        setruntag(mlf, run.info.run_id, "tag", "value")
+
+        run = refresh(mlf, run)
+
+        @test run.data.tags |> !isempty
+        @test (run.data.tags |> first).key == "tag"
+        @test (run.data.tags |> first).value == "value"
+
+        deleterun(mlf, run)
+    end
+
+    @testset "set tag with run" begin
+        run = createrun(mlf, experiment_id)
+        setruntag(mlf, run, "tag", "value")
+
+        run = refresh(mlf, run)
+
+        @test run.data.tags |> !isempty
+        @test (run.data.tags |> first).key == "tag"
+        @test (run.data.tags |> first).value == "value"
+
+        deleterun(mlf, run)
+    end
+
+    deleteexperiment(mlf, experiment_id)
+end

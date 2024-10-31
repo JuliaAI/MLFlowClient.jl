@@ -57,22 +57,23 @@ export
     getexperiment,
     createexperiment,
     deleteexperiment,
-    updateexperiment,
     setexperimenttag,
+    updateexperiment,
     restoreexperiment,
     searchexperiments,
     getexperimentbyname
 
 include("services/run.jl")
 export 
+    getrun,
     createrun,
     deleterun,
-    restorerun,
-    getrun
+    setruntag,
+    restorerun
 include("services/loggers.jl")
 export
-    logmetric,
     logbatch,
-    loginputs
+    loginputs,
+    logmetric
 
 end
