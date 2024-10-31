@@ -69,7 +69,9 @@ export
     createrun,
     deleterun,
     setruntag,
-    restorerun
+    restorerun,
+    deleteruntag
+
 include("services/loggers.jl")
 export
     logbatch,

@@ -102,8 +102,7 @@ end
     setruntag(instance::MLFlow, run_id::String, key::String, value::String)
     setruntag(instance::MLFlow, run::Run, key::String, value::String)
 
-Set a tag on a run. Tags are run metadata that can be updated during a run and
-after a run completes.
+Set a tag on a run.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
@@ -114,10 +113,31 @@ after a run completes.
 # Returns
 `true` if successful. Otherwise, raises exception.
 """
-function setruntag(instanceL::MLFlow, run_id::String, key::String,
+function setruntag(instance::MLFlow, run_id::String, key::String,
     value::String):Bool
-    mlfpost(instanceL, "runs/set-tag"; run_id=run_id, key=key, value=value)
+    mlfpost(instance, "runs/set-tag"; run_id=run_id, key=key, value=value)
     return true
 end
 setruntag(instance::MLFlow, run::Run, key::String, value::String)::Bool =
     setruntag(instance, run.info.run_id, key, value)
+
+"""
+    deletetag(instance::MLFlow, run_id::String, key::String)
+    deletetag(instance::MLFlow, run::Run, key::String)
+
+Delete a tag on a run.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `run_id`: ID of the run that the tag was logged under.
+- `key`: Name of the tag.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function deleteruntag(instance::MLFlow, run_id::String, key::String)::Bool
+    mlfpost(instance, "runs/delete-tag"; run_id=run_id, key=key)
+    return true
+end
+deleteruntag(instance::MLFlow, run::Run, key::String)::Bool =
+    deleteruntag(instance, run.info.run_id, key)

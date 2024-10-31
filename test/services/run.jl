@@ -123,3 +123,31 @@ end
 
     deleteexperiment(mlf, experiment_id)
 end
+
+@testset verbose = true "delete run tag" begin
+    @ensuremlf
+    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+
+    @testset "delete tag with run string id" begin
+        run = createrun(mlf, experiment_id)
+        setruntag(mlf, run.info.run_id, "tag", "value")
+        deleteruntag(mlf, run.info.run_id, "tag")
+
+        run = refresh(mlf, run)
+
+        @test (run.data.tags |> length) == 1 # The default tag
+        deleterun(mlf, run)
+    end
+
+    @testset "delete tag with run string id" begin
+        run = createrun(mlf, experiment_id)
+        setruntag(mlf, run, "tag", "value")
+        deleteruntag(mlf, run, "tag")
+
+        run = refresh(mlf, run)
+
+        @test (run.data.tags |> length) == 1 # The default tag
+        deleterun(mlf, run)
+    end
+    deleteexperiment(mlf, experiment_id)
+end
