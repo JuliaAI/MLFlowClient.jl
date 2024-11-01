@@ -79,4 +79,8 @@ export
     logmetric,
     logparam
 
+include("services/misc.jl")
+export
+    getmetrichistory
+
 end

@@ -31,7 +31,8 @@ headers(mlf::MLFlow, custom_headers::AbstractDict) = merge(mlf.headers, custom_h
 Performs a HTTP GET to a specified endpoint. kwargs are turned into GET params.
 """
 function mlfget(mlf, endpoint; kwargs...)
-    apiuri = uri(mlf, endpoint; parameters=kwargs |> Dict)
+    apiuri = uri(mlf, endpoint;
+        parameters=Dict(k => v for (k, v) in kwargs if v !== missing))
     apiheaders = headers(mlf, ("Content-Type" => "application/json") |> Dict)
 
     try
