@@ -32,13 +32,10 @@ struct MLFlow
     headers::Dict
 end
 MLFlow(apiroot; apiversion=2.0, headers=Dict()) = MLFlow(apiroot, apiversion, headers)
-function MLFlow()
-    apiroot = "http://localhost:5000/api"
-    if haskey(ENV, "MLFLOW_TRACKING_URI")
-        apiroot = ENV["MLFLOW_TRACKING_URI"]
-    end
-    return MLFlow(apiroot)
-end
+MLFlow(; apiroot="http://localhost:5000/api", apiversion=2.0, headers=Dict()) =
+    MLFlow((haskey(ENV, "MLFLOW_TRACKING_URI") ?
+            ENV["MLFLOW_TRACKING_URI"] : apiroot), apiversion, headers)
+
 Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, [:apiroot,:apiversion], new_lines=true))
 
 abstract type LoggingData end

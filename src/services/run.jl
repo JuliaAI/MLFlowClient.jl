@@ -141,3 +141,48 @@ function deleteruntag(instance::MLFlow, run_id::String, key::String)::Bool
 end
 deleteruntag(instance::MLFlow, run::Run, key::String)::Bool =
     deleteruntag(instance, run.info.run_id, key)
+
+"""
+    searchruns(instance::MLFlow; experiment_ids::Array{String}=String[],
+        filter::String="", run_view_type::ViewType=ACTIVE_ONLY,
+        max_results::Int=1000, order_by::Array{String}=String[],
+        page_token::String="")
+
+Search for runs that satisfy expressions. Search expressions can use Metric and
+Param keys.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `experiment_ids`: List of experiment IDs to search over.
+- `filter`: A filter expression over params, metrics, and tags, that allows
+returning a subset of runs. See [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs).
+- `run_view_type`: Whether to display only active, only deleted, or all runs.
+Defaults to only active runs.
+- `max_results`: Maximum number of runs desired.
+- `order_by`: List of columns to be ordered by, including attributes, params,
+metrics, and tags with an optional “DESC” or “ASC” annotation, where “ASC” is
+the default.
+- `page_token`: Token indicating the page of runs to fetch.
+
+# Returns
+- Vector of [`Run`](@ref) that were found in the specified experiments.
+- The next page token if there are more results.
+"""
+function searchruns(instance::MLFlow; experiment_ids::Array{String}=String[],
+    filter::String="", run_view_type::ViewType=ACTIVE_ONLY,
+    max_results::Int=1000, order_by::Array{String}=String[],
+    page_token::String="")::Tuple{Array{Run}, Union{String, Nothing}}
+    parameters = (; experiment_ids, filter,
+        :run_view_type => run_view_type |> Integer, max_results, page_token)
+
+    if order_by |> !isempty
+        parameters = (; order_by, parameters...)
+    end
+
+    result = mlfpost(instance, "runs/search"; parameters...)
+
+    runs = get(result, "runs", []) |> (x -> [Run(y) for y in x])
+    next_page_token = get(result, "next_page_token", nothing)
+
+    return runs, next_page_token
+end

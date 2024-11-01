@@ -168,7 +168,8 @@ is the default.
 unspecified, return only active experiments.
 
 # Returns
-- vector of [`MLFlowExperiment`](@ref) experiments that were found in the MLFlow instance
+- Vector of [`Experiment`](@ref) that were found in the MLFlow instance.
+- The next page token if there are more results.
 """
 function searchexperiments(instance::MLFlow; max_results::Int64=20000,
     page_token::String="", filter::String="", order_by::Array{String}=String[],
@@ -183,7 +184,7 @@ function searchexperiments(instance::MLFlow; max_results::Int64=20000,
 
     result = mlfget(instance, "experiments/search"; parameters...)
 
-    experiments = result["experiments"] |> (x -> [Experiment(y) for y in x])
+    experiments = get(result, "experiments", []) |> (x -> [Experiment(y) for y in x])
     next_page_token = get(result, "next_page_token", nothing)
 
     return experiments, next_page_token

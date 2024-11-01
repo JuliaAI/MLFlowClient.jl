@@ -102,8 +102,10 @@ end
         run = refresh(mlf, run)
 
         @test run.data.tags |> !isempty
-        @test (run.data.tags |> first).key == "tag"
-        @test (run.data.tags |> first).value == "value"
+        last_tag = run.data.tags[
+            findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
+        @test last_tag.key == "tag"
+        @test last_tag.value == "value"
 
         deleterun(mlf, run)
     end
@@ -115,8 +117,10 @@ end
         run = refresh(mlf, run)
 
         @test run.data.tags |> !isempty
-        @test (run.data.tags |> first).key == "tag"
-        @test (run.data.tags |> first).value == "value"
+        last_tag = run.data.tags[
+            findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
+        @test last_tag.key == "tag"
+        @test last_tag.value == "value"
 
         deleterun(mlf, run)
     end
@@ -150,4 +154,34 @@ end
         deleterun(mlf, run)
     end
     deleteexperiment(mlf, experiment_id)
+end
+
+@testset verbose = true "search runs" begin
+    @ensuremlf
+
+    experiment_ids = [
+        createexperiment(mlf, UUIDs.uuid4() |> string),
+        createexperiment(mlf, UUIDs.uuid4() |> string),
+    ]
+    for experiment_id in experiment_ids
+        createrun(mlf, experiment_id)
+    end
+
+    @testset "default search" begin
+        runs, next_page_token = searchruns(mlf; experiment_ids=experiment_ids)
+
+        @test length(runs) == 2
+        @test next_page_token |> isnothing
+    end
+
+    @testset "with pagination" begin
+        runs, next_page_token = searchruns(mlf; experiment_ids=experiment_ids,
+            max_results=1)
+
+        @test length(runs) == 1
+        @test next_page_token |> !isnothing
+        @test next_page_token isa String
+    end
+
+    experiment_ids .|> (id -> deleteexperiment(mlf, id))
 end

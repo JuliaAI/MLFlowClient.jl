@@ -102,7 +102,8 @@ end
         run = refresh(mlf, run)
         last_metric = run.data.metrics |> last
         last_param = run.data.params |> last
-        last_tag = run.data.tags |> first
+        last_tag = run.data.tags[
+            findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
         
         @test last_metric isa Metric
         @test last_metric.key == "ana"
@@ -127,7 +128,8 @@ end
         run = refresh(mlf, run)
         last_metric = run.data.metrics |> last
         last_param = run.data.params |> last
-        last_tag = run.data.tags |> first
+        last_tag = run.data.tags[
+            findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
         
         @test last_metric isa Metric
         @test last_metric.key == "ana"
@@ -152,7 +154,8 @@ end
         run = refresh(mlf, run)
         last_metric = run.data.metrics |> last
         last_param = run.data.params |> last
-        last_tag = run.data.tags |> first
+        last_tag = run.data.tags[
+            findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
         
         @test last_metric isa Metric
         @test last_metric.key == "ana"
@@ -179,7 +182,8 @@ end
         run = refresh(mlf, run)
         last_metric = run.data.metrics |> last
         last_param = run.data.params |> last
-        last_tag = run.data.tags |> first
+        last_tag = run.data.tags[
+            findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
         
         @test last_metric isa Metric
         @test last_metric.key == "ana"

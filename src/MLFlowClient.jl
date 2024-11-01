@@ -70,6 +70,7 @@ export
     deleterun,
     setruntag,
     restorerun,
+    searchruns,
     deleteruntag
 
 include("services/loggers.jl")
