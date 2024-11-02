@@ -107,7 +107,7 @@ Stores an artifact (file) in the run's artifact location.
 # Arguments
 - `mlf::MLFlow`: [`MLFlow`](@ref) onfiguration. Currently not used, but when this method is extended to support `S3`, information from `mlf` will be needed.
 - `run`: one of [`MLFlowRun`](@ref), [`MLFlowRunInfo`](@ref) or `String`.
-- `basefilename`: name of the file to be written.
+- `basefilename`: name of the file to be written; can contain a folder such as `model/mycode.jl` which the folder will be created in the artifact directory.
 - `data`: artifact content, an object that can be written directly to a file handle.
 
 # Throws
@@ -116,19 +116,54 @@ Stores an artifact (file) in the run's artifact location.
 # Returns
 path of the artifact that was created.
 """
-function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::AbstractString, data)
+function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::AbstractString, data; artifact_path="")
     mlflowrun = getrun(mlf, run_id)
-    artifact_uri = mlflowrun.info.artifact_uri
-    mkpath(artifact_uri)
-    filepath = joinpath(artifact_uri, basefilename)
-    try
-        f = open(filepath, "w")
-        write(f, data)
-        close(f)
-    catch e
-        error("Unable to create artifact $(filepath): $e")
+    artifact_uri = joinpath(mlflowrun.info.artifact_uri,artifact_path,dirname(basefilename))
+    basefilename = basename(basefilename)
+
+    if !startswith(artifact_uri, "s3://")
+        mkpath(artifact_uri)
+        filepath = joinpath(artifact_uri, basefilename)
+        try
+            open(filepath, "w") do f
+                write(f, data)
+            end
+        catch e
+            error("Unable to create artifact $(filepath): $e")
+        end
+    else
+        region = get(ENV, "AWS_REGION", "")  # Optional, defaults to empty if not set
+        
+        if region == ""
+          region = get(ENV, "AWS_DEFAULT_REGION", "") 
+        end
+
+        if haskey(ENV, "MLFLOW_S3_ENDPOINT_URL")
+          s3creds = AWSCredentials()
+          s3config = MinioConfig(ENV["MLFLOW_S3_ENDPOINT_URL"], s3creds; region=region)
+        else
+          s3config = global_aws_config() # default AWS configuration
+        end
+
+        filepath = joinpath(artifact_uri, basefilename)
+        artifact_uri = rstrip(artifact_uri[6:end], '/')# get rid of s3:// so s3_put doesnt' complain
+
+        try
+            #TODO: Figure out the correct IO stream way of doing this
+            open(joinpath("/tmp/",basefilename), "w") do f
+                write(f, data)
+            end
+            open(joinpath("/tmp/",basefilename), "r") do f
+                file_data = read(f)
+                s3_put(s3config, artifact_uri, basefilename, file_data)
+            end
+            rm(joinpath("/tmp",basefilename))
+        catch e
+            error("Unable to upload artifact to S3 $(filepath): $e")
+        end
     end
-    filepath
+
+    return filepath
 end
 logartifact(mlf::MLFlow, run::MLFlowRun, basefilename::AbstractString, data) =
     logartifact(mlf, run.info, basefilename, data)
