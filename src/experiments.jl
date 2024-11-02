@@ -7,7 +7,8 @@ Creates an MLFlow experiment.
 - `mlf`: [`MLFlow`](@ref) configuration.
 - `name`: experiment name. If not specified, MLFlow sets it.
 - `artifact_location`: directory where artifacts of this experiment will be stored. If not specified, MLFlow uses its default configuration.
-- `tags`: a Dictionary of key-values which tag the experiment.
+- `tags`: a Vector of Dictionaries which tag the experiment.
+    - example tags: [Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
 
 # Returns
 An object of type [`MLFlowExperiment`](@ref).
@@ -97,7 +98,8 @@ Gets an experiment if one alrady exists, or creates a new one.
 - `mlf`: [`MLFlow`](@ref) configuration.
 - `experiment_name`: Experiment name.
 - `artifact_location`: directory where artifacts of this experiment will be stored. If not specified, MLFlow uses its default configuration.
-- `tags`: a Dictionary of key-values which tag the experiment.
+- `tags`: a Vector of Dictionaries which tag the experiment.
+    - example tags: [Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
 
 # Returns
 An instance of type [`MLFlowExperiment`](@ref)

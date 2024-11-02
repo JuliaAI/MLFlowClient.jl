@@ -10,7 +10,8 @@ Creates a run associated to an experiment.
 # Keywords
 - `run_name`: run name. If not specified, MLFlow sets it.
 - `start_time`: if provided, must be a UNIX timestamp in milliseconds. By default, set to current time.
-- `tags`: if provided, must be a key-value structure such as a dictionary.
+- `tags`: if provided, must be a key-value structure such as for example:
+    - [Dict("key" => "foo", "value" => "bar"), Dict("key" => "missy", "value" => "gala")]
 
 # Returns
 - an instance of type [`MLFlowRun`](@ref)
