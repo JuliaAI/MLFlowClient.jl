@@ -1,4 +1,37 @@
 """
+    settag(mlf::MLFlow, run, key, value)
+    settag(mlf::MLFlow, run, kv)
+
+Associates a tag (a key and a value) to the particular run.
+
+Refer to [the official MLflow REST API
+docs](https://mlflow.org/docs/latest/rest-api.html#set-tag) for restrictions on
+`key` and `value`.
+
+# Arguments
+- `mlf`: [`MLFlow`](@ref) configuration.
+- `run`: one of [`MLFlowRun`](@ref), [`MLFlowRunInfo`](@ref), or `String`.
+- `key`: tag key (name). Automatically converted to string before sending to MLFlow because this is the only type that MLFlow supports.
+- `value`: parameter value. Automatically converted to string before sending to MLFlow because this is the only type that MLFlow supports.
+
+One could also specify `kv::Dict` instead of separate `key` and `value` arguments.
+"""
+function settag(mlf::MLFlow, run_id::String, key, value)
+    endpoint ="runs/set-tag"
+    mlfpost(mlf, endpoint; run_id=run_id, key=string(key), value=string(value))
+end
+settag(mlf::MLFlow, run_info::MLFlowRunInfo, key, value) =
+    settag(mlf, run_info.run_id, key, value)
+settag(mlf::MLFlow, run::MLFlowRun, key, value) =
+    settag(mlf, run.info, key, value)
+function settag(mlf::MLFlow, run::Union{String,MLFlowRun,MLFlowRunInfo}, kv)
+    for (k, v) in kv
+        logparam(mlf, run, k, v)
+    end
+end
+
+
+"""
     logparam(mlf::MLFlow, run, key, value)
     logparam(mlf::MLFlow, run, kv)
 

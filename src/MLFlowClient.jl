@@ -79,7 +79,8 @@ export
     logparam,
     logmetric,
     logartifact,
-    listartifacts
+    listartifacts,
+    settag
 
 include("deprecated.jl")
 
