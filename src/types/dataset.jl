@@ -1,8 +1,8 @@
 """
     Dataset
 
-Represents a reference to data used for training, testing, or evaluation during
-the model development process.
+Represents a reference to data used for training, testing, or evaluation during the model
+development process.
 
 # Fields
 - `name::String`: The name of the dataset.
@@ -24,9 +24,9 @@ struct Dataset
     schema::Union{String, Nothing}
     profile::Union{String, Nothing}
 end
-Dataset(data::Dict{String, Any}) = Dataset(
-    data["name"], data["digest"], data["source_type"], data["source"],
-    get(data, "schema", nothing), get(data, "profile", nothing))
+Dataset(data::Dict{String, Any}) = Dataset(data["name"], data["digest"],
+    data["source_type"], data["source"], get(data, "schema", nothing),
+    get(data, "profile", nothing))
 Base.show(io::IO, t::Dataset) = show(io, ShowCase(t, new_lines=true))
 
 """
@@ -47,6 +47,5 @@ struct DatasetInput
     dataset::Dataset
 end
 DatasetInput(data::Dict{String, Any}) = DatasetInput(
-    [Tag(tag) for tag in get(data, "tags", [])],
-    Dataset(data["dataset"]))
+    [Tag(tag) for tag in get(data, "tags", [])], Dataset(data["dataset"]))
 Base.show(io::IO, t::DatasetInput) = show(io, ShowCase(t, new_lines=true))

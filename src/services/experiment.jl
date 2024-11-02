@@ -1,11 +1,10 @@
 """
-    createexperiment(instance::MLFlow, name::String;
-        artifact_location::String="",
+    createexperiment(instance::MLFlow, name::String; artifact_location::String="",
         tags::Union{Dict{<:Any}, Array{<:Any}}=[])
 
-Create an experiment with a name. Returns the newly created experiment.
-Validates that another experiment with the same name does not already exist and
-fails if another experiment with the same name already exists.
+Create an experiment with a name. Returns the newly created experiment. Validates that
+another experiment with the same name does not already exist and fails if another
+experiment with the same name already exists.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
@@ -51,9 +50,9 @@ getexperiment(instance::MLFlow, experiment_id::Integer)::Experiment =
 
 Get metadata for an experiment.
 
-This endpoint will return deleted experiments, but prefers the active
-experiment if an active and deleted experiment share the same name. If multiple
-deleted experiments share the same name, the API will return one of them.
+This endpoint will return deleted experiments, but prefers the active experiment if an
+active and deleted experiment share the same name. If multiple deleted experiments share
+the same name, the API will return one of them.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
@@ -62,10 +61,8 @@ deleted experiments share the same name, the API will return one of them.
 # Returns
 An instance of type [`Experiment`](@ref).
 """
-function getexperimentbyname(instance::MLFlow,
-    experiment_name::String)::Experiment
-    result = mlfget(instance, "experiments/get-by-name";
-        experiment_name=experiment_name)
+function getexperimentbyname(instance::MLFlow, experiment_name::String)::Experiment
+    result = mlfget(instance, "experiments/get-by-name"; experiment_name=experiment_name)
     return result["experiment"] |> Experiment
 end
 
@@ -74,9 +71,8 @@ end
     deleteexperiment(instance::MLFlow, experiment_id::Integer)
     deleteexperiment(instance::MLFlow, experiment::Experiment)
 
-Mark an experiment and associated metadata, runs, metrics, params, and tags for
-deletion. If the experiment uses FileStore, artifacts associated with
-experiment are also deleted.
+Mark an experiment and associated metadata, runs, metrics, params, and tags for deletion.
+If the experiment uses FileStore, artifacts associated with experiment are also deleted.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
@@ -99,9 +95,9 @@ deleteexperiment(instance::MLFlow, experiment::Experiment)::Bool =
     restoreexperiment(instance::MLFlow, experiment_id::Integer)
     restoreexperiment(instance::MLFlow, experiment::Experiment)
 
-Restore an experiment marked for deletion. This also restores associated
-metadata, runs, metrics, params, and tags. If experiment uses FileStore,
-underlying artifacts associated with experiment are also restored.
+Restore an experiment marked for deletion. This also restores associated metadata, runs,
+metrics, params, and tags. If experiment uses FileStore, underlying artifacts associated
+with experiment are also restored.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
@@ -121,51 +117,43 @@ restoreexperiment(instance::MLFlow, experiment::Experiment)::Bool =
 
 """
     updateexperiment(instance::MLFlow, experiment_id::String, new_name::String)
-    updateexperiment(instance::MLFlow, experiment_id::Integer,
-        new_name::String)
-    updateexperiment(instance::MLFlow, experiment::Experiment,
-        new_name::String)
+    updateexperiment(instance::MLFlow, experiment_id::Integer, new_name::String)
+    updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String)
 
 Update experiment metadata.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: ID of the associated experiment.
-- `new_name`: If provided, the experiment’s name is changed to the new name.
-The new name must be unique.
+- `new_name`: If provided, the experiment’s name is changed to the new name. The new name
+must be unique.
 
 # Returns
 `true` if successful. Otherwise, raises exception.
 """
-function updateexperiment(instance::MLFlow, experiment_id::String,
-    new_name::String)::Bool
-    mlfpost(instance, "experiments/update"; experiment_id=experiment_id,
-        new_name=new_name)
+function updateexperiment(instance::MLFlow, experiment_id::String, new_name::String)::Bool
+    mlfpost(instance, "experiments/update"; experiment_id=experiment_id, new_name=new_name)
     return true
 end
-updateexperiment(instance::MLFlow, experiment_id::Integer,
-    new_name::String)::Bool =
+updateexperiment(instance::MLFlow, experiment_id::Integer, new_name::String)::Bool =
     updateexperiment(instance, string(experiment_id), new_name)
-updateexperiment(instance::MLFlow, experiment::Experiment,
-    new_name::String)::Bool =
+updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String)::Bool =
     updateexperiment(instance, experiment.experiment_id, new_name)
 
 """
-    searchexperiments(instance::MLFlow; max_results::Int64=20000,
-        page_token::String="", filter::String="", order_by::Array{String}=[],
-        view_type::ViewType=ACTIVE_ONLY)
+    searchexperiments(instance::MLFlow; max_results::Int64=20000, page_token::String="",
+        filter::String="", order_by::Array{String}=[], view_type::ViewType=ACTIVE_ONLY)
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
 - `max_results`: Maximum number of experiments desired.
 - `page_token`: Token indicating the page of experiments to fetch.
-- `filter`: A filter expression over experiment attributes and tags that allows
-returning a subset of experiments. See [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-experiments).
-- `order_by`: List of columns for ordering search results, which can include
-experiment name and id with an optional “DESC” or “ASC” annotation, where “ASC”
-is the default.
-- `view_type`: Qualifier for type of experiments to be returned. If
-unspecified, return only active experiments.
+- `filter`: A filter expression over experiment attributes and tags that allows returning a
+subset of experiments. See [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-experiments).
+- `order_by`: List of columns for ordering search results, which can include experiment
+name and id with an optional “DESC” or “ASC” annotation, where “ASC” is the default.
+- `view_type`: Qualifier for type of experiments to be returned. If unspecified, return
+only active experiments.
 
 # Returns
 - Vector of [`Experiment`](@ref) that were found in the MLFlow instance.
@@ -173,10 +161,8 @@ unspecified, return only active experiments.
 """
 function searchexperiments(instance::MLFlow; max_results::Int64=20000,
     page_token::String="", filter::String="", order_by::Array{String}=String[],
-    view_type::ViewType=ACTIVE_ONLY
-)::Tuple{Array{Experiment}, Union{String, Nothing}}
-    parameters = (; max_results, page_token, filter,
-        :view_type => view_type |> Integer)
+    view_type::ViewType=ACTIVE_ONLY)::Tuple{Array{Experiment}, Union{String, Nothing}}
+    parameters = (; max_results, page_token, filter, :view_type => view_type |> Integer)
 
     if order_by |> !isempty
         parameters = (; order_by, parameters...)
@@ -191,12 +177,9 @@ function searchexperiments(instance::MLFlow; max_results::Int64=20000,
 end
 
 """
-    setexperimenttag(instance::MLFlow, experiment_id::String, key::String,
-        value::String)
-    setexperimenttag(instance::MLFlow, experiment_id::Integer, key::String,
-        value::String)
-    setexperimenttag(instance::MLFlow, experiment::Experiment, key::String,
-        value::String)
+    setexperimenttag(instance::MLFlow, experiment_id::String, key::String, value::String)
+    setexperimenttag(instance::MLFlow, experiment_id::Integer, key::String, value::String)
+    setexperimenttag(instance::MLFlow, experiment::Experiment, key::String, value::String)
 
 Set a tag on an experiment. Experiment tags are metadata that can be updated.
 
@@ -210,8 +193,8 @@ Set a tag on an experiment. Experiment tags are metadata that can be updated.
 """
 function setexperimenttag(instance::MLFlow, experiment_id::String, key::String,
     value::String)::Bool
-    mlfpost(instance, "experiments/set-experiment-tag";
-        experiment_id=experiment_id, key=key, value=value)
+    mlfpost(instance, "experiments/set-experiment-tag"; experiment_id=experiment_id,
+        key=key, value=value)
     return true
 end
 setexperimenttag(instance::MLFlow, experiment_id::Integer, key::String,

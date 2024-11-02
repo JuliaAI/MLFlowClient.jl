@@ -10,8 +10,7 @@ MLFlowClient.uri(mlf, "experiments/get", Dict(:experiment_id=>10))
 """
 uri(mlf::MLFlow, endpoint::String;
     parameters::Dict{Symbol, <:Any}=Dict{Symbol, NumberOrString}()) =
-    URI("$(mlf.apiroot)/$(mlf.apiversion)/mlflow/$(endpoint)";
-        query=parameters)
+    URI("$(mlf.apiroot)/$(mlf.apiversion)/mlflow/$(endpoint)"; query=parameters)
 
 """
     headers(mlf::MLFlow,custom_headers::AbstractDict)
@@ -40,8 +39,7 @@ function mlfget(mlf, endpoint; kwargs...)
         return response.body |> String |> JSON.parse
     catch e
         error_response = e.response.body |> String |> JSON.parse
-        error_message =
-            "$(error_response["error_code"]) -  $(error_response["message"])"
+        error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message
         throw(ErrorException(error_message))
     end
@@ -50,7 +48,8 @@ end
 """
     mlfpost(mlf, endpoint; kwargs...)
 
-Performs a HTTP POST to the specified endpoint. kwargs are converted to JSON and become the POST body.
+Performs a HTTP POST to the specified endpoint. kwargs are converted to JSON and become the
+POST body.
 """
 function mlfpost(mlf, endpoint; kwargs...)
     apiuri = uri(mlf, endpoint;)
@@ -62,8 +61,7 @@ function mlfpost(mlf, endpoint; kwargs...)
         return response.body |> String |> JSON.parse
     catch e
         error_response = e.response.body |> String |> JSON.parse
-        error_message =
-            "$(error_response["error_code"]) -  $(error_response["message"])"
+        error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message
         throw(ErrorException(error_message))
     end

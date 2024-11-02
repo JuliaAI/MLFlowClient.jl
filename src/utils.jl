@@ -1,23 +1,15 @@
 const NumberOrString = Union{Number, String}
-const MLFlowUpsertData{T} = Union{
-    Array{T},
-    Array{<:Dict{String, <:Any}},
-    Dict{String, <:NumberOrString},
-    Array{<:Pair{String, <:NumberOrString}},
-    Array{<:Tuple{String, <:NumberOrString}}
-}
+const MLFlowUpsertData{T} = Union{Array{T}, Array{<:Dict{String, <:Any}},
+    Dict{String, <:NumberOrString}, Array{<:Pair{String, <:NumberOrString}},
+    Array{<:Tuple{String, <:NumberOrString}}}
 
-const MLFLOW_ERROR_CODES = (;
-    RESOURCE_ALREADY_EXISTS = "RESOURCE_ALREADY_EXISTS",
-    RESOURCE_DOES_NOT_EXIST = "RESOURCE_DOES_NOT_EXIST",
-)
-
-function dict_to_T_array(::Type{T}, dict::Dict{String, <:NumberOrString}) where T<:LoggingData
+function dict_to_T_array(::Type{T},
+    dict::Dict{String, <:NumberOrString}) where T<:LoggingData
     entities = T[]
     for (key, value) in dict
         if T<:Metric
-            push!(entities, Metric(key, Float64(value),
-                round(Int, now() |> datetime2unix), nothing))
+            push!(entities, Metric(key, Float64(value), round(Int, now() |> datetime2unix),
+                nothing))
         else
             push!(entities, T(key, value |> string))
         end
@@ -32,8 +24,8 @@ function pairarray_to_T_array(::Type{T}, pair_array::Array{<:Pair}) where T<:Log
         key = pair.first |> string
         if T<:Metric
             value = pair.second
-            push!(entities, Metric(key, Float64(value),
-                round(Int, now() |> datetime2unix), nothing))
+            push!(entities, Metric(key, Float64(value), round(Int, now() |> datetime2unix),
+                nothing))
         else
             value = pair.second |> string
             push!(entities, T(key, value))
@@ -54,8 +46,8 @@ function tuplearray_to_T_array(::Type{T},
         key = tuple |> first |> string
         if T<: Metric
             value = tuple |> last
-            push!(entities, Metric(key, Float64(value),
-                round(Int, now() |> datetime2unix), nothing))
+            push!(entities, Metric(key, Float64(value), round(Int, now() |> datetime2unix),
+                nothing))
         else
             value = tuple |> last |> string
             push!(entities, T(key, value))
@@ -100,7 +92,6 @@ function parse(::Type{T}, entities::MLFlowUpsertData{T}) where T<:LoggingData
     return entities
 end
 
-refresh(instance::MLFlow, experiment::Experiment)::Experiment = 
+refresh(instance::MLFlow, experiment::Experiment)::Experiment =
     getexperiment(instance, experiment.experiment_id)
-refresh(instance::MLFlow, run::Run)::Run = 
-    getrun(instance, run.info.run_id)
+refresh(instance::MLFlow, run::Run)::Run = getrun(instance, run.info.run_id)

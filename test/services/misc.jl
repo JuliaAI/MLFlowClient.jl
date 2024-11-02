@@ -8,8 +8,7 @@
     end
 
     @testset "default search" begin
-        metrics, next_page_token = getmetrichistory(mlf, run.info.run_id,
-            "missy")
+        metrics, next_page_token = getmetrichistory(mlf, run, "missy")
 
         @test length(metrics) == 20
         @test next_page_token |> isnothing

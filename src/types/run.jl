@@ -15,8 +15,8 @@ struct Metric <: LoggingData
     timestamp::Int64
     step::Union{Int64, Nothing}
 end
-Metric(data::Dict{String, Any}) = Metric(data["key"], data["value"],
-    data["timestamp"], data["step"])
+Metric(data::Dict{String, Any}) = Metric(data["key"], data["value"], data["timestamp"],
+    data["step"])
 Base.show(io::IO, t::Metric) = show(io, ShowCase(t, new_lines=true))
 
 """
@@ -47,12 +47,12 @@ Metadata of a single run.
 - `status::RunStatus`: Current status of the run.
 - `start_time::Int64`: Unix timestamp of when the run started in milliseconds.
 - `end_time::Int64`: Unix timestamp of when the run ended in milliseconds.
-- `artifact_uri::String`: URI of the directory where artifacts should be
-uploaded. This can be a local path (starting with “/”), or a distributed file
-system (DFS) path, like s3://bucket/directory or dbfs:/my/directory. If not
-set, the local ./mlruns directory is chosen.
-- `lifecycle_stage::String`: Current life cycle stage of the experiment:
-"active" or "deleted".
+- `artifact_uri::String`: URI of the directory where artifacts should be uploaded. This can
+be a local path (starting with “/”), or a distributed file system (DFS) path,
+like s3://bucket/directory or dbfs:/my/directory. If not set, the local ./mlruns directory
+is chosen.
+- `lifecycle_stage::String`: Current life cycle stage of the experiment: "active" or
+"deleted".
 """
 struct RunInfo
     run_id::String
@@ -66,8 +66,7 @@ struct RunInfo
 end
 RunInfo(data::Dict{String, Any}) = RunInfo(data["run_id"], data["run_name"],
     data["experiment_id"], RunStatus(data["status"]), data["start_time"],
-    get(data, "end_time", nothing), data["artifact_uri"],
-    data["lifecycle_stage"])
+    get(data, "end_time", nothing), data["artifact_uri"], data["lifecycle_stage"])
 Base.show(io::IO, t::RunInfo) = show(io, ShowCase(t, new_lines=true))
 
 """
@@ -103,8 +102,7 @@ struct RunInputs
     dataset_inputs::Array{DatasetInput}
 end
 RunInputs(data::Dict{String, Any}) = RunInputs(
-    [DatasetInput(dataset_input) for dataset_input in
-        get(data, "dataset_inputs", [])])
+    [DatasetInput(dataset_input) for dataset_input in get(data, "dataset_inputs", [])])
 Base.show(io::IO, t::RunInputs) = show(io, ShowCase(t, new_lines=true))
 
 """
@@ -117,6 +115,6 @@ struct Run
     data::RunData
     inputs::RunInputs
 end
-Run(data::Dict{String, Any}) = Run(RunInfo(data["info"]),
-    RunData(data["data"]), RunInputs(data["inputs"]))
+Run(data::Dict{String, Any}) = Run(RunInfo(data["info"]), RunData(data["data"]),
+    RunInputs(data["inputs"]))
 Base.show(io::IO, t::Run) = show(io, ShowCase(t, new_lines=true))

@@ -6,13 +6,14 @@ Base type which defines location and version for MLFlow API service.
 # Fields
 - `apiroot::String`: API root URL, e.g. `http://localhost:5000/api`
 - `apiversion::Union{Integer, AbstractFloat}`: used API version, e.g. `2.0`
-- `headers::Dict`: HTTP headers to be provided with the REST API requests (useful for authetication tokens)
-Default is `false`, using the REST API endpoint.
+- `headers::Dict`: HTTP headers to be provided with the REST API requests (useful for
+authetication tokens) Default is `false`, using the REST API endpoint.
 
 # Constructors
 
 - `MLFlow(apiroot; apiversion=2.0,headers=Dict())`
-- `MLFlow()` - defaults to `MLFlow(ENV["MLFLOW_TRACKING_URI"])` or `MLFlow("http://localhost:5000/api")`
+- `MLFlow()` - defaults to `MLFlow(ENV["MLFLOW_TRACKING_URI"])` or
+`MLFlow("http://localhost:5000/api")`
 
 # Examples
 
@@ -36,6 +37,7 @@ MLFlow(; apiroot="http://localhost:5000/api", apiversion=2.0, headers=Dict()) =
     MLFlow((haskey(ENV, "MLFLOW_TRACKING_URI") ?
             ENV["MLFLOW_TRACKING_URI"] : apiroot), apiversion, headers)
 
-Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, [:apiroot,:apiversion], new_lines=true))
+Base.show(io::IO, t::MLFlow) =
+    show(io, ShowCase(t, [:apiroot,:apiversion], new_lines=true))
 
 abstract type LoggingData end

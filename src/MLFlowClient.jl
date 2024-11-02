@@ -15,15 +15,10 @@ include("types/tag.jl")
 export Tag
 
 include("types/enums.jl")
-export
-    ViewType,
-    RunStatus,
-    ModelVersionStatus
+export ViewType, RunStatus, ModelVersionStatus
 
 include("types/dataset.jl")
-export
-    Dataset,
-    DatasetInput
+export Dataset, DatasetInput
 
 include("types/artifact.jl")
 export FileInfo
@@ -32,56 +27,30 @@ include("types/model_version.jl")
 export ModelVersion
 
 include("types/registered_model.jl")
-export
-    RegisteredModel,
-    RegisteredModelAlias
+export RegisteredModel, RegisteredModelAlias
 
 include("types/experiment.jl")
 export Experiment
 
 include("types/run.jl")
-export
-    Run,
-    Param,
-    Metric,
-    RunData,
-    RunInfo,
-    RunInputs
+export Run, Param, Metric, RunData, RunInfo, RunInputs
 
 include("utils.jl")
 export refresh
+
 include("api.jl")
 
 include("services/experiment.jl")
-export
-    getexperiment,
-    createexperiment,
-    deleteexperiment,
-    setexperimenttag,
-    updateexperiment,
-    restoreexperiment,
-    searchexperiments,
-    getexperimentbyname
+export getexperiment, createexperiment, deleteexperiment, setexperimenttag,
+    updateexperiment, restoreexperiment, searchexperiments, getexperimentbyname
 
 include("services/run.jl")
-export 
-    getrun,
-    createrun,
-    deleterun,
-    setruntag,
-    restorerun,
-    searchruns,
-    deleteruntag
+export getrun, createrun, deleterun, setruntag, restorerun, searchruns, deleteruntag
 
 include("services/loggers.jl")
-export
-    logbatch,
-    loginputs,
-    logmetric,
-    logparam
+export logbatch, loginputs, logmetric, logparam
 
 include("services/misc.jl")
-export
-    getmetrichistory
+export getmetrichistory
 
 end
