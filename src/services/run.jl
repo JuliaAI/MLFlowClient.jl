@@ -184,3 +184,33 @@ function searchruns(instance::MLFlow; experiment_ids::Array{String}=String[],
 
     return runs, next_page_token
 end
+
+"""
+    updaterun(instance::MLFlow, run_id::String; status::Union{RunStatus, Missing}=missing,
+        end_time::Union{Int64, Missing}=missing, run_name::Union{String, Missing}=missing)
+    updaterun(instance::MLFlow, run::Run; status::Union{RunStatus, Missing}=missing,
+        end_time::Union{Int64, Missing}=missing, run_name::Union{String, Missing}=missing)
+
+Update run metadata.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `run_id`: ID of the run to update.
+- `status`: Updated status of the run.
+- `end_time`: Unix timestamp in milliseconds of when the run ended.
+- `run_name`: Updated name of the run.
+
+# Returns
+- An instance of type [`RunInfo`](@ref) with the updated metadata.
+"""
+function updaterun(instance::MLFlow, run_id::String;
+    status::Union{RunStatus, Missing}=missing, end_time::Union{Int64, Missing}=missing,
+    run_name::Union{String, Missing})::RunInfo
+    result = mlfpost(instance, "runs/update"; run_id=run_id, status=(status |> Integer),
+        end_time=end_time, run_name=run_name)
+    return result["run_info"] |> RunInfo
+end
+updaterun(instance::MLFlow, run::Run; status::Union{RunStatus, Missing}=missing,
+    end_time::Union{Int64, Missing}=missing, run_name::Union{String, Missing})::RunInfo =
+    updaterun(instance, run.info.run_id; status=status, end_time=end_time,
+        run_name=run_name)

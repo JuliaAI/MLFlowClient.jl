@@ -185,3 +185,35 @@ end
 
     experiment_ids .|> (id -> deleteexperiment(mlf, id))
 end
+
+@testset verbose = true "update run" begin
+    @ensuremlf
+    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+    run = createrun(mlf, experiment_id)
+
+    @testset "update with string id" begin
+        status = MLFlowClient.FINISHED
+        end_time = 123
+        run_name = "missy"
+
+        run_info = updaterun(mlf, run.info.run_id; status=status, end_time=end_time, run_name=run_name)
+
+        @test run_info.status == status
+        @test run_info.end_time == end_time
+        @test run_info.run_name == run_name
+    end
+
+    @testset "update with Run" begin
+        status = MLFlowClient.FAILED
+        end_time = 456
+        run_name = "gala"
+
+        run_info = updaterun(mlf, run.info.run_id; status=status, end_time=end_time, run_name=run_name)
+
+        @test run_info.status == status
+        @test run_info.end_time == end_time
+        @test run_info.run_name == run_name
+    end
+
+    deleteexperiment(mlf, experiment_id)
+end

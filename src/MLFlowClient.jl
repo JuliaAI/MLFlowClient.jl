@@ -45,7 +45,8 @@ export getexperiment, createexperiment, deleteexperiment, setexperimenttag,
     updateexperiment, restoreexperiment, searchexperiments, getexperimentbyname
 
 include("services/run.jl")
-export getrun, createrun, deleterun, setruntag, restorerun, searchruns, deleteruntag
+export getrun, createrun, deleterun, setruntag, updaterun, restorerun, searchruns,
+    deleteruntag
 
 include("services/loggers.jl")
 export logbatch, loginputs, logmetric, logparam
