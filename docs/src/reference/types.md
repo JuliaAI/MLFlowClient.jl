@@ -1,0 +1,21 @@
+# Types
+```@docs
+MLFlow
+Tag
+ViewType
+RunStatus
+ModelVersionStatus
+Dataset
+DatasetInput
+FileInfo
+ModelVersion
+RegisteredModel
+RegisteredModelAlias
+Experiment
+Run
+Param
+Metric
+RunData
+RunInfo
+RunInputs
+```

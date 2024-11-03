@@ -6,17 +6,17 @@
         timestamp::Int64=round(Int, now() |> datetime2unix),
         step::Union{Int64, Missing}=missing)
 
-Log a metric for a run. A metric is a key-value pair (string key, float value) with an
-associated timestamp. Examples include the various metrics that represent ML model
-accuracy. A metric can be logged multiple times.
+Log a [`Metric`](@ref) for a [`Run`](@ref). A [`Metric`](@ref) is a key-value pair (string
+key, float value) with an associated timestamp. Examples include the various metrics that
+represent ML model accuracy. A [`Metric`](@ref) can be logged multiple times.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run under which to log the metric.
-- `key`: Name of the metric.
-- `value`: Double value of the metric being logged.
-- `timestamp`: Unix timestamp in milliseconds at the time metric was logged.
-- `step`: Step at which to log the metric.
+- `run_id`: ID of the [`Run`](@ref) under which to log the [`Metric`](@ref).
+- `key`: Name of the [`Metric`](@ref).
+- `value`: Double value of the [`Metric`](@ref) being logged.
+- `timestamp`: Unix timestamp in milliseconds at the time [`Metric`](@ref) was logged.
+- `step`: Step at which to log the [`Metric`](@ref).
 
 # Returns
 `true` if successful. Otherwise, raises exception.
@@ -45,17 +45,17 @@ logmetric(instance::MLFlow, run::Run, metric::Metric)::Bool =
     logbatch(instance::MLFlow, run::Run; metrics::Array{Metric},
         params::MLFlowUpsertData{Param}, tags::MLFlowUpsertData{Tag})
 
-Log a batch of metrics, params, and tags for a run. In case of error, partial data may be
-written.
+Log a batch of metrics, params, and tags for a [`Run`](@ref). In case of error, partial
+data may be written.
 
 For more information about this function, check [MLFlow official documentation](https://mlflow.org/docs/latest/rest-api.html#log-batch).
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run to log under.
-- `metrics`: Metrics to log.
-- `params`: Params to log.
-- `tags`: Tags to log.
+- `run_id`: ID of the [`Run`](@ref) to log under.
+- `metrics`: A collection of [`Metric`](@ref) to log.
+- `params`: A collection of [`Param`](@ref) to log.
+- `tags`: A collection of [`Tag`](@ref) to log.
 
 **Note**: A single request can contain up to 1000 metrics, and up to 1000 metrics, params,
 and tags in total.
@@ -80,8 +80,8 @@ logbatch(instance::MLFlow, run::Run; metrics::MLFlowUpsertData{Metric}=Metric[],
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run to log under This field is required.
-- `datasets`: Dataset inputs.
+- `run_id`: ID of the [`Run`](@ref) to log under this field is required.
+- `datasets`: A collection of [`DatasetInput`](@ref) to log.
 
 # Returns
 `true` if successful. Otherwise, raises exception.
@@ -99,15 +99,16 @@ loginputs(instance::MLFlow, run::Run, datasets::Array{DatasetInput})::Bool =
     logparam(instance::MLFlow, run_id::String, param::Param)
     logparam(instance::MLFlow, run::Run, param::Param)
 
-Log a param used for a run. A param is a key-value pair (string key, string value).
-Examples include hyperparameters used for ML model training and constant dates and values
-used in an ETL pipeline. A param can be logged only once for a run.
+Log a [`Param`](@ref) used for a [`Run`](@ref). A [`Param`](@ref) is a key-value pair
+(string key, string value). Examples include hyperparameters used for ML model training and
+constant dates and values used in an ETL pipeline. A [`Param`](@ref) can be logged only
+once for a [`Run`](@ref).
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run under which to log the param.
-- `key`: Name of the param.
-- `value`: String value of the param being logged.
+- `run_id`: ID of the [`Run`](@ref) under which to log the [`Param`](@ref).
+- `key`: Name of the [`Param`](@ref).
+- `value`: String value of the [`Param`](@ref) being logged.
 
 # Returns
 `true` if successful. Otherwise, raises exception.

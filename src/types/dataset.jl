@@ -11,10 +11,6 @@ development process.
 - `source::String`: Source information for the dataset.
 - `schema::String`: The schema of the dataset. This field is optional.
 - `profile::String`: The profile of the dataset. This field is optional.
-
-# Constructors
-- `Dataset(name, digest, source_type, source, schema, profile)`
-- `Dataset(name, digest, source_type, source; schema=nothing, profile=nothing)`
 """
 struct Dataset
     name::String
@@ -36,11 +32,7 @@ Represents a dataset and input tags.
 
 # Fields
 - `tags::Array{Tag}`: A list of tags for the dataset input.
-- `dataset::Dataset`: The dataset being used as a Run input.
-
-# Constructors
-- `DatasetInput(tags, dataset)`
-- `DatasetInput(dataset; tags=[])`
+- `dataset::Dataset`: The dataset being used as a run input.
 """
 struct DatasetInput
     tags::Array{Tag}

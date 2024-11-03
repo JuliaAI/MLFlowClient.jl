@@ -4,15 +4,15 @@
         start_time::Union{Int64, Missing}=missing,
         tags::Union{Dict{<:Any}, Array{<:Any}}=[])
 
-Create a new run within an experiment. A run is usually a single execution of a machine
-learning or data ETL pipeline.
+Create a new [`Run`](@ref) within an [`Experiment`](@ref). A [`Run`](@ref) is usually a
+single execution of a machine learning or data ETL pipeline.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `experiment_id`: ID of the associated experiment.
-- `run_name`: Name of the run.
-- `start_time`: Unix timestamp in milliseconds of when the run started.
-- `tags`: Additional metadata for run.
+- `experiment_id`: ID of the associated [`Experiment`](@ref).
+- `run_name`: Name of the [`Run`](@ref).
+- `start_time`: Unix timestamp in milliseconds of when the [`Run`](@ref) started.
+- `tags`: Additional metadata for [`Run`](@ref).
 
 # Returns
 An instance of type [`Run`](@ref).
@@ -39,11 +39,11 @@ createrun(instance::MLFlow, experiment::Experiment;
     deleterun(instance::MLFlow, run_id::String)
     deleterun(instance::MLFlow, run::Run)
 
-Mark a run for deletion.
+Mark a [`Run`](@ref) for deletion.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run to delete.
+- `run_id`: ID of the [`Run`](@ref) to delete.
 
 # Returns
 `true` if successful. Otherwise, raises exception.
@@ -59,11 +59,11 @@ deleterun(instance::MLFlow, run::Run)::Bool =
     restorerun(instance::MLFlow, run_id::String)
     restorerun(instance::MLFlow, run::Run)
 
-Restore a deleted run.
+Restore a deleted [`Run`](@ref).
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run to restore.
+- `run_id`: ID of the [`Run`](@ref) to restore.
 
 # Returns
 `true` if successful. Otherwise, raises exception.
@@ -78,13 +78,14 @@ restorerun(instance::MLFlow, run::Run)::Bool =
 """
     getrun(instance::MLFlow, run_id::String)
 
-Get metadata, metrics, params, and tags for a run. In the case where multiple metrics with
-the same key are logged for a run, return only the value with the latest timestamp. If
-there are multiple values with the latest timestamp, return the maximum of these values.
+Get metadata, metrics, params, and tags for a [`Run`](@ref). In the case where multiple
+metrics with the same key are logged for a [`Run`](@ref), return only the value with the
+latest timestamp. If there are multiple values with the latest timestamp, return the
+maximum of these values.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run to fetch.
+- `run_id`: ID of the [`Run`](@ref) to fetch.
 
 # Returns
 An instance of type [`Run`](@ref).
@@ -99,13 +100,13 @@ end
     setruntag(instance::MLFlow, run::Run, key::String, value::String)
     setruntag(instance::MLFlow, run::Run, tag::Tag)
 
-Set a tag on a run.
+Set a [`Tag`](@ref) on a [`Run`](@ref).
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run under which to log the tag.
-- `key`: Name of the tag.
-- `value`: String value of the tag being logged.
+- `run_id`: ID of the [`Run`](@ref) under which to log the [`Tag`](@ref).
+- `key`: Name of the [`Tag`](@ref).
+- `value`: String value of the [`Tag`](@ref) being logged.
 
 # Returns
 `true` if successful. Otherwise, raises exception.
@@ -120,16 +121,16 @@ setruntag(instance::MLFlow, run::Run, tag::Tag)::Bool =
     setruntag(instance, run.info.run_id, tag.key, tag.value)
 
 """
-    deletetag(instance::MLFlow, run_id::String, key::String)
-    deletetag(instance::MLFlow, run::Run, key::String)
-    deletetag(instance::MLFlow, run::Run, tag::Tag)
+    deleteruntag(instance::MLFlow, run_id::String, key::String)
+    deleteruntag(instance::MLFlow, run::Run, key::String)
+    deleteruntag(instance::MLFlow, run::Run, tag::Tag)
 
-Delete a tag on a run.
+Delete a [`Tag`](@ref) on a [`Run`](@ref).
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run that the tag was logged under.
-- `key`: Name of the tag.
+- `run_id`: ID of the [`Run`](@ref) that the [`Tag`](@ref) was logged under.
+- `key`: Name of the [`Tag`](@ref).
 
 # Returns
 `true` if successful. Otherwise, raises exception.
@@ -148,18 +149,19 @@ deleteruntag(instance::MLFlow, run::Run, tag::Tag)::Bool =
         run_view_type::ViewType=ACTIVE_ONLY, max_results::Int=1000,
         order_by::Array{String}=String[], page_token::String="")
 
-Search for runs that satisfy expressions. Search expressions can use Metric and Param keys.
+Search for runs that satisfy expressions. Search expressions can use [`Metric`](@ref) and
+[`Param`](@ref) keys.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `experiment_ids`: List of experiment IDs to search over.
+- `experiment_ids`: List of [`Experiment`](@ref) IDs to search over.
 - `filter`: A filter expression over params, metrics, and tags, that allows returning a
-subset of runs. See [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs).
+    subset of runs. See [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-runs).
 - `run_view_type`: Whether to display only active, only deleted, or all runs. Defaults to
-only active runs.
+    only active runs.
 - `max_results`: Maximum number of runs desired.
 - `order_by`: List of columns to be ordered by, including attributes, params, metrics, and
-tags with an optional “DESC” or “ASC” annotation, where “ASC” is the default.
+    tags with an optional “DESC” or “ASC” annotation, where “ASC” is the default.
 - `page_token`: Token indicating the page of runs to fetch.
 
 # Returns
@@ -191,14 +193,14 @@ end
     updaterun(instance::MLFlow, run::Run; status::Union{RunStatus, Missing}=missing,
         end_time::Union{Int64, Missing}=missing, run_name::Union{String, Missing}=missing)
 
-Update run metadata.
+Update [`Run`](@ref) metadata.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `run_id`: ID of the run to update.
-- `status`: Updated status of the run.
-- `end_time`: Unix timestamp in milliseconds of when the run ended.
-- `run_name`: Updated name of the run.
+- `run_id`: ID of the [`Run`](@ref) to update.
+- `status`: Updated status of the [`Run`](@ref).
+- `end_time`: Unix timestamp in milliseconds of when the [`Run`](@ref) ended.
+- `run_name`: Updated name of the [`Run`](@ref).
 
 # Returns
 - An instance of type [`RunInfo`](@ref) with the updated metadata.

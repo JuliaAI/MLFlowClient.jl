@@ -91,7 +91,3 @@ function parse(::Type{T}, entities::MLFlowUpsertData{T}) where T<:LoggingData
     end
     return entities
 end
-
-refresh(instance::MLFlow, experiment::Experiment)::Experiment =
-    getexperiment(instance, experiment.experiment_id)
-refresh(instance::MLFlow, run::Run)::Run = getrun(instance, run.info.run_id)

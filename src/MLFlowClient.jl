@@ -1,3 +1,14 @@
+"""
+    MLFlowClient
+
+[MLFlowClient](https://github.com/JuliaAI.jl) is a [Julia](https://julialang.org/) package
+for working with [MLFlow](https://mlflow.org/) using the REST
+[API v2.0](https://www.mlflow.org/docs/latest/rest-api.html).
+
+`MLFlowClient` allows you to create and manage `MLFlow` experiments, runs, and log metrics
+and artifacts. If you are not familiar with `MLFlow` and its concepts, please refer to
+[MLFlow documentation](https://mlflow.org/docs/latest/index.html).
+"""
 module MLFlowClient
 
 using Dates
@@ -6,7 +17,6 @@ using HTTP
 using URIs
 using JSON
 using ShowCases
-using FilePathsBase: AbstractPath
 
 include("types/mlflow.jl")
 export MLFlow
@@ -35,10 +45,9 @@ export Experiment
 include("types/run.jl")
 export Run, Param, Metric, RunData, RunInfo, RunInputs
 
-include("utils.jl")
-export refresh
-
 include("api.jl")
+
+include("utils.jl")
 
 include("services/experiment.jl")
 export getexperiment, createexperiment, deleteexperiment, setexperimenttag,
@@ -55,6 +64,6 @@ include("services/artifact.jl")
 export listartifacts
 
 include("services/misc.jl")
-export getmetrichistory
+export refresh, getmetrichistory
 
 end

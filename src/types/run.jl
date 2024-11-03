@@ -48,11 +48,11 @@ Metadata of a single run.
 - `start_time::Int64`: Unix timestamp of when the run started in milliseconds.
 - `end_time::Int64`: Unix timestamp of when the run ended in milliseconds.
 - `artifact_uri::String`: URI of the directory where artifacts should be uploaded. This can
-be a local path (starting with “/”), or a distributed file system (DFS) path,
-like s3://bucket/directory or dbfs:/my/directory. If not set, the local ./mlruns directory
-is chosen.
+    be a local path (starting with “/”), or a distributed file system (DFS) path,
+    like s3://bucket/directory or dbfs:/my/directory. If not set, the local ./mlruns
+    directory is chosen.
 - `lifecycle_stage::String`: Current life cycle stage of the experiment: "active" or
-"deleted".
+    "deleted".
 """
 struct RunInfo
     run_id::String
@@ -109,6 +109,11 @@ Base.show(io::IO, t::RunInputs) = show(io, ShowCase(t, new_lines=true))
     Run
 
 A single run.
+
+# Fields
+- `info::RunInfo`: Metadata of the run.
+- `data::RunData`: Run data (metrics, params, and tags).
+- `inputs::RunInputs`: Run inputs.
 """
 struct Run
     info::RunInfo

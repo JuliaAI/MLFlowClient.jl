@@ -7,13 +7,7 @@ Base type which defines location and version for MLFlow API service.
 - `apiroot::String`: API root URL, e.g. `http://localhost:5000/api`
 - `apiversion::Union{Integer, AbstractFloat}`: used API version, e.g. `2.0`
 - `headers::Dict`: HTTP headers to be provided with the REST API requests (useful for
-authetication tokens) Default is `false`, using the REST API endpoint.
-
-# Constructors
-
-- `MLFlow(apiroot; apiversion=2.0,headers=Dict())`
-- `MLFlow()` - defaults to `MLFlow(ENV["MLFLOW_TRACKING_URI"])` or
-`MLFlow("http://localhost:5000/api")`
+    authetication tokens) Default is `false`, using the REST API endpoint.
 
 # Examples
 
