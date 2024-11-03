@@ -101,8 +101,7 @@ end
 Stores an artifact (file) in the run's artifact location.
 
 !!! note
-    Assumes that artifact_uri is mapped to a local directory.
-    At the moment, this only works if both MLFlow and the client are running on the same host or they map a directory that leads to the same location over NFS, for example.
+    Only supports local and proxied artifact stores.
 
 # Arguments
 - `mlf::MLFlow`: [`MLFlow`](@ref) onfiguration. Currently not used, but when this method is extended to support `S3`, information from `mlf` will be needed.
@@ -119,8 +118,12 @@ path of the artifact that was created.
 function logartifact(mlf::MLFlow, run_id::AbstractString, basefilename::AbstractString, data)
     mlflowrun = getrun(mlf, run_id)
     artifact_uri = mlflowrun.info.artifact_uri
-    mkpath(artifact_uri)
     filepath = joinpath(artifact_uri, basefilename)
+    if startswith(artifact_uri, "mlflow-artifacts:/")
+        mlfput_artifact(mlf, artifact_uri, basefilename, data)
+        return filepath
+    end
+    mkpath(artifact_uri)
     try
         f = open(filepath, "w")
         write(f, data)

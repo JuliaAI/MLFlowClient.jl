@@ -51,6 +51,17 @@ function generatefilterfromentity_type(filter_params::AbstractDict{K,V}, entity_
     join(filters, " and ")
 end
 
+function guess_mime(data)::FileTypes.FileType.Type
+    for i in FileTypes.Types
+        for (key, value) in i
+            if value(data)
+                return key
+            end
+        end
+    end
+    FileTypes.FileType.Type("", MIME("application/octet-stream"))
+end
+
 """
     generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V}
 

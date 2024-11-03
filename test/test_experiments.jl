@@ -47,38 +47,40 @@ end
 @testset "deleteexperiment" begin
     @ensuremlf
     exp = createexperiment(mlf)
+    experiments_before = searchexperiments(mlf)
     deleteexperiment(mlf, exp)
 
-    experiments = searchexperiments(mlf)
-    @test length(experiments) == 1 # 1 for the default experiment
+    experiments_after = searchexperiments(mlf)
+    @test length(experiments_after) == length(experiments_before) - 1 # 1 for the default experiment
 end
 
 @testset "restoreexperiment" begin
     @ensuremlf
     exp = createexperiment(mlf)
+    experiments_before = searchexperiments(mlf)
     deleteexperiment(mlf, exp)
 
-    experiments = searchexperiments(mlf)
-    @test length(experiments) == 1 # 1 for the default experiment
+    experiments_after = searchexperiments(mlf)
+    @test length(experiments_after) == length(experiments_before) - 1 # 1 for the default experiment
 
     restoreexperiment(mlf, exp)
-    experiments = searchexperiments(mlf)
-    @test length(experiments) == 2 # the restored experiment and the default one
+    experiments_after_2 = searchexperiments(mlf)
+    @test length(experiments_after_2) == length(experiments_after) + 1 # the restored experiment and the default one
 
     deleteexperiment(mlf, exp)
 end
 
 @testset verbose = true "searchexperiments" begin
     @ensuremlf
-    n_experiments = 3
-    for i in 2:n_experiments
+    n_experiments_before = length(searchexperiments(mlf))
+    for i in 1:2
         createexperiment(mlf)
     end
     createexperiment(mlf; name="test")
     experiments = searchexperiments(mlf)
 
     @testset "searchexperiments_get_all" begin
-        @test length(experiments) == (n_experiments + 1) # Adding one for the default experiment
+        @test length(experiments) == (n_experiments_before + 3) # Adding one for the default experiment
     end
 
     @testset "searchexperiments_by_filter" begin
