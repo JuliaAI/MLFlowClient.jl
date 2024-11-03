@@ -1,38 +1,41 @@
 name: CI
 on:
+  pull_request:
   push:
     branches:
       - main
     tags: '*'
-  pull_request:
-concurrency:
-  # Skip intermediate builds: always.
-  # Cancel intermediate builds: only if it is a pull request build.
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 jobs:
   test:
-
-    services:
-      mlflow:
-        image: adacotechjp/mlflow:2.3.1
-        ports:
-          - 5000:5000
-
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         version:
-          - '1.6'
-          - '1'
+          - '1.10'
+          - '1' # automatically expands to the latest stable 1.x release of Julia.
         os:
           - ubuntu-latest
         arch:
           - x64
     steps:
       - uses: actions/checkout@v2
+      - name: Setup custom python requirements
+        if: hashFiles('**/requirements.txt', '**/pyproject.toml') == ''
+        run: |
+          touch ./requirements.txt
+          echo "mlflow==2.17.2" > ./requirements.txt
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.13'
+          cache: 'pip'
+      - name: Setup mlflow locally
+        run: |
+          pip install -r ./requirements.txt
+          python3 /opt/hostedtoolcache/Python/3.10.13/x64/bin/mlflow server --host 0.0.0.0 --port 5000 &
+          sleep 5
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
@@ -50,9 +53,10 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         env:
+          JULIA_NUM_THREADS: '2'
           MLFLOW_TRACKING_URI: "http://localhost:5000/api"
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           files: lcov.info
   docs:
