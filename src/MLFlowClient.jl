@@ -50,6 +50,9 @@ export getrun, createrun, deleterun, setruntag, restorerun, searchruns, deleteru
 include("services/loggers.jl")
 export logbatch, loginputs, logmetric, logparam
 
+include("services/artifact.jl")
+export listartifacts
+
 include("services/misc.jl")
 export getmetrichistory
 

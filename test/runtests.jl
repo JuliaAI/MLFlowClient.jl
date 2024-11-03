@@ -4,7 +4,8 @@ end
 
 include("base.jl")
 
-include("services/experiment.jl")
 include("services/run.jl")
-include("services/loggers.jl")
 include("services/misc.jl")
+include("services/loggers.jl")
+include("services/artifact.jl")
+include("services/experiment.jl")
