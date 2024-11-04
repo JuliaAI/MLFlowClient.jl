@@ -12,6 +12,7 @@
     FAILED_REGISTRATION=2
     READY=3
 end
+ModelVersionStatus(status::String) = Dict(value => key for (key, value) in ModelVersionStatus |> Base.Enums.namemap)[status |> Symbol] |> ModelVersionStatus
 
 """
     RunStatus

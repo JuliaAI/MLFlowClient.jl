@@ -66,3 +66,48 @@ function mlfpost(mlf, endpoint; kwargs...)
         throw(ErrorException(error_message))
     end
 end
+
+"""
+    mlfpatch(mlf, endpoint; kwargs...)
+
+Performs a HTTP PATCH to the specified endpoint. kwargs are converted to JSON and become
+the PATCH body.
+"""
+function mlfpatch(mlf, endpoint; kwargs...)
+    apiuri = uri(mlf, endpoint;)
+    apiheaders = headers(mlf, Dict("Content-Type" => "application/json"))
+    body = JSON.json(kwargs)
+
+    try
+        response = HTTP.patch(apiuri, apiheaders, body)
+        return response.body |> String |> JSON.parse
+    catch e
+        error_response = e.response.body |> String |> JSON.parse
+        error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
+        @error error_message
+        throw(ErrorException(error_message))
+    end
+end
+
+"""
+    mlfdelete(mlf, endpoint; kwargs...)
+
+Performs a HTTP DELETE to the specified endpoint. kwargs are converted to JSON and become
+the DELETE body.
+"""
+function mlfdelete(mlf, endpoint; kwargs...)
+    apiuri = uri(mlf, endpoint;
+        parameters=Dict(k => v for (k, v) in kwargs if v !== missing))
+    apiheaders = headers(mlf, Dict("Content-Type" => "application/json"))
+    body = JSON.json(kwargs)
+
+    try
+        response = HTTP.delete(apiuri, apiheaders, body)
+        return response.body |> String |> JSON.parse
+    catch e
+        error_response = e.response.body |> String |> JSON.parse
+        error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
+        @error error_message
+        throw(ErrorException(error_message))
+    end
+end

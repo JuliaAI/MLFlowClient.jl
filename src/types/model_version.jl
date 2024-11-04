@@ -38,4 +38,10 @@ struct ModelVersion
     run_link::String
     aliases::Array{String}
 end
+ModelVersion(data::Dict{String, Any}) = ModelVersion(data["name"], data["version"],
+    data["creation_timestamp"], data["last_updated_timestamp"], data["user_id"],
+    data["current_stage"], data["description"], data["source"], data["run_id"],
+    ModelVersionStatus(data["status"]), data["status_message"],
+    [Tag(tag) for tag in get(data, "tags", [])], data["run_link"],
+    get(data, "aliases", []))
 Base.show(io::IO, t::ModelVersion) = show(io, ShowCase(t, new_lines=true))

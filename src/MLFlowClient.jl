@@ -66,4 +66,8 @@ export listartifacts
 include("services/misc.jl")
 export refresh, getmetrichistory
 
+include("services/registered_model.jl")
+export getregisteredmodel, createregisteredmodel, deleteregisteredmodel,
+    renameregisteredmodel, updateregisteredmodel
+
 end
