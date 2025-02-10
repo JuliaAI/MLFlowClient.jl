@@ -42,7 +42,7 @@ end
 @testset verbose = true "get experiment" begin
     @ensuremlf
     experiment_name = UUIDs.uuid4() |> string
-    artifact_location="test_location"
+    artifact_location = "test_location"
     tags = [Tag("test_key", "test_value")]
     experiment_id = createexperiment(mlf, experiment_name;
         artifact_location=artifact_location, tags=tags)

@@ -17,7 +17,7 @@ List artifacts for a [`Run`](@ref).
 - Token that can be used to retrieve the next page of artifact results.
 """
 function listartifacts(instance::MLFlow, run_id::String; path::String="",
-    page_token::String="")::Tuple{String, Array{FileInfo}, Union{String, Nothing}}
+    page_token::String="")::Tuple{String,Array{FileInfo},Union{String,Nothing}}
     result = mlfget(instance, "artifacts/list"; run_id=run_id, path=path,
         page_token=page_token)
 

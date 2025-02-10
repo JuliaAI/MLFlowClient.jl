@@ -32,6 +32,6 @@ MLFlow(; apiroot="http://localhost:5000/api", apiversion=2.0, headers=Dict()) =
             ENV["MLFLOW_TRACKING_URI"] : apiroot), apiversion, headers)
 
 Base.show(io::IO, t::MLFlow) =
-    show(io, ShowCase(t, [:apiroot,:apiversion], new_lines=true))
+    show(io, ShowCase(t, [:apiroot, :apiversion], new_lines=true))
 
 abstract type LoggingData end

@@ -35,9 +35,9 @@ end
 [`ModelVersion`](@ref) created.
 """
 function createmodelversion(instance::MLFlow, name::String, source::String;
-    run_id::Union{String, Missing}=missing, tags::MLFlowUpsertData{Tag}=Tag[],
-    run_link::Union{String, Missing}=missing,
-    description::Union{String, Missing}=missing)::ModelVersion
+    run_id::Union{String,Missing}=missing, tags::MLFlowUpsertData{Tag}=Tag[],
+    run_link::Union{String,Missing}=missing,
+    description::Union{String,Missing}=missing)::ModelVersion
     result = mlfpost(instance, "model-versions/create"; name=name, source=source,
         run_id=run_id, tags=parse(Tag, tags), run_link=run_link, description=description)
     return result["model_version"] |> ModelVersion
@@ -73,7 +73,7 @@ end
 [`ModelVersion`](@ref) generated for this model in registry.
 """
 function updatemodelversion(instance::MLFlow, name::String, version::String;
-    description::Union{String, Missing}=missing)::ModelVersion
+    description::Union{String,Missing}=missing)::ModelVersion
     result = mlfpatch(instance, "model-versions/update"; name=name, version=version,
         description=description)
     return result["model_version"] |> ModelVersion
@@ -114,7 +114,7 @@ end
 """
 function searchmodelversions(instance::MLFlow; filter::String="",
     max_results::Int64=200000, order_by::Array{String}=String[],
-    page_token::String="")::Tuple{Array{ModelVersion}, Union{String, Nothing}}
+    page_token::String="")::Tuple{Array{ModelVersion},Union{String,Nothing}}
     parameters = (; max_results, page_token, filter)
 
     if order_by |> !isempty

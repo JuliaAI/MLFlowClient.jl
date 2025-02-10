@@ -11,7 +11,7 @@ struct RegisteredModelAlias
     alias::String
     version::String
 end
-RegisteredModelAlias(data::Dict{String, Any}) = RegisteredModelAlias(data["alias"],
+RegisteredModelAlias(data::Dict{String,Any}) = RegisteredModelAlias(data["alias"],
     data["version"])
 Base.show(io::IO, t::RegisteredModelAlias) = show(io, ShowCase(t, new_lines=true))
 
@@ -35,13 +35,13 @@ struct RegisteredModel
     name::String
     creation_timestamp::Int64
     last_updated_timestamp::Int64
-    user_id::Union{String, Nothing}
-    description::Union{String, Nothing}
+    user_id::Union{String,Nothing}
+    description::Union{String,Nothing}
     latest_versions::Array{ModelVersion}
     tags::Array{Tag}
     aliases::Array{RegisteredModelAlias}
 end
-RegisteredModel(data::Dict{String, Any}) = RegisteredModel(data["name"],
+RegisteredModel(data::Dict{String,Any}) = RegisteredModel(data["name"],
     data["creation_timestamp"], data["last_updated_timestamp"],
     get(data, "user_id", nothing), get(data, "description", nothing),
     [ModelVersion(version) for version in get(data, "latest_versions", [])],

@@ -52,7 +52,7 @@ end
 
 @testset verbose = true "rename registered model" begin
     @ensuremlf
-    
+
     registered_model = createregisteredmodel(mlf, "missy"; description="gala")
     renamed_registered_model = renameregisteredmodel(mlf, registered_model.name, "gala")
 

@@ -9,7 +9,7 @@ MLFlowClient.uri(mlf, "experiments/get", Dict(:experiment_id=>10))
 ```
 """
 uri(mlf::MLFlow, endpoint::String;
-    parameters::Dict{Symbol, <:Any}=Dict{Symbol, NumberOrString}()) =
+    parameters::Dict{Symbol,<:Any}=Dict{Symbol,NumberOrString}()) =
     URI("$(mlf.apiroot)/$(mlf.apiversion)/mlflow/$(endpoint)"; query=parameters)
 
 """

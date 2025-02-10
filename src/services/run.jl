@@ -18,19 +18,19 @@ single execution of a machine learning or data ETL pipeline.
 An instance of type [`Run`](@ref).
 """
 function createrun(instance::MLFlow, experiment_id::String;
-    run_name::Union{String, Missing}=missing, start_time::Union{Int64, Missing}=missing,
+    run_name::Union{String,Missing}=missing, start_time::Union{Int64,Missing}=missing,
     tags::MLFlowUpsertData{Tag}=Tag[])::Run
     result = mlfpost(instance, "runs/create"; experiment_id=experiment_id,
         run_name=run_name, start_time=start_time, tags=parse(Tag, tags))
     return result["run"] |> Run
 end
 createrun(instance::MLFlow, experiment_id::Integer;
-    run_name::Union{String, Missing}=missing, start_time::Union{Integer, Missing}=missing,
+    run_name::Union{String,Missing}=missing, start_time::Union{Integer,Missing}=missing,
     tags::MLFlowUpsertData{Tag}=Tag[])::Run =
     createrun(instance, string(experiment_id); run_name=run_name, start_time=start_time,
         tags=tags)
 createrun(instance::MLFlow, experiment::Experiment;
-    run_name::Union{String, Missing}=missing, start_time::Union{Integer, Missing}=missing,
+    run_name::Union{String,Missing}=missing, start_time::Union{Integer,Missing}=missing,
     tags::MLFlowUpsertData{Tag}=Tag[])::Run =
     createrun(instance, string(experiment.experiment_id); run_name=run_name,
         start_time=start_time, tags=tags)
@@ -111,7 +111,8 @@ Set a [`Tag`](@ref) on a [`Run`](@ref).
 # Returns
 `true` if successful. Otherwise, raises exception.
 """
-function setruntag(instance::MLFlow, run_id::String, key::String, value::String):Bool
+function setruntag(instance::MLFlow, run_id::String, key::String, value::String)
+    :Bool
     mlfpost(instance, "runs/set-tag"; run_id=run_id, key=key, value=value)
     return true
 end
@@ -171,7 +172,7 @@ Search for runs that satisfy expressions. Search expressions can use [`Metric`](
 function searchruns(instance::MLFlow; experiment_ids::Array{String}=String[],
     filter::String="", run_view_type::ViewType=ACTIVE_ONLY, max_results::Int=1000,
     order_by::Array{String}=String[],
-    page_token::String="")::Tuple{Array{Run}, Union{String, Nothing}}
+    page_token::String="")::Tuple{Array{Run},Union{String,Nothing}}
     parameters = (; experiment_ids, filter, :run_view_type => run_view_type |> Integer,
         max_results, page_token)
 
@@ -206,13 +207,13 @@ Update [`Run`](@ref) metadata.
 - An instance of type [`RunInfo`](@ref) with the updated metadata.
 """
 function updaterun(instance::MLFlow, run_id::String;
-    status::Union{RunStatus, Missing}=missing, end_time::Union{Int64, Missing}=missing,
-    run_name::Union{String, Missing})::RunInfo
+    status::Union{RunStatus,Missing}=missing, end_time::Union{Int64,Missing}=missing,
+    run_name::Union{String,Missing})::RunInfo
     result = mlfpost(instance, "runs/update"; run_id=run_id, status=(status |> Integer),
         end_time=end_time, run_name=run_name)
     return result["run_info"] |> RunInfo
 end
-updaterun(instance::MLFlow, run::Run; status::Union{RunStatus, Missing}=missing,
-    end_time::Union{Int64, Missing}=missing, run_name::Union{String, Missing})::RunInfo =
+updaterun(instance::MLFlow, run::Run; status::Union{RunStatus,Missing}=missing,
+    end_time::Union{Int64,Missing}=missing, run_name::Union{String,Missing})::RunInfo =
     updaterun(instance, run.info.run_id; status=status, end_time=end_time,
         run_name=run_name)

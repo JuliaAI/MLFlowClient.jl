@@ -13,9 +13,9 @@ struct Metric <: LoggingData
     key::String
     value::Float64
     timestamp::Int64
-    step::Union{Int64, Nothing}
+    step::Union{Int64,Nothing}
 end
-Metric(data::Dict{String, Any}) = Metric(data["key"], data["value"], data["timestamp"],
+Metric(data::Dict{String,Any}) = Metric(data["key"], data["value"], data["timestamp"],
     data["step"])
 Base.show(io::IO, t::Metric) = show(io, ShowCase(t, new_lines=true))
 
@@ -32,7 +32,7 @@ struct Param <: LoggingData
     key::String
     value::String
 end
-Param(data::Dict{String, Any}) = Param(data["key"], data["value"])
+Param(data::Dict{String,Any}) = Param(data["key"], data["value"])
 Base.show(io::IO, t::Param) = show(io, ShowCase(t, new_lines=true))
 
 """
@@ -60,11 +60,11 @@ struct RunInfo
     experiment_id::String
     status::RunStatus
     start_time::Int64
-    end_time::Union{Int64, Nothing}
+    end_time::Union{Int64,Nothing}
     artifact_uri::String
     lifecycle_stage::String
 end
-RunInfo(data::Dict{String, Any}) = RunInfo(data["run_id"], data["run_name"],
+RunInfo(data::Dict{String,Any}) = RunInfo(data["run_id"], data["run_name"],
     data["experiment_id"], RunStatus(data["status"]), data["start_time"],
     get(data, "end_time", nothing), data["artifact_uri"], data["lifecycle_stage"])
 Base.show(io::IO, t::RunInfo) = show(io, ShowCase(t, new_lines=true))
@@ -84,7 +84,7 @@ struct RunData
     params::Array{Param}
     tags::Array{Tag}
 end
-RunData(data::Dict{String, Any}) = RunData(
+RunData(data::Dict{String,Any}) = RunData(
     [Metric(metric) for metric in get(data, "metrics", [])],
     [Param(param) for param in get(data, "params", [])],
     [Tag(tag) for tag in get(data, "tags", [])])
@@ -101,7 +101,7 @@ Run inputs.
 struct RunInputs
     dataset_inputs::Array{DatasetInput}
 end
-RunInputs(data::Dict{String, Any}) = RunInputs(
+RunInputs(data::Dict{String,Any}) = RunInputs(
     [DatasetInput(dataset_input) for dataset_input in get(data, "dataset_inputs", [])])
 Base.show(io::IO, t::RunInputs) = show(io, ShowCase(t, new_lines=true))
 
@@ -120,6 +120,6 @@ struct Run
     data::RunData
     inputs::RunInputs
 end
-Run(data::Dict{String, Any}) = Run(RunInfo(data["info"]), RunData(data["data"]),
+Run(data::Dict{String,Any}) = Run(RunInfo(data["info"]), RunData(data["data"]),
     RunInputs(data["inputs"]))
 Base.show(io::IO, t::Run) = show(io, ShowCase(t, new_lines=true))

@@ -6,7 +6,7 @@
     @testset "with run id as string" begin
         run = createrun(mlf, experiment_id)
         logmetric(mlf, run.info.run_id, "missy", 0.9)
-        
+
         run = refresh(mlf, run)
         last_metric = run.data.metrics |> last
 
@@ -19,7 +19,7 @@
     @testset "with run" begin
         run = createrun(mlf, experiment_id)
         logmetric(mlf, run, "gala", 0.1)
-        
+
         run = refresh(mlf, run)
         last_metric = run.data.metrics |> last
 
@@ -32,7 +32,7 @@
     @testset "with run id as string and metric" begin
         run = createrun(mlf, experiment_id)
         logmetric(mlf, run.info.run_id, Metric("missy", 0.9, 123, 1))
-        
+
         run = refresh(mlf, run)
         last_metric = run.data.metrics |> last
 
@@ -47,7 +47,7 @@
     @testset "with run and metric" begin
         run = createrun(mlf, experiment_id)
         logmetric(mlf, run, Metric("gala", 0.1, 123, 1))
-        
+
         run = refresh(mlf, run)
         last_metric = run.data.metrics |> last
 
@@ -70,7 +70,7 @@ end
     @testset "with run id as string" begin
         run = createrun(mlf, experiment_id)
         logbatch(mlf, run.info.run_id; metrics=[("gala", 0.1)])
-        
+
         run = refresh(mlf, run)
         last_metric = run.data.metrics |> last
 
@@ -104,7 +104,7 @@ end
         last_param = run.data.params |> last
         last_tag = run.data.tags[
             findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
-        
+
         @test last_metric isa Metric
         @test last_metric.key == "ana"
         @test last_metric.value == 0.5
@@ -130,7 +130,7 @@ end
         last_param = run.data.params |> last
         last_tag = run.data.tags[
             findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
-        
+
         @test last_metric isa Metric
         @test last_metric.key == "ana"
         @test last_metric.value == 0.5
@@ -156,7 +156,7 @@ end
         last_param = run.data.params |> last
         last_tag = run.data.tags[
             findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
-        
+
         @test last_metric isa Metric
         @test last_metric.key == "ana"
         @test last_metric.value == 0.5
@@ -184,7 +184,7 @@ end
         last_param = run.data.params |> last
         last_tag = run.data.tags[
             findall(x -> !occursin("mlflow.runName", x.key), run.data.tags)[1]]
-        
+
         @test last_metric isa Metric
         @test last_metric.key == "ana"
         @test last_metric.value == 0.5
@@ -247,7 +247,7 @@ end
     @testset "with run id as string" begin
         run = createrun(mlf, experiment_id)
         logparam(mlf, run.info.run_id, "missy", "0.9")
-        
+
         run = refresh(mlf, run)
         last_param = run.data.params |> last
 
@@ -260,7 +260,7 @@ end
     @testset "with run" begin
         run = createrun(mlf, experiment_id)
         logparam(mlf, run, "gala", "0.1")
-        
+
         run = refresh(mlf, run)
         last_param = run.data.params |> last
 
@@ -273,7 +273,7 @@ end
     @testset "with run id as string and param" begin
         run = createrun(mlf, experiment_id)
         logparam(mlf, run.info.run_id, Param("missy", "0.9"))
-        
+
         run = refresh(mlf, run)
         last_param = run.data.params |> last
 
@@ -286,7 +286,7 @@ end
     @testset "with run and param" begin
         run = createrun(mlf, experiment_id)
         logparam(mlf, run, Param("gala", "0.1"))
-        
+
         run = refresh(mlf, run)
         last_param = run.data.params |> last
 

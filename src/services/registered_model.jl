@@ -18,7 +18,7 @@ An instance of type [`RegisteredModel`](@ref).
 """
 function createregisteredmodel(instance::MLFlow, name::String;
     tags::MLFlowUpsertData{Tag}=Tag[],
-    description::Union{String, Missing}=missing)::RegisteredModel
+    description::Union{String,Missing}=missing)::RegisteredModel
     result = mlfpost(instance, "registered-models/create"; name=name,
         tags=parse(Tag, tags), description=description)
     return result["registered_model"] |> RegisteredModel
@@ -69,7 +69,7 @@ end
 An instance of type [`RegisteredModel`](@ref).
 """
 function updateregisteredmodel(instance::MLFlow, name::String;
-    description::Union{String, Missing}=missing)::RegisteredModel
+    description::Union{String,Missing}=missing)::RegisteredModel
     result = mlfpatch(instance, "registered-models/update"; name=name,
         description=description)
     return result["registered_model"] |> RegisteredModel
@@ -109,7 +109,7 @@ end
 """
 function searchregisteredmodels(instance::MLFlow; filter::String="",
     max_results::Int64=100, order_by::Array{String}=String[],
-    page_token::String="")::Tuple{Array{RegisteredModel}, Union{String, Nothing}}
+    page_token::String="")::Tuple{Array{RegisteredModel},Union{String,Nothing}}
     parameters = (; max_results, page_token, filter)
 
     if order_by |> !isempty

@@ -19,7 +19,7 @@ fails if another [`Experiment`](@ref) with the same name already exists.
 The ID of the newly created [`Experiment`](@ref).
 """
 function createexperiment(instance::MLFlow, name::String;
-    artifact_location::Union{String, Missing}=missing,
+    artifact_location::Union{String,Missing}=missing,
     tags::MLFlowUpsertData{Tag}=Tag[])::String
     result = mlfpost(instance, "experiments/create"; name=name,
         artifact_location=artifact_location, tags=parse(Tag, tags))
@@ -164,7 +164,7 @@ updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String)::Bo
 """
 function searchexperiments(instance::MLFlow; max_results::Int64=20000,
     page_token::String="", filter::String="", order_by::Array{String}=String[],
-    view_type::ViewType=ACTIVE_ONLY)::Tuple{Array{Experiment}, Union{String, Nothing}}
+    view_type::ViewType=ACTIVE_ONLY)::Tuple{Array{Experiment},Union{String,Nothing}}
     parameters = (; max_results, page_token, filter, :view_type => view_type |> Integer)
 
     if order_by |> !isempty

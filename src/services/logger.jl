@@ -23,14 +23,14 @@ represent ML model accuracy. A [`Metric`](@ref) can be logged multiple times.
 """
 function logmetric(instance::MLFlow, run_id::String, key::String, value::Float64;
     timestamp::Int64=round(Int, now() |> datetime2unix),
-    step::Union{Int64, Missing}=missing)::Bool
+    step::Union{Int64,Missing}=missing)::Bool
     mlfpost(instance, "runs/log-metric"; run_id=run_id, key=key, value=value,
         timestamp=timestamp, step=step)
     return true
 end
 logmetric(instance::MLFlow, run::Run, key::String, value::Float64;
     timestamp::Int64=round(Int, now() |> datetime2unix),
-    step::Union{Int64, Missing}=missing)::Bool =
+    step::Union{Int64,Missing}=missing)::Bool =
     logmetric(instance, run.info.run_id, key, value; timestamp=timestamp, step=step)
 logmetric(instance::MLFlow, run_id::String, metric::Metric)::Bool =
     logmetric(instance, run_id, metric.key, metric.value, timestamp=metric.timestamp,

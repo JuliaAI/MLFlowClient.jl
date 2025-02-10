@@ -27,18 +27,18 @@ struct ModelVersion
     version::String
     creation_timestamp::Int64
     last_updated_timestamp::Int64
-    user_id::Union{String, Nothing}
+    user_id::Union{String,Nothing}
     current_stage::String
     description::String
     source::String
     run_id::String
     status::ModelVersionStatus
-    status_message::Union{String, Nothing}
+    status_message::Union{String,Nothing}
     tags::Array{Tag}
     run_link::String
     aliases::Array{String}
 end
-ModelVersion(data::Dict{String, Any}) = ModelVersion(data["name"], data["version"],
+ModelVersion(data::Dict{String,Any}) = ModelVersion(data["name"], data["version"],
     data["creation_timestamp"], data["last_updated_timestamp"],
     get(data, "user_id", nothing), data["current_stage"], data["description"],
     data["source"], data["run_id"], ModelVersionStatus(data["status"]),
