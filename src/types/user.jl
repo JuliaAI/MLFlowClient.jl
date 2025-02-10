@@ -17,3 +17,7 @@ struct User
     experiment_permissions::Array{ExperimentPermission}
     registered_model_permissions::Array{RegisteredModelPermission}
 end
+User(data::Dict{String,Any}) = User(data["id"] |> string, data["username"], data["is_admin"],
+    [ExperimentPermission(permission) for permission in get(data, "experiment_permissions", [])],
+    [RegisteredModelPermission(permission) for permission in get(data, "registered_model_permissions", [])])
+Base.show(io::IO, t::User) = show(io, ShowCase(t, new_lines=true))

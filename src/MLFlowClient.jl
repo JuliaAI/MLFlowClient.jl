@@ -81,4 +81,7 @@ export getlatestmodelversions, getmodelversion, createmodelversion, deletemodelv
     transitionmodelversionstage, setmodelversiontag, deletemodelversiontag,
     getmodelversionbyalias
 
+include("services/user.jl")
+export createuser, getuser, updateuserpassword, updateuseradmin, deleteuser
+
 end

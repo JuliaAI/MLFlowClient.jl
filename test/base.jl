@@ -1,7 +1,8 @@
-using MLFlowClient
 using Test
-using UUIDs
 using Dates
+using UUIDs
+using Base64
+using MLFlowClient
 
 function mlflow_server_is_running(mlf::MLFlow)
     try
@@ -16,7 +17,8 @@ end
 # skips test if mlflow is not available on default location, ENV["MLFLOW_TRACKING_URI"]
 macro ensuremlf()
     e = quote
-        mlf = MLFlow()
+        encoded_credentials = Base64.base64encode("admin:password")
+        mlf = MLFlow(headers=Dict("Authorization" => "Basic $(encoded_credentials)"))
         mlflow_server_is_running(mlf) || return nothing
     end
     eval(e)

@@ -7,3 +7,4 @@ mlruns
 coverage
 Pipfile
 Pipfile.lock
+*.db

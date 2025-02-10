@@ -34,7 +34,7 @@ jobs:
       - name: Setup mlflow locally
         run: |
           pip install -r ./requirements.txt
-          python3 /opt/hostedtoolcache/Python/3.10.13/x64/bin/mlflow server --host 0.0.0.0 --port 5000 &
+          python3 /opt/hostedtoolcache/Python/3.10.13/x64/bin/mlflow server --app-name basic-auth --host 0.0.0.0 --port 5000 &
           sleep 5
       - uses: julia-actions/setup-julia@v1
         with:
