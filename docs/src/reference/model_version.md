@@ -9,4 +9,6 @@ deletemodelversion
 searchmodelversions
 getdownloaduriformodelversionartifacts
 transitionmodelversionstage
+setmodelversiontag
+deletemodelversiontag
 ```

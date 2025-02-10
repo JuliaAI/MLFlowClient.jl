@@ -123,3 +123,36 @@ function searchregisteredmodels(instance::MLFlow; filter::String="",
 
     return registered_models, next_page_token
 end
+
+"""
+    setregisteredmodeltag(instance::MLFlow, name::String, key::String, value::String)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` Unique name of the model.
+- `key:` Name of the [`Tag`](@ref).
+- `value:` String value of the [`Tag`](@ref) being logged.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function setregisteredmodeltag(instance::MLFlow, name::String, key::String, value::String)::Bool
+    mlfpost(instance, "registered-models/set-tag"; name=name, key=key, value=value)
+    return true
+end
+
+"""
+    deleteregisteredmodeltag(instance::MLFlow, name::String, key::String)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` Name of the [`RegisteredModel`](@ref) that the tag was logged under.
+- `key:` Name of the [`Tag`](@ref).
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function deleteregisteredmodeltag(instance::MLFlow, name::String, key::String)::Bool
+    mlfdelete(instance, "registered-models/delete-tag"; name=name, key=key)
+    return true
+end

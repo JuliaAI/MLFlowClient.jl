@@ -68,11 +68,12 @@ export refresh, getmetrichistory
 
 include("services/registered_model.jl")
 export getregisteredmodel, createregisteredmodel, deleteregisteredmodel,
-    renameregisteredmodel, updateregisteredmodel, searchregisteredmodels
+    renameregisteredmodel, updateregisteredmodel, searchregisteredmodels,
+    setregisteredmodeltag, deleteregisteredmodeltag
 
 include("services/model_version.jl")
 export getlatestmodelversions, getmodelversion, createmodelversion, deletemodelversion,
     updatemodelversion, searchmodelversions, getdownloaduriformodelversionartifacts,
-    transitionmodelversionstage
+    transitionmodelversionstage, setmodelversiontag, deletemodelversiontag
 
 end

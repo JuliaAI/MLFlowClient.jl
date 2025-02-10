@@ -110,3 +110,30 @@ end
     deleteregisteredmodel(mlf, "missy")
     deleteregisteredmodel(mlf, "gala")
 end
+
+@testset verbose = true "set registered model tag" begin
+    @ensuremlf
+
+    registered_model = createregisteredmodel(mlf, "missy"; description="gala")
+    setregisteredmodeltag(mlf, registered_model.name, "test_key", "test_value")
+
+    retrieved_registered_model = getregisteredmodel(mlf, registered_model.name)
+    @test retrieved_registered_model.tags |> !isempty
+    @test (retrieved_registered_model.tags |> first).key == "test_key"
+    @test (retrieved_registered_model.tags |> first).value == "test_value"
+
+    deleteregisteredmodel(mlf, "missy")
+end
+
+@testset verbose = true "delete registered model tag" begin
+    @ensuremlf
+
+    registered_model = createregisteredmodel(mlf, "missy"; description="gala")
+    setregisteredmodeltag(mlf, registered_model.name, "test_key", "test_value")
+    deleteregisteredmodeltag(mlf, registered_model.name, "test_key")
+
+    retrieved_registered_model = getregisteredmodel(mlf, registered_model.name)
+    @test retrieved_registered_model.tags |> isempty
+
+    deleteregisteredmodel(mlf, "missy")
+end

@@ -6,4 +6,6 @@ renameregisteredmodel
 updateregisteredmodel
 deleteregisteredmodel
 searchregisteredmodels
+setregisteredmodeltag
+deleteregisteredmodeltag
 ```

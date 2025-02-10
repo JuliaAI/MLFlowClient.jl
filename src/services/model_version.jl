@@ -169,3 +169,41 @@ function transitionmodelversionstage(instance::MLFlow, name::String, version::St
         version=version, stage=stage, archive_existing_versions=archive_existing_versions)
     return result["model_version"] |> ModelVersion
 end
+
+"""
+    setmodelversiontag(instance::MLFlow, name::String, key::String, value::String)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` Unique name of the model.
+- `version:` Model version number.
+- `key:` Name of the [`Tag`](@ref).
+- `value:` String value of the tag being logged.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function setmodelversiontag(instance::MLFlow, name::String, version::String, key::String,
+    value::String)::Bool
+    mlfpost(instance, "model-versions/set-tag"; name=name, version=version, key=key,
+        value=value)
+    return true
+end
+
+"""
+    deletemodelversiontag(instance::MLFlow, name::String, version::String, key::String)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` Name of the [`RegisteredModel`](@ref) that the tag was logged under.
+- `version:` [`ModelVersion`](@ref) number that the tag was logged under.
+- `key:` Name of the [`Tag`](@ref).
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function deletemodelversiontag(instance::MLFlow, name::String, version::String,
+    key::String)::Bool
+    mlfdelete(instance, "model-versions/delete-tag"; name=name, version=version, key=key)
+    return true
+end

@@ -142,7 +142,8 @@ end
     createregisteredmodel(mlf, "missy")
 
     model_version = createmodelversion(mlf, "missy", run.info.artifact_uri)
-    download_uri = getdownloaduriformodelversionartifacts(mlf, "missy", model_version.version)
+    download_uri = getdownloaduriformodelversionartifacts(mlf, model_version.name,
+        model_version.version)
 
     @test download_uri isa String
     @test download_uri == run.info.artifact_uri
@@ -159,7 +160,8 @@ end
     createregisteredmodel(mlf, "missy")
 
     model_version = createmodelversion(mlf, "missy", run.info.artifact_uri)
-    updated_model_version = transitionmodelversionstage(mlf, "missy", model_version.version, "Production", true)
+    updated_model_version = transitionmodelversionstage(mlf, model_version.name,
+        model_version.version, "Production", true)
 
     @test updated_model_version isa ModelVersion
     @test updated_model_version.name == model_version.name
@@ -167,6 +169,45 @@ end
     @test updated_model_version.source == model_version.source
     @test updated_model_version.run_id == model_version.run_id
     @test updated_model_version.current_stage == "Production"
+
+    deleteregisteredmodel(mlf, "missy")
+    deleteexperiment(mlf, experiment)
+end
+
+@testset verbose = true "set model version tag" begin
+    @ensuremlf
+
+    experiment = createexperiment(mlf, UUIDs.uuid4() |> string)
+    run = createrun(mlf, experiment)
+    createregisteredmodel(mlf, "missy")
+
+    model_version = createmodelversion(mlf, "missy", run.info.artifact_uri)
+    setmodelversiontag(mlf, model_version.name, model_version.version, "test_key",
+        "test_value")
+    retrieved_model_version = getmodelversion(mlf, "missy", model_version.version)
+
+    @test retrieved_model_version.tags |> length == 1
+    @test (retrieved_model_version.tags |> first).key == "test_key"
+    @test (retrieved_model_version.tags |> first).value == "test_value"
+
+    deleteregisteredmodel(mlf, "missy")
+    deleteexperiment(mlf, experiment)
+end
+
+@testset verbose = true "delete model version tag" begin
+    @ensuremlf
+
+    experiment = createexperiment(mlf, UUIDs.uuid4() |> string)
+    run = createrun(mlf, experiment)
+    createregisteredmodel(mlf, "missy")
+
+    model_version = createmodelversion(mlf, "missy", run.info.artifact_uri)
+    setmodelversiontag(mlf, model_version.name, model_version.version, "test_key",
+        "test_value")
+    deletemodelversiontag(mlf, model_version.name, model_version.version, "test_key")
+    retrieved_model_version = getmodelversion(mlf, "missy", model_version.version)
+
+    @test isempty(retrieved_model_version.tags)
 
     deleteregisteredmodel(mlf, "missy")
     deleteexperiment(mlf, experiment)
