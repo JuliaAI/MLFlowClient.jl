@@ -4,7 +4,11 @@ end
 
 include("base.jl")
 
-include("test_functional.jl")
-include("test_experiments.jl")
-include("test_runs.jl")
-include("test_loggers.jl")
+include("services/run.jl")
+include("services/misc.jl")
+include("services/logger.jl")
+include("services/artifact.jl")
+include("services/experiment.jl")
+include("services/registered_model.jl")
+include("services/model_version.jl")
+include("services/user.jl")

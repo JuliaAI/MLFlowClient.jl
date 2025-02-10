@@ -1,0 +1,17 @@
+# Registered model operations
+```@docs
+createregisteredmodel
+getregisteredmodel
+renameregisteredmodel
+updateregisteredmodel
+deleteregisteredmodel
+searchregisteredmodels
+setregisteredmodeltag
+deleteregisteredmodeltag
+deleteregisteredmodelalias
+setregisteredmodelalias
+createregisteredmodelpermission
+getregisteredmodelpermission
+updateregisteredmodelpermission
+deleteregisteredmodelpermission
+```

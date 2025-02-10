@@ -1,27 +1,18 @@
-using MLFlowClient
+push!(LOAD_PATH, "../src/")
 using Documenter
-
-DocMeta.setdocmeta!(MLFlowClient, :DocTestSetup, :(using MLFlowClient); recursive=true)
+using MLFlowClient
 
 makedocs(;
-    modules=[MLFlowClient],
-    authors="@deyandyankov and contributors",
-    repo="https://github.com/JuliaAI.jl/blob/{commit}{path}#{line}",
     sitename="MLFlowClient.jl",
-    format=Documenter.HTML(;
-        prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://juliaai.github.io/MLFlowClient.jl",
-        assets=String[]
-    ),
-    pages=[
-        "Home" => "index.md",
-        "Tutorial" => "tutorial.md",
-        "Reference" => "reference.md"
-    ],
-    checkdocs=:exports
-)
+    authors="@deyandyankov and contributors",
+    pages=["Home" => "index.md", "Tutorial" => "tutorial.md", "Reference" => [
+        "Types" => "reference/types.md", "Artifact operations" => "reference/artifact.md",
+        "Experiment operations" => "reference/experiment.md",
+        "Logging operations" => "reference/logger.md",
+        "Miscellaneous operations" => "reference/misc.md",
+        "Run operations" => "reference/run.md",
+        "Registered model operations" => "reference/registered_model.md",
+        "Model version operations" => "reference/model_version.md",
+        "User operations" => "reference/user.md",]])
 
-deploydocs(;
-    repo="github.com/JuliaAI/MLFlowClient.jl",
-    devbranch="main"
-)
+deploydocs(; repo="github.com/JuliaAI/MLFlowClient.jl", devbranch="main")

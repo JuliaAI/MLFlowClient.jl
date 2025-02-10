@@ -7,7 +7,3 @@
 
 
 Julia client for [MLFlow](https://www.mlflow.org/)
-
-This package is still under development and interfaces may change. See the documentation for current features and limitations.
-
-Tested against `mlflow==1.21.0` and `mlflow==1.22.0`.
