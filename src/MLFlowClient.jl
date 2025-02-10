@@ -57,7 +57,7 @@ include("services/run.jl")
 export getrun, createrun, deleterun, setruntag, updaterun, restorerun, searchruns,
     deleteruntag
 
-include("services/loggers.jl")
+include("services/logger.jl")
 export logbatch, loginputs, logmetric, logparam
 
 include("services/artifact.jl")
@@ -69,5 +69,10 @@ export refresh, getmetrichistory
 include("services/registered_model.jl")
 export getregisteredmodel, createregisteredmodel, deleteregisteredmodel,
     renameregisteredmodel, updateregisteredmodel
+
+include("services/model_version.jl")
+export getlatestmodelversions, getmodelversion, createmodelversion, deletemodelversion,
+    updatemodelversion, searchmodelversions, getdownloaduriformodelversionartifacts,
+    transitionmodelversionstage
 
 end

@@ -5,3 +5,5 @@ Manifest.toml
 /docs/build/
 mlruns
 coverage
+Pipfile
+Pipfile.lock

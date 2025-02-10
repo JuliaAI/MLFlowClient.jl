@@ -8,7 +8,7 @@ makedocs(;
     pages=["Home" => "index.md", "Tutorial" => "tutorial.md", "Reference" => [
         "Types" => "reference/types.md", "Artifact operations" => "reference/artifact.md",
         "Experiment operations" => "reference/experiment.md",
-        "Logging operations" => "reference/loggers.md",
+        "Logging operations" => "reference/logger.md",
         "Miscellaneous operations" => "reference/misc.md",
         "Run operations" => "reference/run.md",
         "Registered model operations" => "reference/registered_model.md"]])

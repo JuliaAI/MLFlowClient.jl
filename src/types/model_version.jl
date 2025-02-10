@@ -7,7 +7,7 @@
 - `creation_timestamp::Int64`: Timestamp recorded when this model_version was created.
 - `last_updated_timestamp::Int64`: Timestamp recorded when metadata for this model_version
     was last updated.
-- `user_id::String`: User that created this model_version.
+- `user_id::Union{String, Nothing}`: User that created this model_version.
 - `current_stage::String`: Current stage for this model_version.
 - `description::String`: Description of this model_version.
 - `source::String`: URI indicating the location of the source model artifacts, used when
@@ -27,21 +27,21 @@ struct ModelVersion
     version::String
     creation_timestamp::Int64
     last_updated_timestamp::Int64
-    user_id::String
+    user_id::Union{String, Nothing}
     current_stage::String
     description::String
     source::String
     run_id::String
     status::ModelVersionStatus
-    status_message::String
+    status_message::Union{String, Nothing}
     tags::Array{Tag}
     run_link::String
     aliases::Array{String}
 end
 ModelVersion(data::Dict{String, Any}) = ModelVersion(data["name"], data["version"],
-    data["creation_timestamp"], data["last_updated_timestamp"], data["user_id"],
-    data["current_stage"], data["description"], data["source"], data["run_id"],
-    ModelVersionStatus(data["status"]), data["status_message"],
-    [Tag(tag) for tag in get(data, "tags", [])], data["run_link"],
-    get(data, "aliases", []))
+    data["creation_timestamp"], data["last_updated_timestamp"],
+    get(data, "user_id", nothing), data["current_stage"], data["description"],
+    data["source"], data["run_id"], ModelVersionStatus(data["status"]),
+    get(data, "status_message", nothing), [Tag(tag) for tag in get(data, "tags", [])],
+    data["run_link"], get(data, "aliases", []))
 Base.show(io::IO, t::ModelVersion) = show(io, ShowCase(t, new_lines=true))
