@@ -54,13 +54,13 @@ end
     @ensuremlf
     
     registered_model = createregisteredmodel(mlf, "missy"; description="gala")
-    renamed_registered_model = renameregisteredmodel(mlf, registered_model.name, "mister")
+    renamed_registered_model = renameregisteredmodel(mlf, registered_model.name, "gala")
 
     @test renamed_registered_model isa RegisteredModel
-    @test renamed_registered_model.name == "mister"
+    @test renamed_registered_model.name == "gala"
     @test renamed_registered_model.description == registered_model.description
 
-    deleteregisteredmodel(mlf, "mister")
+    deleteregisteredmodel(mlf, "gala")
 end
 
 @testset verbose = true "update registered model" begin
@@ -136,4 +136,43 @@ end
     @test retrieved_registered_model.tags |> isempty
 
     deleteregisteredmodel(mlf, "missy")
+end
+
+@testset verbose = true "delete registered model alias" begin
+    @ensuremlf
+
+    experiment = createexperiment(mlf, UUIDs.uuid4() |> string)
+    run = createrun(mlf, experiment)
+
+    registered_model = createregisteredmodel(mlf, "missy"; description="gala")
+    model_version = createmodelversion(mlf, "missy", run.info.artifact_uri)
+
+    setregisteredmodelalias(mlf, registered_model.name, "gala", model_version.version)
+    deleteregisteredmodelalias(mlf, registered_model.name, "gala")
+
+    retrieved_registered_model = getregisteredmodel(mlf, registered_model.name)
+    @test retrieved_registered_model.aliases |> isempty
+
+    deleteregisteredmodel(mlf, "missy")
+    deleteexperiment(mlf, experiment)
+end
+
+@testset verbose = true "delete registered model alias" begin
+    @ensuremlf
+
+    experiment = createexperiment(mlf, UUIDs.uuid4() |> string)
+    run = createrun(mlf, experiment)
+
+    registered_model = createregisteredmodel(mlf, "missy"; description="gala")
+    model_version = createmodelversion(mlf, "missy", run.info.artifact_uri)
+
+    setregisteredmodelalias(mlf, registered_model.name, "gala", model_version.version)
+    setregisteredmodelalias(mlf, registered_model.name, "missy", model_version.version)
+
+    retrieved_registered_model = getregisteredmodel(mlf, registered_model.name)
+    @test retrieved_registered_model.aliases |> !isempty
+    @test length(retrieved_registered_model.aliases) == 2
+
+    deleteregisteredmodel(mlf, "missy")
+    deleteexperiment(mlf, experiment)
 end

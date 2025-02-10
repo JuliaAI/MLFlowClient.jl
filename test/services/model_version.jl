@@ -212,3 +212,22 @@ end
     deleteregisteredmodel(mlf, "missy")
     deleteexperiment(mlf, experiment)
 end
+
+@testset verbose = true "get model version by alias" begin
+    @ensuremlf
+
+    experiment = createexperiment(mlf, UUIDs.uuid4() |> string)
+    run = createrun(mlf, experiment)
+    registered_model = createregisteredmodel(mlf, "missy")
+
+    model_version = createmodelversion(mlf, "missy", run.info.artifact_uri)
+    setregisteredmodelalias(mlf, registered_model.name, "gala", model_version.version)
+
+    retrieved_model_version = getmodelversionbyalias(mlf, "missy", "gala")
+
+    @assert retrieved_model_version.aliases |> !isempty
+    @assert (retrieved_model_version.aliases |> first) == "gala"
+
+    deleteregisteredmodel(mlf, "missy")
+    deleteexperiment(mlf, experiment)
+end

@@ -156,3 +156,37 @@ function deleteregisteredmodeltag(instance::MLFlow, name::String, key::String)::
     mlfdelete(instance, "registered-models/delete-tag"; name=name, key=key)
     return true
 end
+
+"""
+    deleteregisteredmodelalias(instance::MLFlow, name::String, alias::String)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` Name of the [`RegisteredModel`](@ref).
+- `alias:` Name of the alias.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function deleteregisteredmodelalias(instance::MLFlow, name::String, alias::String)::Bool
+    mlfdelete(instance, "registered-models/alias"; name=name, alias=alias)
+    return true
+end
+
+"""
+    setregisteredmodelalias(instance::MLFlow, name::String, alias::String, version::String)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` Name of the [`RegisteredModel`](@ref).
+- `alias:` Name of the alias.
+- `version:` [`ModelVersion`](@ref) number.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function setregisteredmodelalias(instance::MLFlow, name::String, alias::String,
+    version::String)::Bool
+    mlfpost(instance, "registered-models/alias"; name=name, alias=alias, version=version)
+    return true
+end

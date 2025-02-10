@@ -207,3 +207,20 @@ function deletemodelversiontag(instance::MLFlow, name::String, version::String,
     mlfdelete(instance, "model-versions/delete-tag"; name=name, version=version, key=key)
     return true
 end
+
+"""
+    getmodelversionbyalias(instance::MLFlow, name::String, alias::String)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` Name of the [`RegisteredModel`](@ref).
+- `alias:` Name of the alias.
+
+# Returns
+[`ModelVersion`](@ref) requested.
+"""
+function getmodelversionbyalias(instance::MLFlow, name::String,
+    alias::String)::ModelVersion
+    result = mlfget(instance, "registered-models/alias"; name=name, alias=alias)
+    return result["model_version"] |> ModelVersion
+end

@@ -8,4 +8,6 @@ deleteregisteredmodel
 searchregisteredmodels
 setregisteredmodeltag
 deleteregisteredmodeltag
+deleteregisteredmodelalias
+setregisteredmodelalias
 ```

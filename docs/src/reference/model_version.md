@@ -11,4 +11,5 @@ getdownloaduriformodelversionartifacts
 transitionmodelversionstage
 setmodelversiontag
 deletemodelversiontag
+getmodelversionbyalias
 ```
