@@ -176,3 +176,70 @@ end
     deleteregisteredmodel(mlf, "missy")
     deleteexperiment(mlf, experiment)
 end
+
+@testset verbose = true "create registered model permission" begin
+    @ensuremlf
+
+    registered_model = createregisteredmodel(mlf, "missy"; description="gala")
+    user = createuser(mlf, "missy", "gala")
+    permission = createregisteredmodelpermission(mlf, registered_model.name, user.username, Permission("READ"))
+
+    @test permission isa RegisteredModelPermission
+    @test permission.name == registered_model.name
+    @test permission.user_id == user.id
+    @test permission.permission == Permission("READ")
+
+    deleteregisteredmodelpermission(mlf, registered_model.name, user.username)
+    deleteuser(mlf, user.username)
+    deleteregisteredmodel(mlf, "missy")
+end
+
+@testset verbose = true "get registered model permission" begin
+    @ensuremlf
+
+    registered_model = createregisteredmodel(mlf, "missy"; description="gala")
+    user = createuser(mlf, "missy", "gala")
+    permission = createregisteredmodelpermission(mlf, registered_model.name, user.username, Permission("READ"))
+    retrieved_permission = getregisteredmodelpermission(mlf, registered_model.name, user.username)
+
+    @test retrieved_permission isa RegisteredModelPermission
+    @test retrieved_permission.name == registered_model.name
+    @test retrieved_permission.user_id == user.id
+    @test retrieved_permission.permission == Permission("READ")
+
+    deleteregisteredmodelpermission(mlf, registered_model.name, user.username)
+    deleteuser(mlf, user.username)
+    deleteregisteredmodel(mlf, "missy")
+end
+
+@testset verbose = true "update registered model permission" begin
+    @ensuremlf
+
+    registered_model = createregisteredmodel(mlf, "missy"; description="gala")
+    user = createuser(mlf, "missy", "gala")
+    permission = createregisteredmodelpermission(mlf, registered_model.name, user.username, Permission("READ"))
+    updateregisteredmodelpermission(mlf, registered_model.name, user.username, Permission("MANAGE"))
+    retrieved_permission = getregisteredmodelpermission(mlf, registered_model.name, user.username)
+
+    @test retrieved_permission isa RegisteredModelPermission
+    @test retrieved_permission.name == registered_model.name
+    @test retrieved_permission.user_id == user.id
+    @test retrieved_permission.permission == Permission("MANAGE")
+
+    deleteregisteredmodelpermission(mlf, registered_model.name, user.username)
+    deleteuser(mlf, user.username)
+    deleteregisteredmodel(mlf, "missy")
+end
+#
+@testset verbose = true "delete registered model permission" begin
+    @ensuremlf
+
+    registered_model = createregisteredmodel(mlf, "missy"; description="gala")
+    user = createuser(mlf, "missy", "gala")
+    permission = createregisteredmodelpermission(mlf, registered_model.name, user.username, Permission("READ"))
+    deleteregisteredmodelpermission(mlf, registered_model.name, user.username)
+
+    @test_throws ErrorException getregisteredmodelpermission(mlf, registered_model.name, user.username)
+    deleteuser(mlf, user.username)
+    deleteregisteredmodel(mlf, "missy")
+end

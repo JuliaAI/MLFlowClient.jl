@@ -10,4 +10,8 @@ setregisteredmodeltag
 deleteregisteredmodeltag
 deleteregisteredmodelalias
 setregisteredmodelalias
+createregisteredmodelpermission
+getregisteredmodelpermission
+updateregisteredmodelpermission
+deleteregisteredmodelpermission
 ```

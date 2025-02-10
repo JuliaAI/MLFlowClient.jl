@@ -75,7 +75,8 @@ include("services/registered_model.jl")
 export getregisteredmodel, createregisteredmodel, deleteregisteredmodel,
     renameregisteredmodel, updateregisteredmodel, searchregisteredmodels,
     setregisteredmodeltag, deleteregisteredmodeltag, deleteregisteredmodelalias,
-    setregisteredmodelalias
+    setregisteredmodelalias, createregisteredmodelpermission, getregisteredmodelpermission,
+    updateregisteredmodelpermission, deleteregisteredmodelpermission
 
 include("services/model_version.jl")
 export getlatestmodelversions, getmodelversion, createmodelversion, deletemodelversion,

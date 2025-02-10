@@ -190,3 +190,79 @@ function setregisteredmodelalias(instance::MLFlow, name::String, alias::String,
     mlfpost(instance, "registered-models/alias"; name=name, alias=alias, version=version)
     return true
 end
+
+"""
+    createregisteredmodelpermission(instance::MLFlow, name::String, username::String,
+        permission::Permission)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` [`RegisteredModel`](@ref) name.
+- `username:` [`User`](@ref) username.
+- `permission:` [`Permission`](@ref) to grant.
+
+# Returns
+An instance of type [`RegisteredModelPermission`](@ref).
+"""
+function createregisteredmodelpermission(instance::MLFlow, name::String, username::String,
+    permission::Permission)::RegisteredModelPermission
+    result = mlfpost(instance, "registered-models/permissions/create"; name=name,
+        username=username, permission=permission)
+    return result["registered_model_permission"] |> RegisteredModelPermission
+end
+
+"""
+    getregisteredmodelpermission(instance::MLFlow, name::String, username::String)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` [`RegisteredModel`](@ref) name.
+- `username:` [`User`](@ref) username.
+
+# Returns
+An instance of type [`RegisteredModelPermission`](@ref).
+"""
+function getregisteredmodelpermission(instance::MLFlow, name::String,
+    username::String)::RegisteredModelPermission
+    result = mlfget(instance, "registered-models/permissions/get"; name=name,
+        username=username)
+    return result["registered_model_permission"] |> RegisteredModelPermission
+end
+
+"""
+    updateregisteredmodelpermission(instance::MLFlow, name::String, username::String,
+        permission::Permission)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` [`RegisteredModel`](@ref) name.
+- `username:` [`User`](@ref) username.
+- `permission:` New [`Permission`](@ref) to grant.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function updateregisteredmodelpermission(instance::MLFlow, name::String, username::String,
+    permission::Permission)::Bool
+    mlfpatch(instance, "registered-models/permissions/update"; name=name, username=username,
+        permission=permission)
+    return true
+end
+
+"""
+    deleteregisteredmodelpermission(instance::MLFlow, name::String, username::String)
+
+# Arguments
+- `instance:` [`MLFlow`](@ref) configuration.
+- `name:` [`RegisteredModel`](@ref) name.
+- `username:` [`User`](@ref) username.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function deleteregisteredmodelpermission(instance::MLFlow, name::String,
+    username::String)::Bool
+    mlfdelete(instance, "registered-models/permissions/delete"; name=name,
+        username=username)
+    return true
+end
