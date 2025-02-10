@@ -11,7 +11,7 @@ Latest [`ModelVersion`](@ref) for each requests stage.
 """
 function getlatestmodelversions(instance::MLFlow, name::String;
     stages::Array{String}=String[])::Array{ModelVersion}
-result = mlfpost(instance, "registered-models/get-latest-versions"; name=name,
+    result = mlfpost(instance, "registered-models/get-latest-versions"; name=name,
         stages=stages)
     return result["model_versions"] .|> ModelVersion
 end
@@ -104,8 +104,8 @@ end
 - `filter`: String filter condition. See [MLFlow documentation](https://mlflow.org/docs/latest/rest-api.html#search-modelversions).
 - `max_results`: Maximum number of models desired.
 - `order_by`: List of columns to be ordered by including model name, version, stage with an
-optional “DESC” or “ASC” annotation, where “ASC” is the default. Tiebreaks are done by
-latest stage transition timestamp, followed by name ASC, followed by version DESC.
+    optional “DESC” or “ASC” annotation, where “ASC” is the default. Tiebreaks are done by
+    latest stage transition timestamp, followed by name ASC, followed by version DESC.
 - `page_token`: Pagination token to go to next page based on previous search query.
 
 # Returns
@@ -156,9 +156,9 @@ end
 - `version:` [`ModelVersion`](@ref) number.
 - `stage:` Transition [`ModelVersion`](@ref) to new stage.
 - `archive_existing_versions:` When transitioning a model version to a particular stage,
-this flag dictates whether all existing model versions in that stage should be atomically
-moved to the “archived” stage. This ensures that at-most-one model version exists in the
-target stage.
+    this flag dictates whether all existing model versions in that stage should be atomically
+    moved to the “archived” stage. This ensures that at-most-one model version exists in the
+    target stage.
 
 # Returns
 Updated [`ModelVersion`](@ref).

@@ -5,4 +5,5 @@ getregisteredmodel
 renameregisteredmodel
 updateregisteredmodel
 deleteregisteredmodel
+searchregisteredmodels
 ```

@@ -85,3 +85,28 @@ end
 
     @test_throws ErrorException getregisteredmodel(mlf, "missy")
 end
+
+@testset verbose = true "search registered models" begin
+    @ensuremlf
+
+    createregisteredmodel(mlf, "missy"; description="gala")
+    createregisteredmodel(mlf, "gala"; description="missy")
+
+    @testset "default search" begin
+        registered_models, next_page_token = searchregisteredmodels(mlf)
+
+        @test length(registered_models) == 2 # four because of the default experiment
+        @test next_page_token |> isnothing
+    end
+
+    @testset "with pagination" begin
+        registered_models, next_page_token = searchregisteredmodels(mlf; max_results=1)
+
+        @test length(registered_models) == 1
+        @test next_page_token |> !isnothing
+        @test next_page_token isa String
+    end
+
+    deleteregisteredmodel(mlf, "missy")
+    deleteregisteredmodel(mlf, "gala")
+end
