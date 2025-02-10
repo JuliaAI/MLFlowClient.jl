@@ -8,4 +8,8 @@ restoreexperiment
 updateexperiment
 searchexperiments
 setexperimenttag
+createexperimentpermission
+getexperimentpermission
+updateexperimentpermission
+deleteexperimentpermission
 ```

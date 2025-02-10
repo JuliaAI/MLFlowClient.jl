@@ -12,6 +12,7 @@ makedocs(;
         "Miscellaneous operations" => "reference/misc.md",
         "Run operations" => "reference/run.md",
         "Registered model operations" => "reference/registered_model.md",
-        "Model version operations" => "reference/model_version.md",]])
+        "Model version operations" => "reference/model_version.md",
+        "User operations" => "reference/user.md",]])
 
 deploydocs(; repo="github.com/JuliaAI/MLFlowClient.jl", devbranch="main")

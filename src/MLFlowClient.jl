@@ -54,7 +54,9 @@ include("utils.jl")
 
 include("services/experiment.jl")
 export getexperiment, createexperiment, deleteexperiment, setexperimenttag,
-    updateexperiment, restoreexperiment, searchexperiments, getexperimentbyname
+    updateexperiment, restoreexperiment, searchexperiments, getexperimentbyname,
+    createexperimentpermission, getexperimentpermission, updateexperimentpermission,
+    deleteexperimentpermission
 
 include("services/run.jl")
 export getrun, createrun, deleterun, setruntag, updaterun, restorerun, searchruns,

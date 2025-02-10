@@ -207,3 +207,115 @@ setexperimenttag(instance::MLFlow, experiment_id::Integer, key::String,
 setexperimenttag(instance::MLFlow, experiment::Experiment, key::String,
     value::String)::Bool =
     setexperimenttag(instance, experiment.experiment_id, key, value)
+
+"""
+    createexperimentpermission(instance::MLFlow, experiment_id::String, username::String,
+        permission::Permission)
+    createexperimentpermission(instance::MLFlow, experiment_id::Integer, username::String,
+        permission::Permission)
+    createexperimentpermission(instance::MLFlow, experiment::Experiment, username::String,
+        permission::Permission)
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `experiment_id`: [`Experiment`](@ref) id.
+- `username`: [`User`](@ref) username.
+- `permission`: [`Permission`](@ref) to grant.
+
+# Returns
+An instance of type [`ExperimentPermission`](@ref).
+"""
+function createexperimentpermission(instance::MLFlow, experiment_id::String,
+    username::String, permission::Permission)::ExperimentPermission
+    result = mlfpost(instance, "experiments/permissions/create";
+        experiment_id=experiment_id, username=username, permission=permission)
+    return result["experiment_permission"] |> ExperimentPermission
+end
+createexperimentpermission(instance::MLFlow, experiment_id::Integer,
+    username::String, permission::Permission)::ExperimentPermission =
+    createexperimentpermission(instance, experiment_id |> string, username, permission)
+createexperimentpermission(instance::MLFlow, experiment::Experiment,
+    username::String, permission::Permission)::ExperimentPermission =
+    createexperimentpermission(instance, experiment.experiment_id, username, permission)
+
+"""
+    getexperimentpermission(instance::MLFlow, experiment_id::String, username::String)
+    getexperimentpermission(instance::MLFlow, experiment_id::Integer, username::String)
+    getexperimentpermission(instance::MLFlow, experiment::Experiment, username::String)
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `experiment_id`: [`Experiment`](@ref) id.
+- `username`: [`User`](@ref) username.
+
+# Returns
+An instance of type [`ExperimentPermission`](@ref).
+"""
+function getexperimentpermission(instance::MLFlow, experiment_id::String,
+    username::String)::ExperimentPermission
+    result = mlfget(instance, "experiments/permissions/get"; experiment_id=experiment_id,
+        username=username)
+    return result["experiment_permission"] |> ExperimentPermission
+end
+getexperimentpermission(instance::MLFlow, experiment_id::Integer,
+    username::String)::ExperimentPermission =
+    getexperimentpermission(instance, experiment_id |> string, username)
+getexperimentpermission(instance::MLFlow, experiment::Experiment,
+    username::String)::ExperimentPermission =
+    getexperimentpermission(instance, experiment.experiment_id, username)
+
+"""
+    updateexperimentpermission(instance::MLFlow, experiment_id::String, username::String,
+        permission::Permission)
+    updateexperimentpermission(instance::MLFlow, experiment_id::Integer, username::String,
+        permission::Permission)
+    updateexperimentpermission(instance::MLFlow, experiment::Experiment, username::String,
+        permission::Permission)
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `experiment_id`: [`Experiment`](@ref) id.
+- `username`: [`User`](@ref) username.
+- `permission`: [`Permission`](@ref) to grant.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function updateexperimentpermission(instance::MLFlow, experiment_id::String,
+    username::String, permission::Permission)::Bool
+    mlfpatch(instance, "experiments/permissions/update"; experiment_id=experiment_id,
+        username=username, permission=permission)
+    return true
+end
+updateexperimentpermission(instance::MLFlow, experiment_id::Integer,
+    username::String, permission::Permission)::Bool =
+    updateexperimentpermission(instance, experiment_id |> string, username, permission)
+updateexperimentpermission(instance::MLFlow, experiment::Experiment,
+    username::String, permission::Permission)::Bool =
+    updateexperimentpermission(instance, experiment.experiment_id, username, permission)
+
+"""
+    deleteexperimentpermission(instance::MLFlow, experiment_id::String, username::String)
+    deleteexperimentpermission(instance::MLFlow, experiment_id::Integer, username::String)
+    deleteexperimentpermission(instance::MLFlow, experiment::Experiment, username::String)
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `experiment_id`: [`Experiment`](@ref) id.
+- `username`: [`User`](@ref) username.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function deleteexperimentpermission(instance::MLFlow, experiment_id::String,
+    username::String)::Bool
+    mlfdelete(instance, "experiments/permissions/delete"; experiment_id=experiment_id,
+        username=username)
+    return true
+end
+deleteexperimentpermission(instance::MLFlow, experiment_id::Integer,
+    username::String)::Bool =
+    deleteexperimentpermission(instance, experiment_id |> string, username)
+deleteexperimentpermission(instance::MLFlow, experiment::Experiment,
+    username::String)::Bool =
+    deleteexperimentpermission(instance, experiment.experiment_id, username)

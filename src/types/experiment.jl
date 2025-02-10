@@ -39,5 +39,5 @@ struct ExperimentPermission
     permission::Permission
 end
 ExperimentPermission(data::Dict{String,Any}) = ExperimentPermission(data["experiment_id"],
-    data["user_id"], Permission(data["permission"]))
+    data["user_id"] |> string, Permission(data["permission"]))
 Base.show(io::IO, t::ExperimentPermission) = show(io, ShowCase(t, new_lines=true))

@@ -68,3 +68,4 @@ Permission of a user to an experiment or a registered model.
     MANAGE = 3
     NO_PERMISSIONS = 4
 end
+Permission(permission::String) = Dict(value => key for (key, value) in Permission |> Base.Enums.namemap)[permission|>Symbol] |> Permission

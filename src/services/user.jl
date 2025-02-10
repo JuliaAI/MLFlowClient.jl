@@ -30,7 +30,7 @@ function getuser(instance::MLFlow, username::String)::User
 end
 
 """
-    deleteuser(instance::MLFlow, username::String, password::String)
+    updateuserpassword(instance::MLFlow, username::String, password::String)
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
