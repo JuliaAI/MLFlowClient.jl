@@ -25,7 +25,7 @@ include("types/tag.jl")
 export Tag
 
 include("types/enums.jl")
-export ViewType, RunStatus, ModelVersionStatus
+export ViewType, RunStatus, ModelVersionStatus, Permission
 
 include("types/dataset.jl")
 export Dataset, DatasetInput
@@ -37,13 +37,16 @@ include("types/model_version.jl")
 export ModelVersion
 
 include("types/registered_model.jl")
-export RegisteredModel, RegisteredModelAlias
+export RegisteredModel, RegisteredModelAlias, RegisteredModelPermission
 
 include("types/experiment.jl")
-export Experiment
+export Experiment, ExperimentPermission
 
 include("types/run.jl")
 export Run, Param, Metric, RunData, RunInfo, RunInputs
+
+include("types/user.jl")
+export User
 
 include("api.jl")
 

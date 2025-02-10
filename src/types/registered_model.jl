@@ -48,3 +48,20 @@ RegisteredModel(data::Dict{String,Any}) = RegisteredModel(data["name"],
     [Tag(tag) for tag in get(data, "tags", [])],
     [RegisteredModelAlias(alias) for alias in get(data, "aliases", [])])
 Base.show(io::IO, t::RegisteredModel) = show(io, ShowCase(t, new_lines=true))
+
+"""
+    RegisteredModelPermission
+
+# Fields
+- `name::String`: [`RegisteredModel`](@ref) name.
+- `user_id::String`: [`User`](@ref) id.
+- `permission::Permission`: [`Permission`](@ref) granted.
+"""
+struct RegisteredModelPermission
+    name::String
+    user_id::String
+    permission::Permission
+end
+RegisteredModelPermission(data::Dict{String,Any}) = RegisteredModelPermission(data["name"],
+    data["user_id"], Permission(data["permission"]))
+Base.show(io::IO, t::RegisteredModelPermission) = show(io, ShowCase(t, new_lines=true))

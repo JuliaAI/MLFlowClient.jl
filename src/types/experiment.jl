@@ -24,3 +24,20 @@ Experiment(data::Dict{String,Any}) = Experiment(data["experiment_id"], data["nam
     data["artifact_location"], data["lifecycle_stage"], data["last_update_time"],
     data["creation_time"], [Tag(tag) for tag in get(data, "tags", [])])
 Base.show(io::IO, t::Experiment) = show(io, ShowCase(t, new_lines=true))
+
+"""
+    ExperimentPermission
+
+# Fields
+- `experiment_id::String`: [`Experiment`](@ref) id.
+- `user_id::String`: [`User`](@ref) id.
+- `permission::Permission`: [`Permission`](@ref) granted.
+"""
+struct ExperimentPermission
+    experiment_id::String
+    user_id::String
+    permission::Permission
+end
+ExperimentPermission(data::Dict{String,Any}) = ExperimentPermission(data["experiment_id"],
+    data["user_id"], Permission(data["permission"]))
+Base.show(io::IO, t::ExperimentPermission) = show(io, ShowCase(t, new_lines=true))

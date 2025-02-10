@@ -50,3 +50,21 @@ View type for ListExperiments query.
     DELETED_ONLY = 2
     ALL = 3
 end
+
+"""
+    Permission
+
+Permission of a user to an experiment or a registered model.
+
+# Members
+- `READ`: Can read.
+- `EDIT`: Can read and update.
+- `MANAGE`: Can read, update, delete and manage.
+- `NO_PERMISSIONS`: No permissions.
+"""
+@enum Permission begin
+    READ = 1
+    EDIT = 2
+    MANAGE = 3
+    NO_PERMISSIONS = 4
+end

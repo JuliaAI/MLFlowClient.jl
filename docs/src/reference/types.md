@@ -18,4 +18,8 @@ Metric
 RunData
 RunInfo
 RunInputs
+User
+Permission
+ExperimentPermission
+RegisteredModelPermission
 ```
