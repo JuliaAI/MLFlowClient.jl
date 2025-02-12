@@ -4,6 +4,8 @@ end
 
 include("base.jl")
 
+include("types/mlflow.jl")
+
 include("services/run.jl")
 include("services/misc.jl")
 include("services/logger.jl")

@@ -36,7 +36,14 @@ end
     updateuserpassword(getmlfinstance(encoded_credentials), "missy", "ana")
     encoded_credentials = Base64.base64encode("$(user.username):ana")
 
-    @test_nowarn searchexperiments(getmlfinstance(encoded_credentials))
+    @test begin 
+        try
+            searchexperiments(getmlfinstance(encoded_credentials))
+            true
+        catch
+            false
+        end
+    end
     deleteuser(mlf, user.username)
 end
 

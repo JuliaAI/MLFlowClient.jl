@@ -14,6 +14,7 @@ module MLFlowClient
 using Dates
 using UUIDs
 using HTTP
+using Base64
 using URIs
 using JSON
 using ShowCases
