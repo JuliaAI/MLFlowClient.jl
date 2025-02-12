@@ -6,14 +6,19 @@ Base type which defines location and version for MLFlow API service.
 # Fields
 - `apiroot::String`: API root URL, e.g. `http://localhost:5000/api`
 - `apiversion::Union{Integer, AbstractFloat}`: used API version, e.g. `2.0`
-- `headers::Dict`: HTTP headers to be provided with the REST API requests (useful for authetication tokens)
-Default is `false`, using the REST API endpoint.
+- `headers::Dict`: HTTP headers to be provided with the REST API requests.
+- `username::Union{Nothing, String}`: username for basic authentication.
+- `password::Union{Nothing, String}`: password for basic authentication.
 
-# Constructors
+!!! warning
+    You cannot provide an `Authorization` header when an `username` and `password` are
+    provided. An error will be thrown in that case.
 
-- `MLFlow(apiroot; user, password, apiversion=2.0, headers=Dict())` - this constructor will check env 
-variables `MLFLOW_TRACKING_USERNAME` and `MLFLOW_TRACKING_PASSWORD` for credentials.
-- `MLFlow()` - defaults to `MLFlow(ENV["MLFLOW_TRACKING_URI"])` or `MLFlow("http://localhost:5000/api")`
+!!! note
+    - If `MLFLOW_TRACKING_URI` is set, the provided `apiroot` will be ignored.
+    - If `MLFLOW_TRACKING_USERNAME` is set, the provided `username` will be ignored.
+    - If `MLFLOW_TRACKING_PASSWORD` is set, the provided `password` will be ignored.
+    These indications will be displayed as warnings.
 
 # Examples
 
@@ -25,33 +30,51 @@ mlf = MLFlow()
 remote_url="https://<your-server>.cloud.databricks.com"; # address of your remote server
 mlf = MLFlow(remote_url, headers=Dict("Authorization" => "Bearer <your-secret-token>"))
 ```
-
 """
 struct MLFlow
     apiroot::String
-    apiversion::Union{Integer, AbstractFloat}
+    apiversion::AbstractFloat
     headers::Dict
-end
+    username::Union{Nothing,String}
+    password::Union{Nothing,String}
 
-function MLFlow(
-    apiroot;
-    user=get(ENV, "MLFLOW_TRACKING_USERNAME", missing), 
-    password=get(ENV, "MLFLOW_TRACKING_PASSWORD", missing), 
-    apiversion=2.0, 
-    headers=Dict()
-    )
-    if !ismissing(user) && !ismissing(password)
-        token = base64encode("$(user):$(password)")
-        headers["Authorization"] = "Basic $(token)"
-    end
-    return MLFlow(apiroot, apiversion, headers)
-end
+    function MLFlow(apiroot, apiversion, headers, username, password)
+        if haskey(ENV, "MLFLOW_TRACKING_URI")
+            @warn "The provided apiroot will be ignored as MLFLOW_TRACKING_URI is set."
+            apiroot = ENV["MLFLOW_TRACKING_URI"]
+        end
 
-function MLFlow()
-    apiroot = "http://localhost:5000/api"
-    if haskey(ENV, "MLFLOW_TRACKING_URI")
-        apiroot = ENV["MLFLOW_TRACKING_URI"]
+        if haskey(ENV, "MLFLOW_TRACKING_USERNAME")
+            @warn "The provided username will be ignored as MLFLOW_TRACKING_USERNAME is set."
+            username = ENV["MLFLOW_TRACKING_USERNAME"]
+        end
+
+        if haskey(ENV, "MLFLOW_TRACKING_PASSWORD")
+            @warn "The provided password will be ignored as MLFLOW_TRACKING_PASSWORD is set."
+            password = ENV["MLFLOW_TRACKING_PASSWORD"]
+        end
+
+        if username |> !isnothing && password |> !isnothing
+            if haskey(headers, "Authorization")
+                error("You cannot provide an Authorization header when an username and password are provided.")
+            end
+            encoded_credentials = Base64.base64encode("$(username):$(password)")
+            headers =
+                merge(headers, Dict("Authorization" => "Basic $(encoded_credentials)"))
+        end
+        new(apiroot, apiversion, headers, username, password)
     end
-    return MLFlow(apiroot)
 end
-Base.show(io::IO, t::MLFlow) = show(io, ShowCase(t, [:apiroot,:apiversion], new_lines=true))
+MLFlow(apiroot::String; apiversion::AbstractFloat=2.0, headers::Dict=Dict(),
+    username::Union{Nothing,String}=nothing,
+    password::Union{Nothing,String}=nothing)::MLFlow =
+    MLFlow(apiroot, apiversion, headers, username, password)
+MLFlow(; apiroot::String="http://localhost:5000/api", apiversion::AbstractFloat=2.0,
+    headers::Dict=Dict(), username::Union{Nothing,String}=nothing,
+    password::Union{Nothing,String}=nothing)::MLFlow =
+    MLFlow(apiroot, apiversion, headers, username, password)
+
+Base.show(io::IO, t::MLFlow) =
+    show(io, ShowCase(t, [:apiroot, :apiversion], new_lines=true))
+
+abstract type LoggingData end

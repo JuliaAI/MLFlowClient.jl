@@ -1,70 +1,93 @@
-"""
-    uri(mlf::MLFlow, endpoint="", query=missing)
+const NumberOrString = Union{Number,String}
+const MLFlowUpsertData{T} = Union{Array{T},Array{<:Dict{String,<:Any}},
+    Dict{String,<:NumberOrString},Array{<:Pair{String,<:NumberOrString}},
+    Array{<:Tuple{String,<:NumberOrString}}}
 
-Retrieves an URI based on `mlf`, `endpoint`, and, optionally, `query`.
+function dict_to_T_array(::Type{T},
+    dict::Dict{String,<:NumberOrString}) where {T<:LoggingData}
+    entities = T[]
+    for (key, value) in dict
+        if T <: Metric
+            push!(entities, Metric(key, Float64(value), round(Int, now() |> datetime2unix),
+                nothing))
+        else
+            push!(entities, T(key, value |> string))
+        end
+    end
 
-# Examples
-```@example
-MLFlowClient.uri(mlf, "experiments/get", Dict(:experiment_id=>10))
-```
-"""
-function uri(mlf::MLFlow, endpoint="", query=missing)
-    u = URI("$(mlf.apiroot)/$(mlf.apiversion)/mlflow/$(endpoint)")
-    !ismissing(query) && return URI(u; query=query)
-    u
+    return entities
 end
 
-"""
-    headers(mlf::MLFlow,custom_headers::AbstractDict)
+function pairarray_to_T_array(::Type{T}, pair_array::Array{<:Pair}) where {T<:LoggingData}
+    entities = T[]
+    for pair in pair_array
+        key = pair.first |> string
+        if T <: Metric
+            value = pair.second
+            push!(entities, Metric(key, Float64(value), round(Int, now() |> datetime2unix),
+                nothing))
+        else
+            value = pair.second |> string
+            push!(entities, T(key, value))
+        end
+    end
 
-Retrieves HTTP headers based on `mlf` and merges with user-provided `custom_headers`
-
-# Examples
-```@example
-headers(mlf,Dict("Content-Type"=>"application/json"))
-```
-"""
-headers(mlf::MLFlow, custom_headers::AbstractDict) = merge(mlf.headers, custom_headers)
-
-"""
-    generatefilterfromentity_type(filter_params::AbstractDict{K,V}, entity_type::String) where {K,V}
-
-Generates a `filter` string from `filter_params` dictionary and `entity_type`.
-
-# Arguments
-- `filter_params`: dictionary to use for filter generation.
-- `entity_type`: entity type to use for filter generation.
-
-# Returns
-A string that can be passed as `filter` to [`searchruns`](@ref).
-
-# Examples
-
-```@example
-generatefilterfromentity_type(Dict("paramkey1" => "paramvalue1", "paramkey2" => "paramvalue2"), "param")
-```
-"""
-function generatefilterfromentity_type(filter_params::AbstractDict{K,V}, entity_type::String) where {K,V}
-    length(filter_params) > 0 || return ""
-    # NOTE: may have issues with escaping.
-    filters = ["$(entity_type).\"$(k)\" = \"$(v)\"" for (k, v) ∈ filter_params]
-    join(filters, " and ")
+    return entities
 end
 
-"""
-    generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V}
+function tuplearray_to_T_array(::Type{T},
+    tuple_array::Array{<:Tuple{String,<:NumberOrString}}) where {T<:LoggingData}
+    entities = T[]
+    for tuple in tuple_array
+        if length(tuple) != 2
+            error("Tuple must have exactly two elements (format: (key, value))")
+        end
 
-Generates a `filter` string from `filter_params` dictionary and `param` entity type.
-"""
-generatefilterfromparams(filter_params::AbstractDict{K,V}) where {K,V} = generatefilterfromentity_type(filter_params, "param")
-"""
-    generatefilterfrommattributes(filter_attributes::AbstractDict{K,V}) where {K,V}
+        key = tuple |> first |> string
+        if T <: Metric
+            value = tuple |> last
+            push!(entities, Metric(key, Float64(value), round(Int, now() |> datetime2unix),
+                nothing))
+        else
+            value = tuple |> last |> string
+            push!(entities, T(key, value))
+        end
+    end
 
-Generates a `filter` string from `filter_attributes` dictionary and `attribute` entity type.
-"""
-generatefilterfromattributes(filter_attributes::AbstractDict{K,V}) where {K,V} = generatefilterfromentity_type(filter_attributes, "attribute")
+    return entities
+end
 
-const MLFLOW_ERROR_CODES = (;
-    RESOURCE_ALREADY_EXISTS = "RESOURCE_ALREADY_EXISTS",
-    RESOURCE_DOES_NOT_EXIST = "RESOURCE_DOES_NOT_EXIST",
-)
+function dictarray_to_T_array(::Type{T},
+    dict_array::Array{<:Dict{String,<:Any}}) where {T<:LoggingData}
+    entities = T[]
+    for dict in dict_array
+        key = dict["key"] |> string
+        if T <: Metric
+            value = Float64(dict["value"])
+            if haskey(dict, "timestamp")
+                timestamp = dict["timestamp"]
+            else
+                timestamp = round(Int, now() |> datetime2unix)
+            end
+            push!(entities, Metric(key, value, timestamp, nothing))
+        else
+            value = dict["value"] |> string
+            push!(entities, T(key, value))
+        end
+    end
+
+    return entities
+end
+
+function parse(::Type{T}, entities::MLFlowUpsertData{T}) where {T<:LoggingData}
+    if entities isa Dict{String,<:NumberOrString}
+        return dict_to_T_array(T, entities)
+    elseif entities isa Array{<:Dict{String,<:Any}}
+        return dictarray_to_T_array(T, entities)
+    elseif entities isa Array{<:Pair{String,<:NumberOrString}}
+        return pairarray_to_T_array(T, entities)
+    elseif entities isa Array{<:Tuple{String,<:NumberOrString}}
+        return tuplearray_to_T_array(T, entities)
+    end
+    return entities
+end

@@ -1,215 +1,125 @@
 """
-    MLFlowRunStatus
+    Metric <: LoggingData
 
-Represents the status of an MLFlow Run.
-
-# Fields
-- `status::String`: one of RUNNING/SCHEDULED/FINISHED/FAILED/KILLED
-
-# Constructors
-
-- `MLFlowRunStatus(status::String)`
-"""
-struct MLFlowRunStatus
-    status::String
-    function MLFlowRunStatus(status::String)
-        acceptable_statuses = ["RUNNING", "SCHEDULED", "FINISHED", "FAILED", "KILLED"]
-        status ∈ acceptable_statuses || error("Invalid status $status - choose one of $acceptable_statuses")
-        new(status)
-    end
-end
-Base.show(io::IO, t::MLFlowRunStatus) = show(io, ShowCase(t, new_lines=true))
-
-"""
-    MLFlowRunInfo
-
-Represents run metadata.
+Metric associated with a run, represented as a key-value pair.
 
 # Fields
-- `run_id::String`: run identifier.
-- `experiment_id::Integer`: experiment identifier.
-- `status::MLFlowRunStatus`: run status.
-- `run_name::String`: run name.
-- `start_time::Union{Int64,Missing}`: when was the run started, UNIX time in milliseconds.
-- `end_time::Union{Int64,Missing}`: when did the run end, UNIX time in milliseconds.
-- `artifact_uri::String`: where are artifacts from this run stored.
-- `lifecycle_stage::String`: one of `active` or `deleted`.
-
-# Constructors
-
-- `MLFlowRunInfo(run_id, experiment_id, status, run_name, start_time, end_time, artifact_uri, lifecycle_stage)`
-- `MLFlowRunInfo(info::Dict{String,Any})`
+- `key::String`: Key identifying this metric.
+- `value::Float64`: Value associated with this metric.
+- `timestamp::Int64`: The timestamp at which this metric was recorded.
+- `step::Union{Int64, Nothing}`: Step at which to log the metric.
 """
-struct MLFlowRunInfo
-    run_id::String
-    experiment_id::Integer
-    status::MLFlowRunStatus
-    run_name::String
-    start_time::Union{Int64,Missing}
-    end_time::Union{Int64,Missing}
-    artifact_uri::String
-    lifecycle_stage::String
-end
-function MLFlowRunInfo(info::Dict{String,Any})
-    run_id = get(info, "run_id", missing)
-    experiment_id = get(info, "experiment_id", missing)
-    status = get(info, "status", missing)
-    run_name = get(info, "run_name", missing)
-    start_time = get(info, "start_time", missing)
-    end_time = get(info, "end_time", missing)
-    artifact_uri = get(info, "artifact_uri", "")
-    lifecycle_stage = get(info, "lifecycle_stage", "")
-
-    experiment_id = ismissing(experiment_id) ? experiment_id : parse(Int64, experiment_id)
-    status = ismissing(status) ? status : MLFlowRunStatus(status)
-
-    # support for mlflow 1.21.0
-    if !ismissing(start_time) && !(typeof(start_time) <: Int)
-        start_time = parse(Int64, start_time)
-    end
-    if !ismissing(end_time) && !(typeof(end_time) <: Int)
-        end_time = parse(Int64, end_time)
-    end
-    MLFlowRunInfo(run_id, experiment_id, status, run_name, start_time, end_time, artifact_uri, lifecycle_stage)
-end
-Base.show(io::IO, t::MLFlowRunInfo) = show(io, ShowCase(t, new_lines=true))
-get_run_id(runinfo::MLFlowRunInfo) = runinfo.run_id
-
-"""
-    MLFlowRunDataMetric
-
-Represents a metric.
-
-# Fields
-- `key::String`: metric identifier.
-- `value::Float64`: metric value.
-- `step::Int64`: step.
-- `timestamp::Int64`: timestamp in UNIX time in milliseconds.
-
-# Constructors
-
-- `MLFlowRunDataMetric(d::Dict{String,Any})`
-
-"""
-struct MLFlowRunDataMetric
+struct Metric <: LoggingData
     key::String
     value::Float64
-    step::Int64
     timestamp::Int64
+    step::Union{Int64,Nothing}
 end
-function MLFlowRunDataMetric(d::Dict{String,Any})
-    key = d["key"]
-    value = d["value"]
-    if typeof(d["step"]) <: Int
-        step = d["step"]
-    else
-        step = parse(Int64, d["step"])
-    end
-    if typeof(d["timestamp"]) <: Int
-        timestamp = d["timestamp"]
-    else
-        timestamp = parse(Int64, d["timestamp"])
-    end
-    MLFlowRunDataMetric(key, value, step, timestamp)
-end
-Base.show(io::IO, t::MLFlowRunDataMetric) = show(io, ShowCase(t, new_lines=true))
+Metric(data::Dict{String,Any}) = Metric(data["key"], data["value"], data["timestamp"],
+    data["step"])
+Base.show(io::IO, t::Metric) = show(io, ShowCase(t, new_lines=true))
 
 """
-    MLFlowRunDataParam
+    Param <: LoggingData
 
-Represents a parameter.
+Param associated with a run.
 
 # Fields
-- `key::String`: parameter identifier.
-- `value::String`: parameter value.
-
-# Constructors
-- `MLFlowRunDataParam(d::Dict{String,String})`
-
+- `key::String`: Key identifying this param.
+- `value::String`: Value associated with this param.
 """
-struct MLFlowRunDataParam
+struct Param <: LoggingData
     key::String
     value::String
 end
-function MLFlowRunDataParam(d::Dict{String,String})
-    key = d["key"]
-    value = d["value"]
-    MLFlowRunDataParam(key, value)
-end
-Base.show(io::IO, t::MLFlowRunDataParam) = show(io, ShowCase(t, new_lines=true))
+Param(data::Dict{String,Any}) = Param(data["key"], data["value"])
+Base.show(io::IO, t::Param) = show(io, ShowCase(t, new_lines=true))
 
 """
-    MLFlowRunData
+    RunInfo
 
-Represents run data.
+Metadata of a single run.
 
 # Fields
-- `metrics::Dict{String,MLFlowRunDataMetric}`: run metrics.
-- `params::Dict{String,MLFlowRunDataParam}`: run parameters.
-- `tags`: list of run tags.
-
-# Constructors
-
-- `MLFlowRunData(data::Dict{String,Any})`
+- `run_id::String`: Unique identifier for the run.
+- `run_name::String`: The name of the run.
+- `experiment_id::String`: The experiment ID.
+- `status::RunStatus`: Current status of the run.
+- `start_time::Int64`: Unix timestamp of when the run started in milliseconds.
+- `end_time::Int64`: Unix timestamp of when the run ended in milliseconds.
+- `artifact_uri::String`: URI of the directory where artifacts should be uploaded. This can
+    be a local path (starting with “/”), or a distributed file system (DFS) path,
+    like s3://bucket/directory or dbfs:/my/directory. If not set, the local ./mlruns
+    directory is chosen.
+- `lifecycle_stage::String`: Current life cycle stage of the experiment: "active" or
+    "deleted".
+"""
+struct RunInfo
+    run_id::String
+    run_name::String
+    experiment_id::String
+    status::RunStatus
+    start_time::Int64
+    end_time::Union{Int64,Nothing}
+    artifact_uri::String
+    lifecycle_stage::String
+end
+RunInfo(data::Dict{String,Any}) = RunInfo(data["run_id"], data["run_name"],
+    data["experiment_id"], RunStatus(data["status"]), data["start_time"],
+    get(data, "end_time", nothing), data["artifact_uri"], data["lifecycle_stage"])
+Base.show(io::IO, t::RunInfo) = show(io, ShowCase(t, new_lines=true))
 
 """
-struct MLFlowRunData
-    metrics::Dict{String,MLFlowRunDataMetric}
-    params::Union{Dict{String,MLFlowRunDataParam},Missing}
-    tags
-end
-function MLFlowRunData(data::Dict{String,Any})
-    metrics = Dict{String,MLFlowRunDataMetric}()
-    if haskey(data, "metrics")
-        for metric in data["metrics"]
-            new_metric = MLFlowRunDataMetric(metric)
-            metrics[new_metric.key] = new_metric
-        end
-    end
-    params = Dict{String,MLFlowRunDataParam}()
-    if haskey(data, "params")
-        for param in data["params"]
-            new_param = MLFlowRunDataParam(param["key"], param["value"])
-            params[new_param.key] = new_param
-        end
-    end
-    tags = haskey(data, "tags") ? data["tags"] : missing
-    MLFlowRunData(metrics, params, tags)
-end
-Base.show(io::IO, t::MLFlowRunData) = show(io, ShowCase(t, new_lines=true))
-get_params(rundata::MLFlowRunData) = rundata.params
+    RunInputs
 
-"""
-    MLFlowRun
-
-Represents an MLFlow run.
+Run data (metrics, params, and tags).
 
 # Fields
-- `info::MLFlowRunInfo`: Run metadata.
-- `data::MLFlowRunData`: Run data.
-
-# Constructors
-
-- `MLFlowRun(rundata::MLFlowRunData)`
-- `MLFlowRun(runinfo::MLFlowRunInfo)`
-- `MLFlowRun(info::Dict{String,Any})`
-- `MLFlowRun(info::Dict{String,Any}, data::Dict{String,Any})`
+- `metrics::Array{Metric}`: Run metrics.
+- `params::Array{Param}`: Run parameters.
+- `tags::Array{Tag}`: Additional metadata key-value pairs.
+"""
+struct RunData
+    metrics::Array{Metric}
+    params::Array{Param}
+    tags::Array{Tag}
+end
+RunData(data::Dict{String,Any}) = RunData(
+    [Metric(metric) for metric in get(data, "metrics", [])],
+    [Param(param) for param in get(data, "params", [])],
+    [Tag(tag) for tag in get(data, "tags", [])])
+Base.show(io::IO, t::RunData) = show(io, ShowCase(t, new_lines=true))
 
 """
-struct MLFlowRun
-    info::Union{MLFlowRunInfo,Missing}
-    data::Union{MLFlowRunData,Missing}
+    RunInputs
+
+Run inputs.
+
+# Fields
+- `dataset_inputs::Array{DatasetInput}`: Dataset inputs to the Run.
+"""
+struct RunInputs
+    dataset_inputs::Array{DatasetInput}
 end
-MLFlowRun(rundata::MLFlowRunData) =
-    MLFlowRun(missing, rundata)
-MLFlowRun(runinfo::MLFlowRunInfo) =
-    MLFlowRun(runinfo, missing)
-MLFlowRun(info::Dict{String,Any}) =
-    MLFlowRun(MLFlowRunInfo(info), missing)
-MLFlowRun(info::Dict{String,Any}, data::Dict{String,Any}) =
-    MLFlowRun(MLFlowRunInfo(info), MLFlowRunData(data))
-Base.show(io::IO, t::MLFlowRun) = show(io, ShowCase(t, new_lines=true))
-get_info(run::MLFlowRun) = run.info
-get_data(run::MLFlowRun) = run.data
-get_run_id(run::MLFlowRun) = get_run_id(run.info)
-get_params(run::MLFlowRun) = get_params(run.data)
+RunInputs(data::Dict{String,Any}) = RunInputs(
+    [DatasetInput(dataset_input) for dataset_input in get(data, "dataset_inputs", [])])
+Base.show(io::IO, t::RunInputs) = show(io, ShowCase(t, new_lines=true))
+
+"""
+    Run
+
+A single run.
+
+# Fields
+- `info::RunInfo`: Metadata of the run.
+- `data::RunData`: Run data (metrics, params, and tags).
+- `inputs::RunInputs`: Run inputs.
+"""
+struct Run
+    info::RunInfo
+    data::RunData
+    inputs::RunInputs
+end
+Run(data::Dict{String,Any}) = Run(RunInfo(data["info"]), RunData(data["data"]),
+    RunInputs(data["inputs"]))
+Base.show(io::IO, t::Run) = show(io, ShowCase(t, new_lines=true))

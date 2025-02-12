@@ -40,7 +40,7 @@ p
 
 This could result in the following plot:
 
-![](withoutmlflow.png)
+![](images/withoutmlflow.png)
 
 Now, suppose that you are interested in turning this into an experiment which stores its metadata and results in MLFlow using `MLFlowClient`. You could amend the code like this:
 
@@ -114,8 +114,8 @@ updaterun(mlf, exprun, "FINISHED")
 
 This will result in the folowing experiment created in your `MLFlow` which is running on `http://localhost/`:
 
-![](mlflowexp.png)
+![](images/mlflowexp.png)
 
 You can also observe series logged against individual metrics, i.e. `pricepath1` looks like this in `MLFlow`:
 
-![](mlflowexpmetric1.png)
+![](images/mlflowexpmetric1.png)

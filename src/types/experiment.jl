@@ -1,34 +1,43 @@
 """
-    MLFlowExperiment
-
-Represents an MLFlow experiment.
+    Experiment
 
 # Fields
-- `name::String`: experiment name.
-- `lifecycle_stage::String`: life cycle stage, one of ["active", "deleted"]
-- `experiment_id::Integer`: experiment identifier.
-- `tags::Any`: list of tags.
-- `artifact_location::String`: where are experiment artifacts stored.
-
-# Constructors
-
-- `MLFlowExperiment(name, lifecycle_stage, experiment_id, tags, artifact_location)`
-- `MLFlowExperiment(exp::Dict{String,Any})`
+- `experiment_id::Integer`: Unique identifier for the experiment.
+- `name::String`: Human readable name that identifies the experiment.
+- `artifact_location::String`: Location where artifacts for the experiment are stored.
+- `lifecycle_stage::String`: Current life cycle stage of the experiment: “active” or
+    “deleted”. Deleted experiments are not returned by APIs.
+- `last_update_time::Int64`: Last update time.
+- `creation_time::Int64`: Creation time.
+- `tags::Array{Tag}`: Additional metadata key-value pairs.
+"""
+struct Experiment
+    experiment_id::String
+    name::String
+    artifact_location::String
+    lifecycle_stage::String
+    last_update_time::Int64
+    creation_time::Int64
+    tags::Array{Tag}
+end
+Experiment(data::Dict{String,Any}) = Experiment(data["experiment_id"], data["name"],
+    data["artifact_location"], data["lifecycle_stage"], data["last_update_time"],
+    data["creation_time"], [Tag(tag) for tag in get(data, "tags", [])])
+Base.show(io::IO, t::Experiment) = show(io, ShowCase(t, new_lines=true))
 
 """
-struct MLFlowExperiment
-    name::String
-    lifecycle_stage::String
-    experiment_id::Integer
-    tags::Any
-    artifact_location::String
+    ExperimentPermission
+
+# Fields
+- `experiment_id::String`: [`Experiment`](@ref) id.
+- `user_id::String`: [`User`](@ref) id.
+- `permission::Permission`: [`Permission`](@ref) granted.
+"""
+struct ExperimentPermission
+    experiment_id::String
+    user_id::String
+    permission::Permission
 end
-function MLFlowExperiment(exp::Dict{String,Any})
-    name = get(exp, "name", missing)
-    lifecycle_stage = get(exp, "lifecycle_stage", missing)
-    experiment_id = parse(Int, get(exp, "experiment_id", missing))
-    tags = get(exp, "tags", missing)
-    artifact_location = get(exp, "artifact_location", missing)
-    MLFlowExperiment(name, lifecycle_stage, experiment_id, tags, artifact_location)
-end
-Base.show(io::IO, t::MLFlowExperiment) = show(io, ShowCase(t, new_lines=true))
+ExperimentPermission(data::Dict{String,Any}) = ExperimentPermission(data["experiment_id"],
+    data["user_id"] |> string, Permission(data["permission"]))
+Base.show(io::IO, t::ExperimentPermission) = show(io, ShowCase(t, new_lines=true))
