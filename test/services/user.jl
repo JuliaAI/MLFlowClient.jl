@@ -1,7 +1,7 @@
 @testset verbose = true "create user" begin
     @ensuremlf
 
-    user = createuser(mlf, "missy", "gala")
+    user = createuser(mlf, "missy", "gala12345678")
 
     @test user isa User
     @test user.username == "missy"
@@ -13,7 +13,7 @@ end
 @testset verbose = true "get user" begin
     @ensuremlf
 
-    user = createuser(mlf, "missy", "gala")
+    user = createuser(mlf, "missy", "gala12345678")
 
     retrieved_user = getuser(mlf, "missy")
 
@@ -30,11 +30,11 @@ end
     getmlfinstance(encoded_credentials::String) =
         MLFlow(headers=Dict("Authorization" => "Basic $(encoded_credentials)"))
 
-    user = createuser(mlf, "missy", "gala")
-    encoded_credentials = Base64.base64encode("$(user.username):gala")
+    user = createuser(mlf, "missy", "gala12345678")
+    encoded_credentials = Base64.base64encode("$(user.username):gala12345678")
 
-    updateuserpassword(getmlfinstance(encoded_credentials), "missy", "ana")
-    encoded_credentials = Base64.base64encode("$(user.username):ana")
+    updateuserpassword(getmlfinstance(encoded_credentials), "missy", "ana12345678")
+    encoded_credentials = Base64.base64encode("$(user.username):ana12345678")
 
     @test begin 
         try
@@ -50,7 +50,7 @@ end
 @testset verbose = true "update user admin" begin
     @ensuremlf
 
-    user = createuser(mlf, "missy", "gala")
+    user = createuser(mlf, "missy", "gala12345678")
     updateuseradmin(mlf, "missy", true)
 
     retrieved_user = getuser(mlf, "missy")
@@ -62,7 +62,7 @@ end
 @testset verbose = true "delete user" begin
     @ensuremlf
 
-    user = createuser(mlf, "missy", "gala")
+    user = createuser(mlf, "missy", "gala12345678")
     deleteuser(mlf, "missy")
 
     @test_throws ErrorException getuser(mlf, "missy")

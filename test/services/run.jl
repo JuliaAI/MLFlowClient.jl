@@ -192,7 +192,7 @@ end
     run = createrun(mlf, experiment_id)
 
     @testset "update with string id" begin
-        status = MLFlowClient.FINISHED
+        status = MLFlowClient.RunStatus.FINISHED
         end_time = 123
         run_name = "missy"
 
@@ -204,7 +204,7 @@ end
     end
 
     @testset "update with Run" begin
-        status = MLFlowClient.FAILED
+        status = MLFlowClient.RunStatus.FAILED
         end_time = 456
         run_name = "gala"
 

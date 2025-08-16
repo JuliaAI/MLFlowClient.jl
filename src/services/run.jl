@@ -170,8 +170,8 @@ Search for runs that satisfy expressions. Search expressions can use [`Metric`](
 - The next page token if there are more results.
 """
 function searchruns(instance::MLFlow; experiment_ids::Array{String}=String[],
-    filter::String="", run_view_type::ViewType=ACTIVE_ONLY, max_results::Int=1000,
-    order_by::Array{String}=String[],
+    filter::String="", run_view_type::ViewType.ViewTypeEnum=ViewType.ACTIVE_ONLY,
+    max_results::Int=1000, order_by::Array{String}=String[],
     page_token::String="")::Tuple{Array{Run},Union{String,Nothing}}
     parameters = (; experiment_ids, filter, :run_view_type => run_view_type |> Integer,
         max_results, page_token)
@@ -207,13 +207,14 @@ Update [`Run`](@ref) metadata.
 - An instance of type [`RunInfo`](@ref) with the updated metadata.
 """
 function updaterun(instance::MLFlow, run_id::String;
-    status::Union{RunStatus,Missing}=missing, end_time::Union{Int64,Missing}=missing,
-    run_name::Union{String,Missing})::RunInfo
+    status::Union{RunStatus.RunStatusEnum,Missing}=missing,
+    end_time::Union{Int64,Missing}=missing, run_name::Union{String,Missing})::RunInfo
     result = mlfpost(instance, "runs/update"; run_id=run_id, status=(status |> Integer),
         end_time=end_time, run_name=run_name)
     return result["run_info"] |> RunInfo
 end
-updaterun(instance::MLFlow, run::Run; status::Union{RunStatus,Missing}=missing,
+updaterun(instance::MLFlow, run::Run;
+    status::Union{RunStatus.RunStatusEnum,Missing}=missing,
     end_time::Union{Int64,Missing}=missing, run_name::Union{String,Missing})::RunInfo =
     updaterun(instance, run.info.run_id; status=status, end_time=end_time,
         run_name=run_name)

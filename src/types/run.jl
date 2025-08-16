@@ -58,14 +58,14 @@ struct RunInfo
     run_id::String
     run_name::String
     experiment_id::String
-    status::RunStatus
+    status::RunStatus.RunStatusEnum
     start_time::Int64
     end_time::Union{Int64,Nothing}
     artifact_uri::String
     lifecycle_stage::String
 end
 RunInfo(data::Dict{String,Any}) = RunInfo(data["run_id"], data["run_name"],
-    data["experiment_id"], RunStatus(data["status"]), data["start_time"],
+    data["experiment_id"], RunStatus.parse(data["status"]), data["start_time"],
     get(data, "end_time", nothing), data["artifact_uri"], data["lifecycle_stage"])
 Base.show(io::IO, t::RunInfo) = show(io, ShowCase(t, new_lines=true))
 
@@ -100,10 +100,27 @@ Run inputs.
 """
 struct RunInputs
     dataset_inputs::Array{DatasetInput}
+    model_inputs::Array{ModelInput}
 end
 RunInputs(data::Dict{String,Any}) = RunInputs(
-    [DatasetInput(dataset_input) for dataset_input in get(data, "dataset_inputs", [])])
+    [DatasetInput(dataset_input) for dataset_input in get(data, "dataset_inputs", [])],
+    [ModelInput(model_input) for model_input in get(data, "model_inputs", [])])
 Base.show(io::IO, t::RunInputs) = show(io, ShowCase(t, new_lines=true))
+
+"""
+    RunOutputs
+
+Outputs of a [`Run`](@ref).
+
+# Fields
+- `model_outputs::Array{ModelOutput}`: Model outputs of the [`Run`](@ref).
+"""
+struct RunOutputs
+    model_outputs::Array{ModelOutput}
+end
+RunOutputs(data::Dict{String,Any}) = RunOutputs(
+    [ModelOutput(model_output) for model_output in get(data, "model_outputs", [])])
+Base.show(io::IO, t::RunOutputs) = show(io, ShowCase(t, new_lines=true))
 
 """
     Run
@@ -114,12 +131,14 @@ A single run.
 - `info::RunInfo`: Metadata of the run.
 - `data::RunData`: Run data (metrics, params, and tags).
 - `inputs::RunInputs`: Run inputs.
+- `outputs::RunOutputs`: Run outputs.
 """
 struct Run
     info::RunInfo
     data::RunData
     inputs::RunInputs
+    outputs::RunOutputs
 end
 Run(data::Dict{String,Any}) = Run(RunInfo(data["info"]), RunData(data["data"]),
-    RunInputs(data["inputs"]))
+    RunInputs(data["inputs"]), RunOutputs(data["outputs"]))
 Base.show(io::IO, t::Run) = show(io, ShowCase(t, new_lines=true))

@@ -17,7 +17,7 @@ end
 # skips test if mlflow is not available on default location, ENV["MLFLOW_TRACKING_URI"]
 macro ensuremlf()
     e = quote
-        encoded_credentials = Base64.base64encode("admin:password")
+        encoded_credentials = Base64.base64encode("admin:password1234")
         mlf = MLFlow(headers=Dict("Authorization" => "Basic $(encoded_credentials)"))
         mlflow_server_is_running(mlf) || return nothing
     end

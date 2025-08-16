@@ -36,8 +36,8 @@ Base.show(io::IO, t::Experiment) = show(io, ShowCase(t, new_lines=true))
 struct ExperimentPermission
     experiment_id::String
     user_id::String
-    permission::Permission
+    permission::Permission.PermissionEnum
 end
 ExperimentPermission(data::Dict{String,Any}) = ExperimentPermission(data["experiment_id"],
-    data["user_id"] |> string, Permission(data["permission"]))
+    data["user_id"] |> string, Permission.parse(data["permission"]))
 Base.show(io::IO, t::ExperimentPermission) = show(io, ShowCase(t, new_lines=true))

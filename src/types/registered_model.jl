@@ -30,6 +30,8 @@ Base.show(io::IO, t::RegisteredModelAlias) = show(io, ShowCase(t, new_lines=true
 - `tags::Array{Tag}`: Additional metadata key-value pairs.
 - `aliases::Array{RegisteredModelAlias}`: Aliases pointing to model versions associated
     with this RegisteredModel.
+- `deployment_job_id::String`: Deployment job id for this model.
+- `deployment_job_state::State`: Deployment job state for this model.
 """
 struct RegisteredModel
     name::String
@@ -40,13 +42,17 @@ struct RegisteredModel
     latest_versions::Array{ModelVersion}
     tags::Array{Tag}
     aliases::Array{RegisteredModelAlias}
+    deployment_job_id::Union{String,Nothing}
+    deployment_job_state::Union{State.StateEnum,Nothing}
 end
 RegisteredModel(data::Dict{String,Any}) = RegisteredModel(data["name"],
     data["creation_timestamp"], data["last_updated_timestamp"],
     get(data, "user_id", nothing), get(data, "description", nothing),
     [ModelVersion(version) for version in get(data, "latest_versions", [])],
     [Tag(tag) for tag in get(data, "tags", [])],
-    [RegisteredModelAlias(alias) for alias in get(data, "aliases", [])])
+    [RegisteredModelAlias(alias) for alias in get(data, "aliases", [])],
+    get(data, "deployment_job_id", nothing),
+    haskey(data, "deployment_job_state") ? data["deployment_job_state"] |> State.parse : nothing)
 Base.show(io::IO, t::RegisteredModel) = show(io, ShowCase(t, new_lines=true))
 
 """
@@ -60,8 +66,8 @@ Base.show(io::IO, t::RegisteredModel) = show(io, ShowCase(t, new_lines=true))
 struct RegisteredModelPermission
     name::String
     user_id::String
-    permission::Permission
+    permission::Permission.PermissionEnum
 end
 RegisteredModelPermission(data::Dict{String,Any}) = RegisteredModelPermission(data["name"],
-    data["user_id"] |> string, Permission(data["permission"]))
+    data["user_id"] |> string, Permission.parse(data["permission"]))
 Base.show(io::IO, t::RegisteredModelPermission) = show(io, ShowCase(t, new_lines=true))

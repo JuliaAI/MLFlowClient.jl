@@ -219,10 +219,10 @@ end
     @ensuremlf
 
     experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
-    permission = Permission("READ")
+    permission = Permission.parse("READ")
 
     @testset "with string experiment id" begin
-        user = createuser(mlf, "missy", "gala")
+        user = createuser(mlf, "missy", "gala12345678")
         experiment_permission = 
             createexperimentpermission(mlf, experiment_id, user.username, permission)
 
@@ -235,7 +235,7 @@ end
     end
 
     @testset "with integer experiment id" begin
-        user = createuser(mlf, "missy", "gala")
+        user = createuser(mlf, "missy", "gala12345678")
         experiment_permission = 
             createexperimentpermission(mlf, parse(Int, experiment_id), user.username, permission)
 
@@ -249,7 +249,7 @@ end
 
     @testset "with Experiment" begin
         experiment = getexperiment(mlf, experiment_id)
-        user = createuser(mlf, "missy", "gala")
+        user = createuser(mlf, "missy", "gala12345678")
         experiment_permission = 
             createexperimentpermission(mlf, experiment, user.username, permission)
 
@@ -268,8 +268,8 @@ end
     @ensuremlf
 
     experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
-    permission = Permission("READ")
-    user = createuser(mlf, "missy", "gala")
+    permission = Permission.parse("READ")
+    user = createuser(mlf, "missy", "gala12345678")
 
     @testset "with string experiment id" begin
         createexperimentpermission(mlf, experiment_id, user.username, permission)
@@ -313,34 +313,34 @@ end
     @ensuremlf
 
     experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
-    permission = Permission("READ")
-    user = createuser(mlf, "missy", "gala")
+    permission = Permission.parse("READ")
+    user = createuser(mlf, "missy", "gala12345678")
 
     @testset "with string experiment id" begin
         createexperimentpermission(mlf, experiment_id, user.username, permission)
-        updateexperimentpermission(mlf, experiment_id, user.username, Permission("EDIT"))
+        updateexperimentpermission(mlf, experiment_id, user.username, Permission.parse("EDIT"))
         experiment_permission = getexperimentpermission(mlf, experiment_id, user.username)
 
-        @test experiment_permission.permission == Permission("EDIT")
+        @test experiment_permission.permission == Permission.parse("EDIT")
         deleteexperimentpermission(mlf, experiment_id, user.username)
     end
 
     @testset "with integer experiment id" begin
         createexperimentpermission(mlf, parse(Int, experiment_id), user.username, permission)
-        updateexperimentpermission(mlf, parse(Int, experiment_id), user.username, Permission("EDIT"))
+        updateexperimentpermission(mlf, parse(Int, experiment_id), user.username, Permission.parse("EDIT"))
         experiment_permission = getexperimentpermission(mlf, parse(Int, experiment_id), user.username)
 
-        @test experiment_permission.permission == Permission("EDIT")
+        @test experiment_permission.permission == Permission.parse("EDIT")
         deleteexperimentpermission(mlf, experiment_id, user.username)
     end
 
     @testset "with Experiment" begin
         experiment = getexperiment(mlf, experiment_id)
         createexperimentpermission(mlf, experiment, user.username, permission)
-        updateexperimentpermission(mlf, experiment, user.username, Permission("EDIT"))
+        updateexperimentpermission(mlf, experiment, user.username, Permission.parse("EDIT"))
         experiment_permission = getexperimentpermission(mlf, experiment, user.username)
 
-        @test experiment_permission.permission == Permission("EDIT")
+        @test experiment_permission.permission == Permission.parse("EDIT")
         deleteexperimentpermission(mlf, experiment_id, user.username)
     end
 
@@ -352,8 +352,8 @@ end
     @ensuremlf
 
     experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
-    permission = Permission("READ")
-    user = createuser(mlf, "missy", "gala")
+    permission = Permission.parse("READ")
+    user = createuser(mlf, "missy", "gala12345678")
 
     @testset "with string experiment id" begin
         createexperimentpermission(mlf, experiment_id, user.username, permission)
