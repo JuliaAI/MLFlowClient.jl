@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/JuliaAI/MLFlowClient.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/JuliaAI/MLFlowClient.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/JuliaAI/MLFlowClient.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/JuliaAI/MLFlowClient.jl)
 
-Julia client for [MLFlow](https://www.mlflow.org/) `3.1.2` (but should work with other versions as well).
+Julia client for [MLFlow](https://www.mlflow.org/) `3.2.0` (but should work with other versions as well).
 
 - [x] Supports tracking of metrics, parameters, tags, artifacts, and models.
 - [x] Compatible with latest MLFlow server capabilities.
