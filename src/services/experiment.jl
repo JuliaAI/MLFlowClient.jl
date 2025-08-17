@@ -156,7 +156,7 @@ updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String)::Bo
 - `order_by`: List of columns for ordering search results, which can include [`Experiment`](@ref)
     name and id with an optional “DESC” or “ASC” annotation, where “ASC” is the default.
 - `view_type`: Qualifier for type of experiments to be returned. If unspecified, return
-    only active experiments. For more values, see [`ViewType`](@ref).
+    only active experiments.
 
 # Returns
 - Vector of [`Experiment`](@ref) that were found in the [`MLFlow`](@ref) instance.
@@ -220,7 +220,7 @@ setexperimenttag(instance::MLFlow, experiment::Experiment, key::String,
 - `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: [`Experiment`](@ref) id.
 - `username`: [`User`](@ref) username.
-- `permission`: [`Permission`](@ref) to grant.
+- `permission`: Permission to grant.
 
 # Returns
 An instance of type [`ExperimentPermission`](@ref).
@@ -276,7 +276,7 @@ getexperimentpermission(instance::MLFlow, experiment::Experiment,
 - `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: [`Experiment`](@ref) id.
 - `username`: [`User`](@ref) username.
-- `permission`: [`Permission`](@ref) to grant.
+- `permission`: Permission to grant.
 
 # Returns
 `true` if successful. Otherwise, raises exception.

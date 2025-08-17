@@ -31,7 +31,7 @@ Base.show(io::IO, t::Experiment) = show(io, ShowCase(t, new_lines=true))
 # Fields
 - `experiment_id::String`: [`Experiment`](@ref) id.
 - `user_id::String`: [`User`](@ref) id.
-- `permission::Permission`: [`Permission`](@ref) granted.
+- `permission::Permission.PermissionEnum`: Permission granted.
 """
 struct ExperimentPermission
     experiment_id::String

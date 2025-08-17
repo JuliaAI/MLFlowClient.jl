@@ -200,7 +200,7 @@ end
 - `instance:` [`MLFlow`](@ref) configuration.
 - `name:` [`RegisteredModel`](@ref) name.
 - `username:` [`User`](@ref) username.
-- `permission:` [`Permission`](@ref) to grant.
+- `permission:` Permission to grant.
 
 # Returns
 An instance of type [`RegisteredModelPermission`](@ref).
@@ -238,7 +238,7 @@ end
 - `instance:` [`MLFlow`](@ref) configuration.
 - `name:` [`RegisteredModel`](@ref) name.
 - `username:` [`User`](@ref) username.
-- `permission:` New [`Permission`](@ref) to grant.
+- `permission:` New permission to grant.
 
 # Returns
 `true` if successful. Otherwise, raises exception.

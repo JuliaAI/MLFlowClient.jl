@@ -2,9 +2,6 @@
 ```@docs
 MLFlow
 Tag
-ViewType
-RunStatus
-ModelVersionStatus
 Dataset
 DatasetInput
 FileInfo
@@ -19,7 +16,6 @@ RunData
 RunInfo
 RunInputs
 User
-Permission
 ExperimentPermission
 RegisteredModelPermission
 ```

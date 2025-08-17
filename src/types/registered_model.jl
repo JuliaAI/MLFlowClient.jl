@@ -61,7 +61,7 @@ Base.show(io::IO, t::RegisteredModel) = show(io, ShowCase(t, new_lines=true))
 # Fields
 - `name::String`: [`RegisteredModel`](@ref) name.
 - `user_id::String`: [`User`](@ref) id.
-- `permission::Permission`: [`Permission`](@ref) granted.
+- `permission::Permission.PermissionEnum`: Permission granted.
 """
 struct RegisteredModelPermission
     name::String
