@@ -57,8 +57,9 @@ For more information about this function, check [MLFlow official documentation](
 - `params`: A collection of [`Param`](@ref) to log.
 - `tags`: A collection of [`Tag`](@ref) to log.
 
-**Note**: A single request can contain up to 1000 metrics, and up to 1000 metrics, params,
-and tags in total.
+!!! note
+    A single request can contain up to 1000 metrics, and up to 1000 metrics, params, and
+    tags in total.
 
 # Returns
 `true` if successful. Otherwise, raises exception.
@@ -123,3 +124,18 @@ logparam(instance::MLFlow, run_id::String, param::Param)::Bool =
     logparam(instance, run_id, param.key, param.value)
 logparam(instance::MLFlow, run::Run, param::Param)::Bool =
     logparam(instance, run.info.run_id, param.key, param.value)
+
+"""
+    logmodel(instance::MLFlow, run_id::String, model_json::String)
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `run_id`: ID of the [`Run`](@ref) to log under.
+- `model_json`: MLmodel file in json format.
+"""
+function logmodel(instance::MLFlow, run_id::String, model_json::String)::Bool
+    mlfpost(instance, "runs/log-model"; run_id=run_id, model_json=model_json)
+    return true
+end
+logmodel(instance::MLFlow, run::Run, model_json::String)::Bool =
+    logmodel(instance, run.info.run_id, model_json)

@@ -65,7 +65,7 @@ export getrun, createrun, deleterun, setruntag, updaterun, restorerun, searchrun
     deleteruntag
 
 include("services/logger.jl")
-export logbatch, loginputs, logmetric, logparam
+export logbatch, loginputs, logmetric, logmodel, logparam
 
 include("services/artifact.jl")
 export listartifacts

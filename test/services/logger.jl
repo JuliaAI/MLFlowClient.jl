@@ -298,3 +298,40 @@ end
 
     deleteexperiment(mlf, experiment_id)
 end
+
+@testset verbose = true "log model" begin
+    @ensuremlf
+
+    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+    mlmodel_json_string = """
+    {
+        "time_created": "2018-05-25T17:28:53.35",
+        "flavors": {
+            "sklearn": {
+                "sklearn_version": "0.19.1",
+                "pickled_model": "model.pkl"
+            },
+            "python_function": {
+                "loader_module": "mlflow.sklearn"
+            }
+        },
+        "utc_time_created": "2025-08-16T16:50:00.00Z",
+        "artifact_path": "mlflowclientjl-test",
+        "run_id": "<RUN_ID>"
+    }
+    """
+
+    @testset "with run id as string" begin
+        run = createrun(mlf, experiment_id)
+        @assert logmodel(mlf, run.info.run_id, replace(mlmodel_json_string, "<RUN_ID>" => run.info.run_id))
+        deleterun(mlf, run)
+    end
+
+    @testset "with run" begin
+        run = createrun(mlf, experiment_id)
+        @assert logmodel(mlf, run, replace(mlmodel_json_string, "<RUN_ID>" => run.info.run_id))
+        deleterun(mlf, run)
+    end
+
+    deleteexperiment(mlf, experiment_id)
+end
