@@ -31,13 +31,13 @@ Base.show(io::IO, t::Experiment) = show(io, ShowCase(t, new_lines=true))
 # Fields
 - `experiment_id::String`: [`Experiment`](@ref) id.
 - `user_id::String`: [`User`](@ref) id.
-- `permission::Permission`: [`Permission`](@ref) granted.
+- `permission::Permission.PermissionEnum`: Permission granted.
 """
 struct ExperimentPermission
     experiment_id::String
     user_id::String
-    permission::Permission
+    permission::Permission.PermissionEnum
 end
 ExperimentPermission(data::Dict{String,Any}) = ExperimentPermission(data["experiment_id"],
-    data["user_id"] |> string, Permission(data["permission"]))
+    data["user_id"] |> string, Permission.parse(data["permission"]))
 Base.show(io::IO, t::ExperimentPermission) = show(io, ShowCase(t, new_lines=true))

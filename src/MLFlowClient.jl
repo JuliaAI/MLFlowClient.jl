@@ -26,7 +26,7 @@ include("types/tag.jl")
 export Tag
 
 include("types/enums.jl")
-export ViewType, RunStatus, ModelVersionStatus, Permission
+export ViewType, RunStatus, ModelVersionStatus, Permission, DeploymentJobRunState, State
 
 include("types/dataset.jl")
 export Dataset, DatasetInput
@@ -34,8 +34,9 @@ export Dataset, DatasetInput
 include("types/artifact.jl")
 export FileInfo
 
-include("types/model_version.jl")
-export ModelVersion
+include("types/model.jl")
+export ModelInput, ModelMetric, ModelOutput, ModelParam, ModelVersion,
+    ModelVersionDeploymentJobState
 
 include("types/registered_model.jl")
 export RegisteredModel, RegisteredModelAlias, RegisteredModelPermission
@@ -64,7 +65,7 @@ export getrun, createrun, deleterun, setruntag, updaterun, restorerun, searchrun
     deleteruntag
 
 include("services/logger.jl")
-export logbatch, loginputs, logmetric, logparam
+export logbatch, loginputs, logmetric, logmodel, logparam
 
 include("services/artifact.jl")
 export listartifacts

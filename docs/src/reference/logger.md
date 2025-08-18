@@ -4,4 +4,5 @@ logmetric
 logbatch
 loginputs
 logparam
+logmodel
 ```

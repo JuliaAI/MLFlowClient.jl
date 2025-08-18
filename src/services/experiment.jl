@@ -156,7 +156,7 @@ updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String)::Bo
 - `order_by`: List of columns for ordering search results, which can include [`Experiment`](@ref)
     name and id with an optional “DESC” or “ASC” annotation, where “ASC” is the default.
 - `view_type`: Qualifier for type of experiments to be returned. If unspecified, return
-    only active experiments. For more values, see [`ViewType`](@ref).
+    only active experiments.
 
 # Returns
 - Vector of [`Experiment`](@ref) that were found in the [`MLFlow`](@ref) instance.
@@ -164,7 +164,7 @@ updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String)::Bo
 """
 function searchexperiments(instance::MLFlow; max_results::Int64=20000,
     page_token::String="", filter::String="", order_by::Array{String}=String[],
-    view_type::ViewType=ACTIVE_ONLY)::Tuple{Array{Experiment},Union{String,Nothing}}
+    view_type::ViewType.ViewTypeEnum=ViewType.ACTIVE_ONLY)::Tuple{Array{Experiment},Union{String,Nothing}}
     parameters = (; max_results, page_token, filter, :view_type => view_type |> Integer)
 
     if order_by |> !isempty
@@ -220,22 +220,22 @@ setexperimenttag(instance::MLFlow, experiment::Experiment, key::String,
 - `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: [`Experiment`](@ref) id.
 - `username`: [`User`](@ref) username.
-- `permission`: [`Permission`](@ref) to grant.
+- `permission`: Permission to grant.
 
 # Returns
 An instance of type [`ExperimentPermission`](@ref).
 """
 function createexperimentpermission(instance::MLFlow, experiment_id::String,
-    username::String, permission::Permission)::ExperimentPermission
+    username::String, permission::Permission.PermissionEnum)::ExperimentPermission
     result = mlfpost(instance, "experiments/permissions/create";
         experiment_id=experiment_id, username=username, permission=permission)
     return result["experiment_permission"] |> ExperimentPermission
 end
 createexperimentpermission(instance::MLFlow, experiment_id::Integer,
-    username::String, permission::Permission)::ExperimentPermission =
+    username::String, permission::Permission.PermissionEnum)::ExperimentPermission =
     createexperimentpermission(instance, experiment_id |> string, username, permission)
 createexperimentpermission(instance::MLFlow, experiment::Experiment,
-    username::String, permission::Permission)::ExperimentPermission =
+    username::String, permission::Permission.PermissionEnum)::ExperimentPermission =
     createexperimentpermission(instance, experiment.experiment_id, username, permission)
 
 """
@@ -276,22 +276,22 @@ getexperimentpermission(instance::MLFlow, experiment::Experiment,
 - `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: [`Experiment`](@ref) id.
 - `username`: [`User`](@ref) username.
-- `permission`: [`Permission`](@ref) to grant.
+- `permission`: Permission to grant.
 
 # Returns
 `true` if successful. Otherwise, raises exception.
 """
 function updateexperimentpermission(instance::MLFlow, experiment_id::String,
-    username::String, permission::Permission)::Bool
+    username::String, permission::Permission.PermissionEnum)::Bool
     mlfpatch(instance, "experiments/permissions/update"; experiment_id=experiment_id,
         username=username, permission=permission)
     return true
 end
 updateexperimentpermission(instance::MLFlow, experiment_id::Integer,
-    username::String, permission::Permission)::Bool =
+    username::String, permission::Permission.PermissionEnum)::Bool =
     updateexperimentpermission(instance, experiment_id |> string, username, permission)
 updateexperimentpermission(instance::MLFlow, experiment::Experiment,
-    username::String, permission::Permission)::Bool =
+    username::String, permission::Permission.PermissionEnum)::Bool =
     updateexperimentpermission(instance, experiment.experiment_id, username, permission)
 
 """

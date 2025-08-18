@@ -17,10 +17,11 @@ name already exists.
 An instance of type [`RegisteredModel`](@ref).
 """
 function createregisteredmodel(instance::MLFlow, name::String;
-    tags::MLFlowUpsertData{Tag}=Tag[],
-    description::Union{String,Missing}=missing)::RegisteredModel
+    tags::MLFlowUpsertData{Tag}=Tag[], description::Union{String,Missing}=missing,
+    deployment_job_id::Union{String,Missing}=missing)::RegisteredModel
     result = mlfpost(instance, "registered-models/create"; name=name,
-        tags=parse(Tag, tags), description=description)
+        tags=parse(Tag, tags), description=description,
+        deployment_job_id=deployment_job_id)
     return result["registered_model"] |> RegisteredModel
 end
 
@@ -199,13 +200,13 @@ end
 - `instance:` [`MLFlow`](@ref) configuration.
 - `name:` [`RegisteredModel`](@ref) name.
 - `username:` [`User`](@ref) username.
-- `permission:` [`Permission`](@ref) to grant.
+- `permission:` Permission to grant.
 
 # Returns
 An instance of type [`RegisteredModelPermission`](@ref).
 """
 function createregisteredmodelpermission(instance::MLFlow, name::String, username::String,
-    permission::Permission)::RegisteredModelPermission
+    permission::Permission.PermissionEnum)::RegisteredModelPermission
     result = mlfpost(instance, "registered-models/permissions/create"; name=name,
         username=username, permission=permission)
     return result["registered_model_permission"] |> RegisteredModelPermission
@@ -237,13 +238,13 @@ end
 - `instance:` [`MLFlow`](@ref) configuration.
 - `name:` [`RegisteredModel`](@ref) name.
 - `username:` [`User`](@ref) username.
-- `permission:` New [`Permission`](@ref) to grant.
+- `permission:` New permission to grant.
 
 # Returns
 `true` if successful. Otherwise, raises exception.
 """
 function updateregisteredmodelpermission(instance::MLFlow, name::String, username::String,
-    permission::Permission)::Bool
+    permission::Permission.PermissionEnum)::Bool
     mlfpatch(instance, "registered-models/permissions/update"; name=name, username=username,
         permission=permission)
     return true
