@@ -95,7 +95,10 @@ for (idx, pricepath) in enumerate(pricepaths)
         ylabel="Price"
     )
 
-    logmetric(mlf, exprun, "pricepath$(idx)", pricepath)
+    # Log each point in the price path as a separate metric with step parameter
+    for (step, value) in enumerate(pricepath)
+        logmetric(mlf, exprun, "pricepath$(idx)", Float64(value); step=step-1)
+    end
 end
 
 # Save the price path plot as an image
