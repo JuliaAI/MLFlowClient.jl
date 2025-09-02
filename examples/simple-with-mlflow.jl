@@ -58,4 +58,4 @@ logartifact(mlf, exprun, plotfilename)
 rm(plotfilename)
 
 # complete the experiment
-updaterun(mlf, exprun, "FINISHED")
+updaterun(mlf, exprun; status=RunStatus.FINISHED)

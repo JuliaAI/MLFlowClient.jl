@@ -109,7 +109,7 @@ logartifact(mlf, exprun, plotfilename)
 rm(plotfilename)
 
 # complete the experiment
-updaterun(mlf, exprun, "FINISHED")
+updaterun(mlf, exprun; status=RunStatus.FINISHED)
 ```
 
 This will result in the folowing experiment created in your `MLFlow` which is running on `http://localhost/`:
