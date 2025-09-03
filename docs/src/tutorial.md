@@ -48,7 +48,7 @@ Now, suppose that you are interested in turning this into an experiment which st
     Running this example assumes you have an active MLFlow running on your computer.
 
 
-```julia
+```jldoctest; output=false
 using Plots
 using MLFlowClient
 using Random
@@ -110,6 +110,11 @@ rm(plotfilename)
 
 # complete the experiment
 updaterun(mlf, exprun, "FINISHED")
+nothing
+
+# output
+
+nothing
 ```
 
 This will result in the folowing experiment created in your `MLFlow` which is running on `http://localhost/`:
