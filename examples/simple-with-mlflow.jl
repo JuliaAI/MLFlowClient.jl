@@ -54,11 +54,12 @@ end
 plotfilename = "pricepaths-plot.png"
 png(plotfilename)
 
-# Upload the plot as an artifact associated with the MLFlow experiment's run
-logartifact(mlf, exprun, plotfilename)
+# TODO: Upload the plot as an artifact when logartifact function is implemented
+# See: https://github.com/JuliaAI/MLFlowClient.jl/issues/61
+# logartifact(mlf, exprun, plotfilename)
 
-# remote temporary plot which was already uploaded in MLFlow
-rm(plotfilename)
+# Keep the plot file since artifact upload is not yet available
+# rm(plotfilename)
 
 # complete the experiment
 updaterun(mlf, exprun; status=RunStatus.FINISHED)
