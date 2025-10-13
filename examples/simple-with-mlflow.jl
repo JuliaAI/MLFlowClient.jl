@@ -21,7 +21,7 @@ p = plot()
 mlf = MLFlow("http://localhost:5000/api")
 
 # Initiate new experiment
-experiment_id = createexperiment(mlf; name="price-paths")
+experiment_id = createexperiment(mlf, "price-paths")
 
 # Create a run in the new experiment
 exprun = createrun(mlf, experiment_id)
@@ -44,18 +44,22 @@ for (idx, pricepath) in enumerate(pricepaths)
         ylabel="Price"
     )
 
-    logmetric(mlf, exprun, "pricepath$(idx)", pricepath)
+    # Log each point in the price path as a separate metric with step parameter
+    for (step, value) in enumerate(pricepath)
+        logmetric(mlf, exprun, "pricepath$(idx)", Float64(value); step=step-1)
+    end
 end
 
 # Save the price path plot as an image
 plotfilename = "pricepaths-plot.png"
 png(plotfilename)
 
-# Upload the plot as an artifact associated with the MLFlow experiment's run
-logartifact(mlf, exprun, plotfilename)
+# TODO: Upload the plot as an artifact when logartifact function is implemented
+# See: https://github.com/JuliaAI/MLFlowClient.jl/issues/61
+# logartifact(mlf, exprun, plotfilename)
 
-# remote temporary plot which was already uploaded in MLFlow
-rm(plotfilename)
+# Keep the plot file since artifact upload is not yet available
+# rm(plotfilename)
 
 # complete the experiment
-updaterun(mlf, exprun, "FINISHED")
+updaterun(mlf, exprun; status=RunStatus.FINISHED)
