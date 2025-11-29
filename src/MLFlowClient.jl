@@ -11,13 +11,16 @@ and artifacts. If you are not familiar with `MLFlow` and its concepts, please re
 """
 module MLFlowClient
 
+using AWSS3
 using Dates
+using FileTypes
 using UUIDs
 using HTTP
 using Base64
 using URIs
 using JSON
 using ShowCases
+using Minio
 
 include("types/mlflow.jl")
 export MLFlow
@@ -65,7 +68,7 @@ export getrun, createrun, deleterun, setruntag, updaterun, restorerun, searchrun
     deleteruntag
 
 include("services/logger.jl")
-export logbatch, loginputs, logmetric, logmodel, logparam
+export logbatch, loginputs, logmetric, logmodel, logparam, logartifact
 
 include("services/artifact.jl")
 export listartifacts
