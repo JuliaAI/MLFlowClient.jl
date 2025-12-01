@@ -178,6 +178,7 @@ function logartifact(s3_cfg::MinioConfig, run::Run, path::String="", artifact_na
 
     # Create the artifact path on the bucket
     artifact_path = isempty(artifact_name) ? joinpath(artifacts_base_path, path) : joinpath(artifacts_base_path, artifact_name)
+    @info "logartifact: putting $(path) into $(artifact_path)"
 
     s3_put(s3_cfg, bucket_name, artifact_path, content, mime_type_str)
     return true
