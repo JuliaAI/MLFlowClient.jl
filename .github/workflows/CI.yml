@@ -22,23 +22,27 @@ jobs:
           - x64
     steps:
       - uses: actions/checkout@v2
-      - name: Start services
-        run: docker-compose -f docker compose.test.yaml up -d
-#      - name: Setup custom python requirements
-#        if: hashFiles('**/requirements.txt', '**/pyproject.toml') == ''
-#        run: |
-#          touch ./requirements.txt
-#          echo "mlflow[auth]==3.2.0" > ./requirements.txt
-#      - uses: actions/setup-python@v4
-#        with:
-#          python-version: '3.12.3'
-#          cache: 'pip'
-#      - name: Setup mlflow locally
-#        run: |
-#          export MLFLOW_FLASK_SERVER_SECRET_KEY='mlflowclient.jl'
-#          pip install -r ./requirements.txt
-#          python3 /opt/hostedtoolcache/Python/3.12.3/x64/bin/mlflow server --app-name basic-auth --host 0.0.0.0 --port 5000 &
-#          sleep 5
+      - name: Setup custom python requirements
+        if: hashFiles('**/requirements.txt', '**/pyproject.toml') == ''
+        run: |
+          touch ./requirements.txt
+          echo "mlflow[auth]==3.6.0" > ./requirements.txt
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.3'
+          cache: 'pip'
+      - uses: infleet/minio-action@v0.0.1
+        with:
+          port: "9000"
+          version: "latest"
+          username: "minioadmin"
+          password: "minioadmin"
+      - name: Setup mlflow locally
+        run: |
+          export MLFLOW_FLASK_SERVER_SECRET_KEY='mlflowclient.jl'
+          pip install -r ./requirements.txt
+          python3 /opt/hostedtoolcache/Python/3.12.3/x64/bin/mlflow server --app-name basic-auth --host 0.0.0.0 --port 5000 &
+          sleep 5
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
@@ -57,10 +61,6 @@ jobs:
       - uses: julia-actions/julia-runtest@v1
         env:
           JULIA_NUM_THREADS: '1'
-          MLFLOW_TRACKING_URI: "http://localhost:5050/api"
-          MLFLOW_S3_ENDPOINT_URL: "http://minio:9000"
-          AWS_ACCESS_KEY_ID: minioadmin
-          AWS_SECRET_ACCESS_KEY: minioadmin
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v3
         with:

@@ -1,7 +1,7 @@
 name = "MLFlowClient"
 uuid = "64a0f543-368b-4a9a-827a-e71edb2a0b83"
-authors = ["@deyandyankov, @pebeto, and contributors"]
 version = "0.7.0"
+authors = ["@deyandyankov, @pebeto, and contributors"]
 
 [deps]
 AWSS3 = "1c724243-ef5b-51ab-93f4-b0a88ac62a95"
@@ -22,6 +22,7 @@ FileTypes = "0.1.1"
 HTTP = "1.0"
 JSON = "0.21"
 Minio = "0.2.2"
+Plots = "1.41.2"
 ShowCases = "0.1"
 URIs = "1.0"
 julia = "1.0"
@@ -29,6 +30,7 @@ julia = "1.0"
 [extras]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [targets]
-test = ["Base64", "Test"]
+test = ["Base64", "Plots", "Test"]

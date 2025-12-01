@@ -1,6 +1,7 @@
 using Test
 using Dates
 using HTTP
+using Plots
 using UUIDs
 using Base64
 using MLFlowClient
@@ -18,8 +19,8 @@ using URIs
 Check MLFlow health endpoint. Return true if healthy, false otherwise.
 """
 function mlflow_server_is_running()
-    resp = HTTP.request("HEAD", "$(TEST_MLFLOW_URI)/health", readtimeout=10)
-    return resp.status == 200 
+    resp = HTTP.request("HEAD", "http://127.0.0.1:5050/health", readtimeout=10)
+    return resp.status == 200
 end
 
 # creates an instance of mlf
@@ -40,7 +41,11 @@ end
 Check minio health endpoint. Return true if health, false otherwise
 """
 function minio_is_running()
-    response = HTTP.request("HEAD", "$(TEST_MLFLOW_S3_ENDPOINT_URL)/minio/health/live", readtimeout=10)
+    response = HTTP.request(
+        "HEAD",
+        "http://127.0.0.1:9000/minio/health/live",
+        readtimeout=10,
+    )
     return response.status == 200
 end
 

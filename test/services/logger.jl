@@ -348,7 +348,8 @@ end
             write(fp, dummy_content)
         end
 
-        image_file_path = joinpath("test", "assets", "julia.png")
+        image_file_path = "fig.png"
+        savefig(plot(rand(10), rand(10)), image_file_path)
 
         @testset "upload new artifact" begin
             experiment_id = createexperiment(mlf, "test-experiment-logartifact")
@@ -396,10 +397,10 @@ end
             experiment_id = createexperiment(mlf, "test-experiment-logartifact-3")
             run = createrun(mlf, experiment_id)
 
-            @test logartifact(minio_cfg, run, image_file_path, "julia.png")
+            @test logartifact(minio_cfg, run, image_file_path, "fig.png")
             u = URI(run.info.artifact_uri)
             bucket_name = u.host
-            artifact_path = joinpath(u.path[2:end], "julia.png")
+            artifact_path = joinpath(u.path[2:end], "fig.png")
             
             # verify upload
             downloaded_content = s3_get(minio_cfg, bucket_name, artifact_path)
@@ -410,6 +411,7 @@ end
         end
 
         rm(dummy_file_path)
+        rm(image_file_path)
     end
 end
 
