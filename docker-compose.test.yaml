@@ -24,7 +24,7 @@ services:
       "
 
   mlflow:
-    image: ghcr.io/mlflow/mlflow:v2.14.1
+    image: ghcr.io/mlflow/mlflow:v3.6.0
     depends_on:
       - create-buckets
     ports:
@@ -33,11 +33,14 @@ services:
       - AWS_ACCESS_KEY_ID=minioadmin
       - AWS_SECRET_ACCESS_KEY=minioadmin
       - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - MLFLOW_FLASK_SERVER_SECRET_KEY='mlflowclient.jl'
     command: >
       /bin/sh -c "
       pip install boto3 &&
+      pip install mlflow[auth] && 
       mlflow server
       --host 0.0.0.0
       --port 5050
+      --app-name basic-auth
       --default-artifact-root s3://mlflow
       "
