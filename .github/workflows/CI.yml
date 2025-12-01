@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Start services
-      - run: docker-compose -f docker-compose.test.yaml up -d
+        run: docker-compose -f docker-compose.test.yaml up -d
 #      - name: Setup custom python requirements
 #        if: hashFiles('**/requirements.txt', '**/pyproject.toml') == ''
 #        run: |
