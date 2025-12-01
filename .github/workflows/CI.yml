@@ -41,7 +41,7 @@ jobs:
         run: |
           export MLFLOW_FLASK_SERVER_SECRET_KEY='mlflowclient.jl'
           pip install -r ./requirements.txt
-          python3 /opt/hostedtoolcache/Python/3.12.3/x64/bin/mlflow server --app-name basic-auth --host 0.0.0.0 --port 5000 &
+          python3 /opt/hostedtoolcache/Python/3.12.3/x64/bin/mlflow server --app-name basic-auth --host 0.0.0.0 --port 5050 &
           sleep 5
       - uses: julia-actions/setup-julia@v1
         with:
