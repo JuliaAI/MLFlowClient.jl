@@ -1,8 +1,16 @@
-if ~haskey(ENV, "MLFLOW_TRACKING_URI")
-    error("WARNING: MLFLOW_TRACKING_URI is not set. To run this tests, you need to set the URI of your MLFlow server API")
-end
+@warn "To run this test suite, ensure to run `docker-compose -f docker-compose.test.yml up`"
+
+ENV["GKSwstype"]="nul" # to disable plotting windows during tests
+ENV["MLFLOW_TRACKING_URI"] = "http://127.0.0.1:5050/api"
 
 include("base.jl")
+
+const minio_cfg = MinioConfig(
+    "http://127.0.0.1:9000";
+    username="minioadmin",
+    password="minioadmin",
+)
+include("setup.jl")
 
 include("types/mlflow.jl")
 

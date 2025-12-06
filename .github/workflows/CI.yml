@@ -20,22 +20,59 @@ jobs:
           - ubuntu-latest
         arch:
           - x64
+         
     steps:
       - uses: actions/checkout@v2
       - name: Setup custom python requirements
         if: hashFiles('**/requirements.txt', '**/pyproject.toml') == ''
         run: |
           touch ./requirements.txt
-          echo "mlflow[auth]==3.2.0" > ./requirements.txt
+          echo "mlflow[auth]==3.6.0" > ./requirements.txt
       - uses: actions/setup-python@v4
         with:
           python-version: '3.12.3'
           cache: 'pip'
+      - name: Setup rclone S3 server
+        run: |
+          # Download rclone
+          curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip
+          unzip rclone-current-linux-amd64.zip
+          cd rclone-*-linux-amd64
+          sudo cp rclone /usr/bin/
+          cd ..
+
+          # Create the data directory and the "mlflow" bucket (subdirectory)
+          mkdir -p ./s3-data/mlflow
+          
+          # Start Rclone serving the local folder as S3
+          # --auth-key sets access_key,secret_key
+          rclone serve s3 ./s3-data \
+            --addr 127.0.0.1:8080 \
+            --auth-key minioadmin,minioadmin \
+            --no-modtime \
+            &
+            
+          # Wait for port 8080 to be ready
+          sleep 3
+#      - name: Start MinIO
+#        run: |
+#          curl -O https://dl.min.io/server/minio/release/linux-amd64/minio
+#          chmod +x minio
+#          export MINIO_ROOT_USER=minioadmin
+#          export MINIO_ROOT_PASSWORD=minioadmin
+#          ./minio server ./data --console-address ":9001" &
+#          sleep 5
+#      - name: Create MLFlow bucket
+#        run: |
+#          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+#          chmod +x mc
+#          ./mc alias set myminio http://localhost:9000 minioadmin minioadmin
+#          ./mc mb myminio/mlflow
       - name: Setup mlflow locally
         run: |
           export MLFLOW_FLASK_SERVER_SECRET_KEY='mlflowclient.jl'
           pip install -r ./requirements.txt
-          python3 /opt/hostedtoolcache/Python/3.12.3/x64/bin/mlflow server --app-name basic-auth --host 0.0.0.0 --port 5000 &
+          python3 /opt/hostedtoolcache/Python/3.12.3/x64/bin/mlflow server --app-name basic-auth --host 0.0.0.0 --port 5050 &
           sleep 5
       - uses: julia-actions/setup-julia@v1
         with:
@@ -54,8 +91,7 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         env:
-          JULIA_NUM_THREADS: '2'
-          MLFLOW_TRACKING_URI: "http://localhost:5000/api"
+          JULIA_NUM_THREADS: '1'
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v3
         with:

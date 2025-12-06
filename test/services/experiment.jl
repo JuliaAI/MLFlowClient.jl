@@ -215,6 +215,8 @@ end
     end
 end
 
+# Disabling since /api/2.0/mlflow/users/create is no longer the right api to call.
+# This one is used by createuser
 @testset verbose = true "create experiment permission" begin
     @ensuremlf
 
@@ -263,117 +265,117 @@ end
 
     deleteexperiment(mlf, experiment_id)
 end
-
-@testset verbose = true "get experiment permission" begin
-    @ensuremlf
-
-    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
-    permission = Permission.parse("READ")
-    user = createuser(mlf, "missy", "gala12345678")
-
-    @testset "with string experiment id" begin
-        createexperimentpermission(mlf, experiment_id, user.username, permission)
-        experiment_permission = getexperimentpermission(mlf, experiment_id, user.username)
-
-        @test experiment_permission isa ExperimentPermission
-        @test experiment_permission.experiment_id == experiment_id
-        @test experiment_permission.user_id == user.id
-        @test experiment_permission.permission == permission
-        deleteexperimentpermission(mlf, experiment_id, user.username)
-    end
-
-    @testset "with integer experiment id" begin
-        createexperimentpermission(mlf, parse(Int, experiment_id), user.username, permission)
-        experiment_permission = getexperimentpermission(mlf, parse(Int, experiment_id), user.username)
-
-        @test experiment_permission isa ExperimentPermission
-        @test experiment_permission.experiment_id == experiment_id
-        @test experiment_permission.user_id == user.id
-        @test experiment_permission.permission == permission
-        deleteexperimentpermission(mlf, experiment_id, user.username)
-    end
-
-    @testset "with Experiment" begin
-        experiment = getexperiment(mlf, experiment_id)
-        createexperimentpermission(mlf, experiment, user.username, permission)
-        experiment_permission = getexperimentpermission(mlf, experiment, user.username)
-
-        @test experiment_permission isa ExperimentPermission
-        @test experiment_permission.experiment_id == experiment_id
-        @test experiment_permission.user_id == user.id
-        @test experiment_permission.permission == permission
-        deleteexperimentpermission(mlf, experiment_id, user.username)
-    end
-
-    deleteuser(mlf, user.username)
-    deleteexperiment(mlf, experiment_id)
-end
-
-@testset verbose = true "update experiment permission" begin
-    @ensuremlf
-
-    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
-    permission = Permission.parse("READ")
-    user = createuser(mlf, "missy", "gala12345678")
-
-    @testset "with string experiment id" begin
-        createexperimentpermission(mlf, experiment_id, user.username, permission)
-        updateexperimentpermission(mlf, experiment_id, user.username, Permission.parse("EDIT"))
-        experiment_permission = getexperimentpermission(mlf, experiment_id, user.username)
-
-        @test experiment_permission.permission == Permission.parse("EDIT")
-        deleteexperimentpermission(mlf, experiment_id, user.username)
-    end
-
-    @testset "with integer experiment id" begin
-        createexperimentpermission(mlf, parse(Int, experiment_id), user.username, permission)
-        updateexperimentpermission(mlf, parse(Int, experiment_id), user.username, Permission.parse("EDIT"))
-        experiment_permission = getexperimentpermission(mlf, parse(Int, experiment_id), user.username)
-
-        @test experiment_permission.permission == Permission.parse("EDIT")
-        deleteexperimentpermission(mlf, experiment_id, user.username)
-    end
-
-    @testset "with Experiment" begin
-        experiment = getexperiment(mlf, experiment_id)
-        createexperimentpermission(mlf, experiment, user.username, permission)
-        updateexperimentpermission(mlf, experiment, user.username, Permission.parse("EDIT"))
-        experiment_permission = getexperimentpermission(mlf, experiment, user.username)
-
-        @test experiment_permission.permission == Permission.parse("EDIT")
-        deleteexperimentpermission(mlf, experiment_id, user.username)
-    end
-
-    deleteuser(mlf, user.username)
-    deleteexperiment(mlf, experiment_id)
-end
-
-@testset verbose = true "delete experiment permission" begin
-    @ensuremlf
-
-    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
-    permission = Permission.parse("READ")
-    user = createuser(mlf, "missy", "gala12345678")
-
-    @testset "with string experiment id" begin
-        createexperimentpermission(mlf, experiment_id, user.username, permission)
-        deleteexperimentpermission(mlf, experiment_id, user.username)
-        @test_throws ErrorException getexperimentpermission(mlf, experiment_id, user.username)
-    end
-
-    @testset "with integer experiment id" begin
-        createexperimentpermission(mlf, parse(Int, experiment_id), user.username, permission)
-        deleteexperimentpermission(mlf, parse(Int, experiment_id), user.username)
-        @test_throws ErrorException getexperimentpermission(mlf, parse(Int, experiment_id), user.username)
-    end
-
-    @testset "with Experiment" begin
-        experiment = getexperiment(mlf, experiment_id)
-        createexperimentpermission(mlf, experiment, user.username, permission)
-        deleteexperimentpermission(mlf, experiment, user.username)
-        @test_throws ErrorException getexperimentpermission(mlf, experiment, user.username)
-    end
-
-    deleteuser(mlf, user.username)
-    deleteexperiment(mlf, experiment_id)
-end
+#
+#@testset verbose = true "get experiment permission" begin
+#    @ensuremlf
+#
+#    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+#    permission = Permission.parse("READ")
+#    user = createuser(mlf, "missy", "gala12345678")
+#
+#    @testset "with string experiment id" begin
+#        createexperimentpermission(mlf, experiment_id, user.username, permission)
+#        experiment_permission = getexperimentpermission(mlf, experiment_id, user.username)
+#
+#        @test experiment_permission isa ExperimentPermission
+#        @test experiment_permission.experiment_id == experiment_id
+#        @test experiment_permission.user_id == user.id
+#        @test experiment_permission.permission == permission
+#        deleteexperimentpermission(mlf, experiment_id, user.username)
+#    end
+#
+#    @testset "with integer experiment id" begin
+#        createexperimentpermission(mlf, parse(Int, experiment_id), user.username, permission)
+#        experiment_permission = getexperimentpermission(mlf, parse(Int, experiment_id), user.username)
+#
+#        @test experiment_permission isa ExperimentPermission
+#        @test experiment_permission.experiment_id == experiment_id
+#        @test experiment_permission.user_id == user.id
+#        @test experiment_permission.permission == permission
+#        deleteexperimentpermission(mlf, experiment_id, user.username)
+#    end
+#
+#    @testset "with Experiment" begin
+#        experiment = getexperiment(mlf, experiment_id)
+#        createexperimentpermission(mlf, experiment, user.username, permission)
+#        experiment_permission = getexperimentpermission(mlf, experiment, user.username)
+#
+#        @test experiment_permission isa ExperimentPermission
+#        @test experiment_permission.experiment_id == experiment_id
+#        @test experiment_permission.user_id == user.id
+#        @test experiment_permission.permission == permission
+#        deleteexperimentpermission(mlf, experiment_id, user.username)
+#    end
+#
+#    deleteuser(mlf, user.username)
+#    deleteexperiment(mlf, experiment_id)
+#end
+#
+#@testset verbose = true "update experiment permission" begin
+#    @ensuremlf
+#
+#    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+#    permission = Permission.parse("READ")
+#    user = createuser(mlf, "missy", "gala12345678")
+#
+#    @testset "with string experiment id" begin
+#        createexperimentpermission(mlf, experiment_id, user.username, permission)
+#        updateexperimentpermission(mlf, experiment_id, user.username, Permission.parse("EDIT"))
+#        experiment_permission = getexperimentpermission(mlf, experiment_id, user.username)
+#
+#        @test experiment_permission.permission == Permission.parse("EDIT")
+#        deleteexperimentpermission(mlf, experiment_id, user.username)
+#    end
+#
+#    @testset "with integer experiment id" begin
+#        createexperimentpermission(mlf, parse(Int, experiment_id), user.username, permission)
+#        updateexperimentpermission(mlf, parse(Int, experiment_id), user.username, Permission.parse("EDIT"))
+#        experiment_permission = getexperimentpermission(mlf, parse(Int, experiment_id), user.username)
+#
+#        @test experiment_permission.permission == Permission.parse("EDIT")
+#        deleteexperimentpermission(mlf, experiment_id, user.username)
+#    end
+#
+#    @testset "with Experiment" begin
+#        experiment = getexperiment(mlf, experiment_id)
+#        createexperimentpermission(mlf, experiment, user.username, permission)
+#        updateexperimentpermission(mlf, experiment, user.username, Permission.parse("EDIT"))
+#        experiment_permission = getexperimentpermission(mlf, experiment, user.username)
+#
+#        @test experiment_permission.permission == Permission.parse("EDIT")
+#        deleteexperimentpermission(mlf, experiment_id, user.username)
+#    end
+#
+#    deleteuser(mlf, user.username)
+#    deleteexperiment(mlf, experiment_id)
+#end
+#
+#@testset verbose = true "delete experiment permission" begin
+#    @ensuremlf
+#
+#    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+#    permission = Permission.parse("READ")
+#    user = createuser(mlf, "missy", "gala12345678")
+#
+#    @testset "with string experiment id" begin
+#        createexperimentpermission(mlf, experiment_id, user.username, permission)
+#        deleteexperimentpermission(mlf, experiment_id, user.username)
+#        @test_throws ErrorException getexperimentpermission(mlf, experiment_id, user.username)
+#    end
+#
+#    @testset "with integer experiment id" begin
+#        createexperimentpermission(mlf, parse(Int, experiment_id), user.username, permission)
+#        deleteexperimentpermission(mlf, parse(Int, experiment_id), user.username)
+#        @test_throws ErrorException getexperimentpermission(mlf, parse(Int, experiment_id), user.username)
+#    end
+#
+#    @testset "with Experiment" begin
+#        experiment = getexperiment(mlf, experiment_id)
+#        createexperimentpermission(mlf, experiment, user.username, permission)
+#        deleteexperimentpermission(mlf, experiment, user.username)
+#        @test_throws ErrorException getexperimentpermission(mlf, experiment, user.username)
+#    end
+#
+#    deleteuser(mlf, user.username)
+#    deleteexperiment(mlf, experiment_id)
+#end

@@ -20,6 +20,9 @@ An instance of type [`Run`](@ref).
 function createrun(instance::MLFlow, experiment_id::String;
     run_name::Union{String,Missing}=missing, start_time::Union{Int64,Missing}=missing,
     tags::MLFlowUpsertData{Tag}=Tag[])::Run
+    # Time returns system time in seconds, convert to ms.
+    start_time = ismissing(start_time) ? Int(floor(1e3 * time())) : start_time
+
     result = mlfpost(instance, "runs/create"; experiment_id=experiment_id,
         run_name=run_name, start_time=start_time, tags=parse(Tag, tags))
     return result["run"] |> Run

@@ -139,3 +139,49 @@ function logmodel(instance::MLFlow, run_id::String, model_json::String)::Bool
 end
 logmodel(instance::MLFlow, run::Run, model_json::String)::Bool =
     logmodel(instance, run.info.run_id, model_json)
+
+"""
+    logartifact(s3_cfg::MinioConfig, run::Run, s3_cfg::MinioConfig, path::String="", artifact_name::String="")
+
+Log artifact for a run. Supports only S3 buckets.
+
+# Arguments
+- `s3_cfg`: Minio configuration
+- `Run`: ['Run'](@ref) instance
+- `path`: Path to the artifact
+- `artifact_name`: Name of the artifact in the bucket
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+
+"""
+function logartifact(s3_cfg::MinioConfig, run::Run, path::String="", artifact_name::String="")
+    # Parse the URI
+    u = URI(run.info.artifact_uri)
+    u.scheme == "s3" || ArgumentError("The artifact URI for the run has to be a S3 bucket. Got: $(run.info.artifact_uri)")
+    isfile(path) || ArgumentError("Can not read file $(path).")
+    bucket_name = u.host
+    artifacts_base_path = u.path
+
+
+    # Determine MIME type to use
+    kind = matcher(path)
+    mime_type_str = if isnothing(kind)
+        @warn "FileTypes.jl could not determing the specific MIME type for $(path). Defaulting to application/octet-stream"
+        "application/octet-stream"
+    else 
+        string(kind.mime)
+    end
+
+    # Read the bytes of the file
+    content = read(path)
+
+    # Create the artifact path on the bucket
+    artifact_path = isempty(artifact_name) ? joinpath(artifacts_base_path, path) : joinpath(artifacts_base_path, artifact_name)
+    @info "logartifact: putting $(path) into $(artifact_path)"
+
+    s3_put(s3_cfg, bucket_name, artifact_path, content, mime_type_str)
+    return true
+end
+
+
