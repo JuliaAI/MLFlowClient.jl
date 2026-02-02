@@ -139,6 +139,6 @@ struct Run
     inputs::RunInputs
     outputs::RunOutputs
 end
-Run(data::Dict{String,Any}) = Run(RunInfo(data["info"]), RunData(data["data"]),
+Run(data::AbstractDict{String}) = Run(RunInfo(data["info"]), RunData(data["data"]),
     RunInputs(data["inputs"]), RunOutputs(data["outputs"]))
 Base.show(io::IO, t::Run) = show(io, ShowCase(t, new_lines=true))
