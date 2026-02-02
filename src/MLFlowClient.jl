@@ -9,7 +9,7 @@ for working with [MLFlow](https://mlflow.org/) using the REST
 and artifacts. If you are not familiar with `MLFlow` and its concepts, please refer to
 [MLFlow documentation](https://mlflow.org/docs/latest/index.html).
 """
-module MLFlowClient
+module MLFlowClient 
 
 using Dates
 using UUIDs
