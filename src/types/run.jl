@@ -15,7 +15,7 @@ struct Metric <: LoggingData
     timestamp::Int64
     step::Union{Int64,Nothing}
 end
-Metric(data::Dict{String,Any}) = Metric(data["key"], data["value"], data["timestamp"],
+Metric(data::AbstractDict{String}) = Metric(data["key"], data["value"], data["timestamp"],
     data["step"])
 Base.show(io::IO, t::Metric) = show(io, ShowCase(t, new_lines=true))
 
@@ -32,7 +32,7 @@ struct Param <: LoggingData
     key::String
     value::String
 end
-Param(data::Dict{String,Any}) = Param(data["key"], data["value"])
+Param(data::AbstractDict{String}) = Param(data["key"], data["value"])
 Base.show(io::IO, t::Param) = show(io, ShowCase(t, new_lines=true))
 
 """
@@ -64,7 +64,7 @@ struct RunInfo
     artifact_uri::String
     lifecycle_stage::String
 end
-RunInfo(data::Dict{String,Any}) = RunInfo(data["run_id"], data["run_name"],
+RunInfo(data::AbstractDict{String}) = RunInfo(data["run_id"], data["run_name"],
     data["experiment_id"], RunStatus.parse(data["status"]), data["start_time"],
     get(data, "end_time", nothing), data["artifact_uri"], data["lifecycle_stage"])
 Base.show(io::IO, t::RunInfo) = show(io, ShowCase(t, new_lines=true))
@@ -84,7 +84,7 @@ struct RunData
     params::Array{Param}
     tags::Array{Tag}
 end
-RunData(data::Dict{String,Any}) = RunData(
+RunData(data::AbstractDict{String}) = RunData(
     [Metric(metric) for metric in get(data, "metrics", [])],
     [Param(param) for param in get(data, "params", [])],
     [Tag(tag) for tag in get(data, "tags", [])])
@@ -102,7 +102,7 @@ struct RunInputs
     dataset_inputs::Array{DatasetInput}
     model_inputs::Array{ModelInput}
 end
-RunInputs(data::Dict{String,Any}) = RunInputs(
+RunInputs(data::AbstractDict{String}) = RunInputs(
     [DatasetInput(dataset_input) for dataset_input in get(data, "dataset_inputs", [])],
     [ModelInput(model_input) for model_input in get(data, "model_inputs", [])])
 Base.show(io::IO, t::RunInputs) = show(io, ShowCase(t, new_lines=true))
@@ -118,7 +118,7 @@ Outputs of a [`Run`](@ref).
 struct RunOutputs
     model_outputs::Array{ModelOutput}
 end
-RunOutputs(data::Dict{String,Any}) = RunOutputs(
+RunOutputs(data::AbstractDict{String}) = RunOutputs(
     [ModelOutput(model_output) for model_output in get(data, "model_outputs", [])])
 Base.show(io::IO, t::RunOutputs) = show(io, ShowCase(t, new_lines=true))
 

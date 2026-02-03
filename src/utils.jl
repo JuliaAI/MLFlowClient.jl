@@ -4,7 +4,7 @@ const MLFlowUpsertData{T} = Union{Array{T},Array{<:Dict{String,<:Any}},
     Array{<:Tuple{String,<:NumberOrString}}}
 
 function dict_to_T_array(::Type{T},
-    dict::Dict{String,<:NumberOrString}) where {T<:LoggingData}
+    dict::AbstractDict{String,<:NumberOrString}) where {T<:LoggingData}
     entities = T[]
     for (key, value) in dict
         if T <: Metric
