@@ -6,7 +6,7 @@
 
 Julia client for [MLFlow](https://www.mlflow.org/) `3.2.0`. Use with later versions at
 your own risk. For example, there is [this known
-issue](https://github.com/JuliaIO/JSON.jl/issues/432).
+issue](https://github.com/JuliaAI/MLFlowClient.jl/issues/76).
 
 - [x] Supports tracking of metrics, parameters, tags, artifacts, and models.
 - [x] Compatible with latest MLFlow server capabilities.
