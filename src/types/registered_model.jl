@@ -11,7 +11,7 @@ struct RegisteredModelAlias
     alias::String
     version::String
 end
-RegisteredModelAlias(data::Dict{String,Any}) = RegisteredModelAlias(data["alias"],
+RegisteredModelAlias(data::AbstractDict{String}) = RegisteredModelAlias(data["alias"],
     data["version"])
 Base.show(io::IO, t::RegisteredModelAlias) = show(io, ShowCase(t, new_lines=true))
 
@@ -45,7 +45,7 @@ struct RegisteredModel
     deployment_job_id::Union{String,Nothing}
     deployment_job_state::Union{State.StateEnum,Nothing}
 end
-RegisteredModel(data::Dict{String,Any}) = RegisteredModel(data["name"],
+RegisteredModel(data::AbstractDict{String}) = RegisteredModel(data["name"],
     data["creation_timestamp"], data["last_updated_timestamp"],
     get(data, "user_id", nothing), get(data, "description", nothing),
     [ModelVersion(version) for version in get(data, "latest_versions", [])],
@@ -68,6 +68,6 @@ struct RegisteredModelPermission
     user_id::String
     permission::Permission.PermissionEnum
 end
-RegisteredModelPermission(data::Dict{String,Any}) = RegisteredModelPermission(data["name"],
+RegisteredModelPermission(data::AbstractDict{String}) = RegisteredModelPermission(data["name"],
     data["user_id"] |> string, Permission.parse(data["permission"]))
 Base.show(io::IO, t::RegisteredModelPermission) = show(io, ShowCase(t, new_lines=true))

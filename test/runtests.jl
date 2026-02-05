@@ -1,5 +1,10 @@
 if ~haskey(ENV, "MLFLOW_TRACKING_URI")
-    error("WARNING: MLFLOW_TRACKING_URI is not set. To run this tests, you need to set the URI of your MLFlow server API")
+    error(
+        "WARNING: MLFLOW_TRACKING_URI is not set. To run tests, "*
+            "you need to set this to the URI of your MLFlow server API. "*
+            "Setting this in Julia will look something like\n"*
+            "`ENV[\"MLFLOW_TRACKING_URI\"] = \"http://127.0.0.1:5000/api\"` "
+    )
 end
 
 include("base.jl")

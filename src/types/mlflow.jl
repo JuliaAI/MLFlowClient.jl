@@ -6,7 +6,7 @@ Base type which defines location and version for MLFlow API service.
 # Fields
 - `apiroot::String`: API root URL, e.g. `http://localhost:5000/api`
 - `apiversion::Union{Integer, AbstractFloat}`: used API version, e.g. `2.0`
-- `headers::Dict`: HTTP headers to be provided with the REST API requests.
+- `headers::AbstractDict`: HTTP headers to be provided with the REST API requests.
 - `username::Union{Nothing, String}`: username for basic authentication.
 - `password::Union{Nothing, String}`: password for basic authentication.
 
@@ -34,7 +34,7 @@ mlf = MLFlow(remote_url, headers=Dict("Authorization" => "Bearer <your-secret-to
 struct MLFlow
     apiroot::String
     apiversion::AbstractFloat
-    headers::Dict
+    headers::AbstractDict
     username::Union{Nothing,String}
     password::Union{Nothing,String}
 
@@ -65,12 +65,12 @@ struct MLFlow
         new(apiroot, apiversion, headers, username, password)
     end
 end
-MLFlow(apiroot::String; apiversion::AbstractFloat=2.0, headers::Dict=Dict(),
+MLFlow(apiroot::String; apiversion::AbstractFloat=2.0, headers::AbstractDict=Dict(),
     username::Union{Nothing,String}=nothing,
     password::Union{Nothing,String}=nothing)::MLFlow =
     MLFlow(apiroot, apiversion, headers, username, password)
 MLFlow(; apiroot::String="http://localhost:5000/api", apiversion::AbstractFloat=2.0,
-    headers::Dict=Dict(), username::Union{Nothing,String}=nothing,
+    headers::AbstractDict=Dict(), username::Union{Nothing,String}=nothing,
     password::Union{Nothing,String}=nothing)::MLFlow =
     MLFlow(apiroot, apiversion, headers, username, password)
 

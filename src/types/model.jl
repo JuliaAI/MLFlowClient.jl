@@ -103,7 +103,7 @@ struct ModelVersion
     run_link::String
     aliases::Array{String}
 end
-ModelVersion(data::Dict{String,Any}) = ModelVersion(data["name"], data["version"],
+ModelVersion(data::AbstractDict{String}) = ModelVersion(data["name"], data["version"],
     data["creation_timestamp"], data["last_updated_timestamp"],
     get(data, "user_id", nothing), data["current_stage"], data["description"],
     data["source"], data["run_id"], data["status"] |> ModelVersionStatus.parse,

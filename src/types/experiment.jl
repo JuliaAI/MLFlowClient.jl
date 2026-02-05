@@ -20,7 +20,7 @@ struct Experiment
     creation_time::Int64
     tags::Array{Tag}
 end
-Experiment(data::Dict{String,Any}) = Experiment(data["experiment_id"], data["name"],
+Experiment(data::AbstractDict{String}) = Experiment(data["experiment_id"], data["name"],
     data["artifact_location"], data["lifecycle_stage"], data["last_update_time"],
     data["creation_time"], [Tag(tag) for tag in get(data, "tags", [])])
 Base.show(io::IO, t::Experiment) = show(io, ShowCase(t, new_lines=true))
@@ -38,6 +38,6 @@ struct ExperimentPermission
     user_id::String
     permission::Permission.PermissionEnum
 end
-ExperimentPermission(data::Dict{String,Any}) = ExperimentPermission(data["experiment_id"],
+ExperimentPermission(data::AbstractDict{String}) = ExperimentPermission(data["experiment_id"],
     data["user_id"] |> string, Permission.parse(data["permission"]))
 Base.show(io::IO, t::ExperimentPermission) = show(io, ShowCase(t, new_lines=true))
