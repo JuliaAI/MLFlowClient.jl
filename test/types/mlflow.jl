@@ -71,4 +71,24 @@
         @test_throws ErrorException MLFlow(; username="test", password="test",
             headers=Dict("Authorization" => "Basic $encoded_credentials"))
     end
+
+    @testset "appending /api to tracking uri" begin
+        delete!(ENV, "MLFLOW_TRACKING_URI")
+        
+        instance_no_slash = MLFlow("https://dagshub.com/user/repo.mlflow")
+        @test instance_no_slash.apiroot == "https://dagshub.com/user/repo.mlflow/api"
+
+        instance_with_slash = MLFlow("https://dagshub.com/user/repo.mlflow/")
+        @test instance_with_slash.apiroot == "https://dagshub.com/user/repo.mlflow/api"
+        
+        instance_already_api = MLFlow("https://dagshub.com/user/repo.mlflow/api")
+        @test instance_already_api.apiroot == "https://dagshub.com/user/repo.mlflow/api"
+
+        instance_already_api_slash = MLFlow("https://dagshub.com/user/repo.mlflow/api/")
+        @test instance_already_api_slash.apiroot == "https://dagshub.com/user/repo.mlflow/api/"
+
+        if !isnothing(mlflow_tracking_uri)
+            ENV["MLFLOW_TRACKING_URI"] = mlflow_tracking_uri
+        end
+    end
 end

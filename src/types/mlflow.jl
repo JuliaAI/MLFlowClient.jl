@@ -44,6 +44,11 @@ struct MLFlow
             apiroot = ENV["MLFLOW_TRACKING_URI"]
         end
 
+        # Automatically append /api to the tracking URI if missing to match standard MLflow REST paths.
+        if !endswith(apiroot, "/api") && !endswith(apiroot, "/api/")
+            apiroot = endswith(apiroot, "/") ? apiroot * "api" : apiroot * "/api"
+        end
+
         if haskey(ENV, "MLFLOW_TRACKING_USERNAME")
             @warn "The provided username will be ignored as MLFLOW_TRACKING_USERNAME is set."
             username = ENV["MLFLOW_TRACKING_USERNAME"]
