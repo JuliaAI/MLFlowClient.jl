@@ -6,7 +6,7 @@
 
         instance = MLFlow("test", 2.0, Dict(), nothing, nothing)
 
-        @test instance.apiroot == "test"
+        @test instance.apiroot == "test/api"
         @test instance.apiversion == 2.0
         @test instance.headers == Dict()
         @test isnothing(instance.username)
@@ -20,7 +20,7 @@
 
         instance = MLFlow("test")
 
-        @test instance.apiroot == "test"
+        @test instance.apiroot == "test/api"
         @test instance.apiversion == 2.0
         @test instance.headers == Dict()
         @test isnothing(instance.username)
