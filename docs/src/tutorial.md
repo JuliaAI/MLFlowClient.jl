@@ -48,7 +48,7 @@ Now, suppose that you are interested in turning this into an experiment which st
     Running this example assumes you have an active MLFlow running on your computer.
 
 
-```julia
+```jldoctest; output=false
 using Plots
 using MLFlowClient
 using Random
