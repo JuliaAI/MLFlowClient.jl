@@ -8,3 +8,4 @@ coverage
 Pipfile
 Pipfile.lock
 *.db
+.CondaPkg

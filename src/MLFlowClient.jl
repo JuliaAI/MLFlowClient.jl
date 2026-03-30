@@ -11,82 +11,19 @@ and artifacts. If you are not familiar with `MLFlow` and its concepts, please re
 """
 module MLFlowClient
 
-using Dates
-using UUIDs
-using HTTP
-using Base64
-using URIs
-using JSON
-using ShowCases
+using PythonCall
 
-include("types/mlflow.jl")
-export MLFlow
+const _mlflow = PythonCall.pynew()
 
-include("types/tag.jl")
-export Tag
+function __init__()
+    PythonCall.pycopy!(_mlflow, pyimport("mlflow"))
+end
 
 include("types/enums.jl")
-export ViewType, RunStatus, ModelVersionStatus, Permission, DeploymentJobRunState, State
+include("types/entities.jl")
 
-include("types/dataset.jl")
-export Dataset, DatasetInput
-
-include("types/artifact.jl")
-export FileInfo
-
-include("types/model.jl")
-export ModelInput, ModelMetric, ModelOutput, ModelParam, ModelVersion,
-    ModelVersionDeploymentJobState
-
-include("types/registered_model.jl")
-export RegisteredModel, RegisteredModelAlias, RegisteredModelPermission
-
-include("types/experiment.jl")
-export Experiment, ExperimentPermission
-
-include("types/run.jl")
-export Run, Param, Metric, RunData, RunInfo, RunInputs
-
-include("types/user.jl")
-export User
-
-include("api.jl")
-
-include("utils.jl")
-
-include("services/experiment.jl")
-export getexperiment, createexperiment, deleteexperiment, setexperimenttag,
-    updateexperiment, restoreexperiment, searchexperiments, getexperimentbyname,
-    createexperimentpermission, getexperimentpermission, updateexperimentpermission,
-    deleteexperimentpermission
-
-include("services/run.jl")
-export getrun, createrun, deleterun, setruntag, updaterun, restorerun, searchruns,
-    deleteruntag
-
-include("services/logger.jl")
-export logbatch, loginputs, logmetric, logmodel, logparam
-
-include("services/artifact.jl")
-export listartifacts
-
-include("services/misc.jl")
-export refresh, getmetrichistory
-
-include("services/registered_model.jl")
-export getregisteredmodel, createregisteredmodel, deleteregisteredmodel,
-    renameregisteredmodel, updateregisteredmodel, searchregisteredmodels,
-    setregisteredmodeltag, deleteregisteredmodeltag, deleteregisteredmodelalias,
-    setregisteredmodelalias, createregisteredmodelpermission, getregisteredmodelpermission,
-    updateregisteredmodelpermission, deleteregisteredmodelpermission
-
-include("services/model_version.jl")
-export getlatestmodelversions, getmodelversion, createmodelversion, deletemodelversion,
-    updatemodelversion, searchmodelversions, getdownloaduriformodelversionartifacts,
-    transitionmodelversionstage, setmodelversiontag, deletemodelversiontag,
-    getmodelversionbyalias
-
-include("services/user.jl")
-export createuser, getuser, updateuserpassword, updateuseradmin, deleteuser
+include("bindings/utils.jl")
+include("bindings/mlflow.jl")
+export get_tracking_uri, set_tracking_uri, set_experiment, start_run, active_run, end_run
 
 end

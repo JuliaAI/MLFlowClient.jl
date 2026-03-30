@@ -1,28 +1,33 @@
 name = "MLFlowClient"
 uuid = "64a0f543-368b-4a9a-827a-e71edb2a0b83"
-authors = ["@deyandyankov, @pebeto, and contributors"]
 version = "0.7.1"
+authors = ["@deyandyankov, @pebeto, and contributors"]
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 ShowCases = "605ecd9f-84a6-4c9e-81e2-4798472b76a3"
 URIs = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
 Base64 = "1.0"
+CondaPkg = "0.2.33"
 HTTP = "1.0"
 JSON = "0.21,1"
+PythonCall = "0.9.31"
 ShowCases = "0.1"
 URIs = "1.0"
 julia = "1.0"
 
 [extras]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Base64", "Test"]
+test = ["Test", "PythonCall"]

@@ -1,0 +1,5 @@
+[deps]
+python = ">=3.9"
+
+[pip.deps]
+mlflow = {version = ">=3.10", extras = ["auth"]}
