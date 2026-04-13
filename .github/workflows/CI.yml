@@ -37,7 +37,7 @@ jobs:
           pip install -r ./requirements.txt
           python3 /opt/hostedtoolcache/Python/3.12.3/x64/bin/mlflow server --app-name basic-auth --host 0.0.0.0 --port 5000 &
           sleep 5
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
