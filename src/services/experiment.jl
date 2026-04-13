@@ -209,6 +209,30 @@ setexperimenttag(instance::MLFlow, experiment::Experiment, key::String,
     setexperimenttag(instance, experiment.experiment_id, key, value)
 
 """
+    deleteexperimenttag(instance::MLFlow, experiment_id::String, key::String)
+    deleteexperimenttag(instance::MLFlow, experiment_id::Integer, key::String)
+    deleteexperimenttag(instance::MLFlow, experiment::Experiment, key::String)
+
+Delete a tag from an [`Experiment`](@ref).
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `experiment_id`: ID of the [`Experiment`](@ref) to delete the tag from.
+- `key`: Name of the tag to delete.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function deleteexperimenttag(instance::MLFlow, experiment_id::String, key::String)::Bool
+    mlfpost(instance, "experiments/delete-experiment-tag"; experiment_id=experiment_id, key=key)
+    return true
+end
+deleteexperimenttag(instance::MLFlow, experiment_id::Integer, key::String)::Bool =
+    deleteexperimenttag(instance, string(experiment_id), key)
+deleteexperimenttag(instance::MLFlow, experiment::Experiment, key::String)::Bool =
+    deleteexperimenttag(instance, experiment.experiment_id, key)
+
+"""
     createexperimentpermission(instance::MLFlow, experiment_id::String, username::String,
         permission::Permission)
     createexperimentpermission(instance::MLFlow, experiment_id::Integer, username::String,

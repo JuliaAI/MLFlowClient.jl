@@ -4,12 +4,13 @@
 [![Build Status](https://github.com/JuliaAI/MLFlowClient.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/JuliaAI/MLFlowClient.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/JuliaAI/MLFlowClient.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/JuliaAI/MLFlowClient.jl)
 
-Julia client for [MLFlow](https://www.mlflow.org/) `3.2.0`. Use with later versions at
-your own risk. For example, there is [this known
-issue](https://github.com/JuliaAI/MLFlowClient.jl/issues/76).
+Julia client for [MLFlow](https://www.mlflow.org/). Ensured compatibility with `mlflow==3.11.1`.
 
 - [x] Supports tracking of metrics, parameters, tags, artifacts, and models.
 - [x] Compatible with latest MLFlow server capabilities.
 - [x] Mirroring types from MLFlow API for easy use.
 - [x] Includes MLflow Authentication REST API interface.
-- [ ] Supports artifact download/upload.
+- [x] Supports artifact download/upload and multipart uploads.
+- [x] Supports Scorers API for evaluation.
+- [x] Supports Gateway API (secrets, model definitions, endpoints, budgets).
+- [x] Supports Prompt Optimization API.

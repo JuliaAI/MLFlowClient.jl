@@ -1,0 +1,8 @@
+# Prompt optimization operations
+```@docs
+createpromptoptimizationjob
+getpromptoptimizationjob
+searchpromptoptimizationjobs
+cancelpromptoptimizationjob
+deletepromptoptimizationjob
+```

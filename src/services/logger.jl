@@ -1,10 +1,16 @@
 """
     logmetric(instance::MLFlow, run_id::String, key::String, value::Float64;
         timestamp::Int64=round(Int, now() |> datetime2unix),
-        step::Union{Int64, Missing}=missing)
+        step::Union{Int64, Missing}=missing,
+        model_id::Union{String, Missing}=missing,
+        dataset_name::Union{String, Missing}=missing,
+        dataset_digest::Union{String, Missing}=missing)
     logmetric(instance::MLFlow, run::Run, key::String, value::Float64;
         timestamp::Int64=round(Int, now() |> datetime2unix),
-        step::Union{Int64, Missing}=missing)
+        step::Union{Int64, Missing}=missing,
+        model_id::Union{String, Missing}=missing,
+        dataset_name::Union{String, Missing}=missing,
+        dataset_digest::Union{String, Missing}=missing)
 
 Log a [`Metric`](@ref) for a [`Run`](@ref). A [`Metric`](@ref) is a key-value pair (string
 key, float value) with an associated timestamp. Examples include the various metrics that
@@ -17,21 +23,32 @@ represent ML model accuracy. A [`Metric`](@ref) can be logged multiple times.
 - `value`: Double value of the [`Metric`](@ref) being logged.
 - `timestamp`: Unix timestamp in milliseconds at the time [`Metric`](@ref) was logged.
 - `step`: Step at which to log the [`Metric`](@ref).
+- `model_id`: ID of the logged model associated with the metric, if applicable.
+- `dataset_name`: The name of the dataset associated with the metric.
+- `dataset_digest`: Dataset digest of the dataset associated with the metric.
 
 # Returns
 `true` if successful. Otherwise, raises exception.
 """
 function logmetric(instance::MLFlow, run_id::String, key::String, value::Float64;
     timestamp::Int64=round(Int, now() |> datetime2unix),
-    step::Union{Int64,Missing}=missing)::Bool
+    step::Union{Int64,Missing}=missing,
+    model_id::Union{String,Missing}=missing,
+    dataset_name::Union{String,Missing}=missing,
+    dataset_digest::Union{String,Missing}=missing)::Bool
     mlfpost(instance, "runs/log-metric"; run_id=run_id, key=key, value=value,
-        timestamp=timestamp, step=step)
+        timestamp=timestamp, step=step, model_id=model_id,
+        dataset_name=dataset_name, dataset_digest=dataset_digest)
     return true
 end
 logmetric(instance::MLFlow, run::Run, key::String, value::Float64;
     timestamp::Int64=round(Int, now() |> datetime2unix),
-    step::Union{Int64,Missing}=missing)::Bool =
-    logmetric(instance, run.info.run_id, key, value; timestamp=timestamp, step=step)
+    step::Union{Int64,Missing}=missing,
+    model_id::Union{String,Missing}=missing,
+    dataset_name::Union{String,Missing}=missing,
+    dataset_digest::Union{String,Missing}=missing)::Bool =
+    logmetric(instance, run.info.run_id, key, value; timestamp=timestamp, step=step,
+        model_id=model_id, dataset_name=dataset_name, dataset_digest=dataset_digest)
 logmetric(instance::MLFlow, run_id::String, metric::Metric)::Bool =
     logmetric(instance, run_id, metric.key, metric.value, timestamp=metric.timestamp,
         step=metric.step)

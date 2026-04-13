@@ -224,3 +224,34 @@ function getmodelversionbyalias(instance::MLFlow, name::String,
     result = mlfget(instance, "registered-models/alias"; name=name, alias=alias)
     return result["model_version"] |> ModelVersion
 end
+
+"""
+    listmodelversionartifacts(instance::MLFlow, name::String, version::String;
+        path::String="", page_token::String="")
+
+List artifacts for a [`ModelVersion`](@ref).
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `name`: Name of the [`RegisteredModel`](@ref).
+- `version`: [`ModelVersion`](@ref) number.
+- `path`: Filter artifacts matching this path (a relative path from the root artifact
+    directory).
+- `page_token`: Token indicating the page of artifact results to fetch.
+
+# Returns
+- Root artifact URI for the [`ModelVersion`](@ref).
+- List of file location and metadata for artifacts.
+- Token that can be used to retrieve the next page of artifact results.
+"""
+function listmodelversionartifacts(instance::MLFlow, name::String, version::String;
+    path::String="", page_token::String="")::Tuple{String,Array{FileInfo},Union{String,Nothing}}
+    result = mlfget(instance, "model-versions/list-artifacts"; name=name, version=version,
+        path=path, page_token=page_token)
+
+    root_uri = get(result, "root_uri", "")
+    files = get(result, "files", []) |> (x -> [FileInfo(y) for y in x])
+    next_page_token = get(result, "next_page_token", nothing)
+
+    return root_uri, files, next_page_token
+end

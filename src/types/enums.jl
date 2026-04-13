@@ -94,7 +94,7 @@ end
 module State
     """
         State
-    
+
     # Members
     - `DEPLOYMENT_JOB_CONNECTION_STATE_UNSPECIFIED`
     - `NOT_SET_UP`: Default state.
@@ -111,4 +111,177 @@ module State
         REQUIRED_PARAMETERS_CHANGED = 5
     end
     parse(state::String) = Dict(value => key for (key, value) in StateEnum |> Base.Enums.namemap)[state|>Symbol] |> StateEnum
+end
+
+module JobState
+    """
+        JobState
+
+    State of a prompt optimization job.
+
+    # Members
+    - `PENDING`: Job is pending.
+    - `RUNNING`: Job is running.
+    - `COMPLETED`: Job has completed successfully.
+    - `FAILED`: Job has failed.
+    - `CANCELED`: Job has been canceled.
+    """
+    @enum JobStateEnum begin
+        PENDING = 1
+        RUNNING = 2
+        COMPLETED = 3
+        FAILED = 4
+        CANCELED = 5
+    end
+    parse(state::String) = Dict(value => key for (key, value) in JobStateEnum |> Base.Enums.namemap)[state|>Symbol] |> JobStateEnum
+end
+
+module OptimizerType
+    """
+        OptimizerType
+
+    Type of optimizer for prompt optimization.
+
+    # Members
+    - `GEPA`: GEPA optimizer.
+    - `META_PROMPT`: Meta-prompt optimizer.
+    """
+    @enum OptimizerTypeEnum begin
+        GEPA = 1
+        META_PROMPT = 2
+    end
+    parse(optimizer_type::String) = Dict(value => key for (key, value) in OptimizerTypeEnum |> Base.Enums.namemap)[optimizer_type|>Symbol] |> OptimizerTypeEnum
+end
+
+module RoutingStrategy
+    """
+        RoutingStrategy
+
+    Routing strategy for endpoints.
+
+    # Members
+    - `ROUTING_STRATEGY_UNSPECIFIED`: Unspecified.
+    - `REQUEST_BASED_TRAFFIC_SPLIT`: Request-based traffic split: distributes traffic based on weights.
+    """
+    @enum RoutingStrategyEnum begin
+        ROUTING_STRATEGY_UNSPECIFIED = 0
+        REQUEST_BASED_TRAFFIC_SPLIT = 1
+    end
+    parse(strategy::String) = Dict(value => key for (key, value) in RoutingStrategyEnum |> Base.Enums.namemap)[Symbol(strategy)] |> RoutingStrategyEnum
+end
+
+module FallbackStrategy
+    """
+        FallbackStrategy
+
+    Fallback strategy for routing.
+
+    # Members
+    - `FALLBACK_STRATEGY_UNSPECIFIED`: Unspecified.
+    - `SEQUENTIAL`: Sequential fallback: tries models in the order specified.
+    """
+    @enum FallbackStrategyEnum begin
+        FALLBACK_STRATEGY_UNSPECIFIED = 0
+        SEQUENTIAL = 1
+    end
+    parse(strategy::String) = Dict(value => key for (key, value) in FallbackStrategyEnum |> Base.Enums.namemap)[Symbol(strategy)] |> FallbackStrategyEnum
+end
+
+module BudgetUnit
+    """
+        BudgetUnit
+
+    Budget measurement unit.
+
+    # Members
+    - `BUDGET_UNIT_UNSPECIFIED`: Unspecified.
+    - `USD`: US Dollars.
+    """
+    @enum BudgetUnitEnum begin
+        BUDGET_UNIT_UNSPECIFIED = 0
+        USD = 1
+    end
+    parse(unit::String) = Dict(value => key for (key, value) in BudgetUnitEnum |> Base.Enums.namemap)[Symbol(unit)] |> BudgetUnitEnum
+end
+
+module BudgetDurationUnit
+    """
+        BudgetDurationUnit
+
+    Duration unit for budget policy fixed windows.
+
+    # Members
+    - `DURATION_UNIT_UNSPECIFIED`: Unspecified.
+    - `MINUTES`: Minutes.
+    - `HOURS`: Hours.
+    - `DAYS`: Days.
+    - `WEEKS`: Weeks.
+    - `MONTHS`: Months.
+    """
+    @enum BudgetDurationUnitEnum begin
+        DURATION_UNIT_UNSPECIFIED = 0
+        MINUTES = 1
+        HOURS = 2
+        DAYS = 3
+        WEEKS = 4
+        MONTHS = 5
+    end
+    parse(unit::String) = Dict(value => key for (key, value) in BudgetDurationUnitEnum |> Base.Enums.namemap)[Symbol(unit)] |> BudgetDurationUnitEnum
+end
+
+module BudgetTargetScope
+    """
+        BudgetTargetScope
+
+    Target scope for a budget policy.
+
+    # Members
+    - `TARGET_SCOPE_UNSPECIFIED`: Unspecified.
+    - `GLOBAL`: Global scope.
+    - `WORKSPACE`: Workspace scope.
+    """
+    @enum BudgetTargetScopeEnum begin
+        TARGET_SCOPE_UNSPECIFIED = 0
+        GLOBAL = 1
+        WORKSPACE = 2
+    end
+    parse(scope::String) = Dict(value => key for (key, value) in BudgetTargetScopeEnum |> Base.Enums.namemap)[Symbol(scope)] |> BudgetTargetScopeEnum
+end
+
+module BudgetAction
+    """
+        BudgetAction
+
+    Action to take when a budget is exceeded.
+
+    # Members
+    - `BUDGET_ACTION_UNSPECIFIED`: Unspecified.
+    - `ALERT`: Send alert.
+    - `REJECT`: Reject requests.
+    """
+    @enum BudgetActionEnum begin
+        BUDGET_ACTION_UNSPECIFIED = 0
+        ALERT = 1
+        REJECT = 2
+    end
+    parse(action::String) = Dict(value => key for (key, value) in BudgetActionEnum |> Base.Enums.namemap)[Symbol(action)] |> BudgetActionEnum
+end
+
+module GatewayModelLinkageType
+    """
+        GatewayModelLinkageType
+
+    Type of linkage between endpoint and model definition.
+
+    # Members
+    - `LINKAGE_TYPE_UNSPECIFIED`: Unspecified.
+    - `PRIMARY`: Primary linkage: used for routing traffic.
+    - `FALLBACK`: Fallback linkage: used for failover.
+    """
+    @enum GatewayModelLinkageTypeEnum begin
+        LINKAGE_TYPE_UNSPECIFIED = 0
+        PRIMARY = 1
+        FALLBACK = 2
+    end
+    parse(linkage_type::String) = Dict(value => key for (key, value) in GatewayModelLinkageTypeEnum |> Base.Enums.namemap)[Symbol(linkage_type)] |> GatewayModelLinkageTypeEnum
 end

@@ -10,6 +10,8 @@ Represents a logged model or [`RegisteredModel`](@ref) version input to a
 struct ModelInput
     model_id::String
 end
+ModelInput(data::AbstractDict{String}) = ModelInput(data["model_id"])
+Base.show(io::IO, t::ModelInput) = show(io, ShowCase(t, new_lines=true))
 
 """
     ModelMetric
@@ -28,6 +30,9 @@ struct ModelMetric
     timestamp::Int64
     step::Union{Int64,Nothing}
 end
+ModelMetric(data::AbstractDict{String}) = ModelMetric(
+    data["key"], data["value"], data["timestamp"], get(data, "step", nothing))
+Base.show(io::IO, t::ModelMetric) = show(io, ShowCase(t, new_lines=true))
 
 """
     ModelOutput
@@ -42,6 +47,8 @@ struct ModelOutput
     model_id::String
     step::Int64
 end
+ModelOutput(data::AbstractDict{String}) = ModelOutput(data["model_id"], data["step"])
+Base.show(io::IO, t::ModelOutput) = show(io, ShowCase(t, new_lines=true))
 
 """
     ModelParam
@@ -56,13 +63,42 @@ struct ModelParam
     name::String
     value::String
 end
+ModelParam(data::AbstractDict{String}) = ModelParam(data["name"], data["value"])
+Base.show(io::IO, t::ModelParam) = show(io, ShowCase(t, new_lines=true))
+
+"""
+    ModelVersionDeploymentJobState
+
+Deployment job state for a model version.
+
+# Fields
+- `job_id::String`: The job ID.
+- `run_id::String`: The run ID.
+- `job_state::State.StateEnum`: The state of the job.
+- `run_state::DeploymentJobRunState.DeploymentJobRunStateEnum`: The state of the run.
+- `current_task_name::String`: The current task name.
+"""
+struct ModelVersionDeploymentJobState
+    job_id::String
+    run_id::String
+    job_state::State.StateEnum
+    run_state::DeploymentJobRunState.DeploymentJobRunStateEnum
+    current_task_name::String
+end
+ModelVersionDeploymentJobState(data::AbstractDict{String}) = ModelVersionDeploymentJobState(
+    get(data, "job_id", ""),
+    get(data, "run_id", ""),
+    haskey(data, "job_state") ? State.parse(data["job_state"]) : State.NOT_SET_UP,
+    haskey(data, "run_state") ? DeploymentJobRunState.parse(data["run_state"]) : DeploymentJobRunState.DEPLOYMENT_JOB_RUN_STATE_UNSPECIFIED,
+    get(data, "current_task_name", ""))
+Base.show(io::IO, t::ModelVersionDeploymentJobState) = show(io, ShowCase(t, new_lines=true))
 
 """
     ModelVersion
 
 # Fields
 - `name::String`: Unique name of the model.
-- `version::String`: Model’s version number.
+- `version::String`: Model's version number.
 - `creation_timestamp::Int64`: Timestamp recorded when this model_version was created.
 - `last_updated_timestamp::Int64`: Timestamp recorded when metadata for this model_version
     was last updated.
@@ -76,16 +112,12 @@ end
 - `status::ModelVersionStatusEnum`: Current status of model_version.
 - `status_message::String`: Details on current status, if it is pending or failed.
 - `tags::Array{Tag}`: Additional metadata key-value pairs.
-- `run_link::String`: Direct link to the run that generated this version. This field is set
-    at model version creation time only for model versions whose source run is from a
-    tracking server that is different from the registry server.
+- `run_link::Union{String, Nothing}`: Direct link to the run that generated this version.
 - `aliases::Array{String}`: Aliases pointing to this model_version.
-- `model_id::String`: Optional `model_id` for [`ModelVersion`](@ref) that is used to link
-    the [`RegisteredModel`](@ref) to the source logged model.
+- `model_id::Union{String, Nothing}`: Optional `model_id` for [`ModelVersion`](@ref).
 - `model_params::Array{ModelParam}`: Optional parameters for the model.
 - `model_metrics::Array{ModelMetric}`: Optional metrics for the model.
-- `deployment_job_state::ModelVersionDeploymentJobState`: Deployment job state for this
-    [`ModelVersion`](@ref).
+- `deployment_job_state::Union{ModelVersionDeploymentJobState, Nothing}`: Deployment job state.
 """
 struct ModelVersion
     name::String
@@ -100,21 +132,22 @@ struct ModelVersion
     status::ModelVersionStatus.ModelVersionStatusEnum
     status_message::Union{String,Nothing}
     tags::Array{Tag}
-    run_link::String
+    run_link::Union{String,Nothing}
     aliases::Array{String}
+    model_id::Union{String,Nothing}
+    model_params::Array{ModelParam}
+    model_metrics::Array{ModelMetric}
+    deployment_job_state::Union{ModelVersionDeploymentJobState,Nothing}
 end
 ModelVersion(data::AbstractDict{String}) = ModelVersion(data["name"], data["version"],
     data["creation_timestamp"], data["last_updated_timestamp"],
     get(data, "user_id", nothing), data["current_stage"], data["description"],
     data["source"], data["run_id"], data["status"] |> ModelVersionStatus.parse,
     get(data, "status_message", nothing), [Tag(tag) for tag in get(data, "tags", [])],
-    data["run_link"], get(data, "aliases", []))
+    get(data, "run_link", nothing), get(data, "aliases", []),
+    get(data, "model_id", nothing),
+    [ModelParam(param) for param in get(data, "model_params", [])],
+    [ModelMetric(metric) for metric in get(data, "model_metrics", [])],
+    haskey(data, "deployment_job_state") && !isnothing(data["deployment_job_state"]) ?
+        ModelVersionDeploymentJobState(data["deployment_job_state"]) : nothing)
 Base.show(io::IO, t::ModelVersion) = show(io, ShowCase(t, new_lines=true))
-
-struct ModelVersionDeploymentJobState
-    job_id::String
-    run_id::String
-    job_state::State.StateEnum
-    run_state::DeploymentJobRunState.DeploymentJobRunStateEnum
-    current_task_name::String
-end

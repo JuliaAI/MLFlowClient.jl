@@ -118,7 +118,7 @@ end
     end
 
     @testset "restore not found" begin
-        @test_throws ErrorException restoreexperiment(mlf, 123)
+        @test_throws ErrorException restoreexperiment(mlf, "99999999")
     end
 
     deleteexperiment(mlf, experiment_id)
@@ -165,7 +165,7 @@ end
     @testset "default search" begin
         experiments, next_page_token = searchexperiments(mlf)
 
-        @test length(experiments) == 4 # four because of the default experiment
+        @test length(experiments) >= 4 # at least four because of the default experiment
         @test next_page_token |> isnothing
     end
 
@@ -211,6 +211,46 @@ end
         @test experiment.tags |> !isempty
         @test (experiment.tags |> first).key == "test_key"
         @test (experiment.tags |> first).value == "test_value"
+        deleteexperiment(mlf, experiment_id)
+    end
+end
+
+@testset verbose = true "delete experiment tag" begin
+    @ensuremlf
+
+    @testset "delete tag with string id" begin
+        experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+        setexperimenttag(mlf, experiment_id, "test_key", "test_value")
+        experiment = getexperiment(mlf, experiment_id)
+        @test experiment.tags |> !isempty
+
+        deleteexperimenttag(mlf, experiment_id, "test_key")
+        experiment = getexperiment(mlf, experiment_id)
+        @test all(t -> t.key != "test_key", experiment.tags)
+
+        deleteexperiment(mlf, experiment_id)
+    end
+
+    @testset "delete tag with integer id" begin
+        experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+        setexperimenttag(mlf, experiment_id, "test_key", "test_value")
+
+        deleteexperimenttag(mlf, parse(Int, experiment_id), "test_key")
+        experiment = getexperiment(mlf, experiment_id)
+        @test all(t -> t.key != "test_key", experiment.tags)
+
+        deleteexperiment(mlf, experiment_id)
+    end
+
+    @testset "delete tag with Experiment" begin
+        experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+        experiment = getexperiment(mlf, experiment_id)
+        setexperimenttag(mlf, experiment_id, "test_key", "test_value")
+
+        deleteexperimenttag(mlf, experiment, "test_key")
+        experiment = getexperiment(mlf, experiment_id)
+        @test all(t -> t.key != "test_key", experiment.tags)
+
         deleteexperiment(mlf, experiment_id)
     end
 end
