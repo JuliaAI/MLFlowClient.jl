@@ -60,8 +60,12 @@ List all webhooks.
 - The next page token if there are more results.
 """
 function listwebhooks(instance::MLFlow; max_results::Int64=100,
-    page_token::String="")::Tuple{Array{Webhook},Union{String,Nothing}}
-    result = mlfget(instance, "webhooks"; max_results=max_results, page_token=page_token)
+    page_token::Union{String,Missing}=missing)::Tuple{Array{Webhook},Union{String,Nothing}}
+    parameters = Dict{Symbol,Any}(:max_results => max_results)
+    if !ismissing(page_token) && !isempty(page_token)
+        parameters[:page_token] = page_token
+    end
+    result = mlfget(instance, "webhooks"; parameters...)
     webhooks = get(result, "webhooks", []) |> (x -> [Webhook(y) for y in x])
     next_page_token = get(result, "next_page_token", nothing)
     return webhooks, next_page_token
@@ -174,5 +178,5 @@ function testwebhook(instance::MLFlow, webhook_id::String;
     end
 
     result = mlfpost(instance, "webhooks/$(webhook_id)/test"; kwargs...)
-    return result["test_result"] |> WebhookTestResult
+    return result["result"] |> WebhookTestResult
 end

@@ -236,6 +236,17 @@ end
         @test dataset_input.dataset.profile |> isnothing
     end
 
+    @testset "with run" begin
+        run = createrun(mlf, experiment_id)
+        inputs = [DatasetInput([Tag("ctx", "eval")],
+            Dataset("ds2", "digest2", "s3", "s3://bucket", nothing, nothing))]
+        loginputs(mlf, run, inputs)
+
+        run = refresh(mlf, run)
+        @test run.inputs.dataset_inputs |> length == 1
+        @test run.inputs.dataset_inputs[1].dataset.name == "ds2"
+    end
+
     deleteexperiment(mlf, experiment_id)
 end
 

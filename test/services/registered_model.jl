@@ -1,6 +1,10 @@
 @testset verbose = true "create registered model" begin
     @ensuremlf
 
+    # Safety cleanup in case a previous test run left "missy" behind
+    try deleteregisteredmodel(mlf, "missy") catch end
+    try deleteregisteredmodel(mlf, "gala") catch end
+
     @testset "base" begin
         registered_model = createregisteredmodel(mlf, "missy"; description="gala")
 

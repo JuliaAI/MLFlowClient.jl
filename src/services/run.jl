@@ -170,14 +170,24 @@ Search for runs that satisfy expressions. Search expressions can use [`Metric`](
 - The next page token if there are more results.
 """
 function searchruns(instance::MLFlow; experiment_ids::Array{String}=String[],
-    filter::String="", run_view_type::ViewType.ViewTypeEnum=ViewType.ACTIVE_ONLY,
+    filter::Union{String,Missing}=missing,
+    run_view_type::ViewType.ViewTypeEnum=ViewType.ACTIVE_ONLY,
     max_results::Int=1000, order_by::Array{String}=String[],
-    page_token::String="")::Tuple{Array{Run},Union{String,Nothing}}
-    parameters = (; experiment_ids, filter, :run_view_type => run_view_type |> Integer,
-        max_results, page_token)
+    page_token::Union{String,Missing}=missing)::Tuple{Array{Run},Union{String,Nothing}}
+    parameters = Dict{Symbol,Any}(
+        :experiment_ids => experiment_ids,
+        :run_view_type => run_view_type |> Integer,
+        :max_results => max_results
+    )
 
-    if order_by |> !isempty
-        parameters = (; order_by, parameters...)
+    if !ismissing(filter) && !isempty(filter)
+        parameters[:filter] = filter
+    end
+    if !ismissing(page_token) && !isempty(page_token)
+        parameters[:page_token] = page_token
+    end
+    if !isempty(order_by)
+        parameters[:order_by] = order_by
     end
 
     result = mlfpost(instance, "runs/search"; parameters...)
@@ -208,13 +218,14 @@ Update [`Run`](@ref) metadata.
 """
 function updaterun(instance::MLFlow, run_id::String;
     status::Union{RunStatus.RunStatusEnum,Missing}=missing,
-    end_time::Union{Int64,Missing}=missing, run_name::Union{String,Missing})::RunInfo
-    result = mlfpost(instance, "runs/update"; run_id=run_id, status=(status |> Integer),
+    end_time::Union{Int64,Missing}=missing, run_name::Union{String,Missing}=missing)::RunInfo
+    result = mlfpost(instance, "runs/update"; run_id=run_id,
+        status=ismissing(status) ? missing : (status |> Integer),
         end_time=end_time, run_name=run_name)
     return result["run_info"] |> RunInfo
 end
 updaterun(instance::MLFlow, run::Run;
     status::Union{RunStatus.RunStatusEnum,Missing}=missing,
-    end_time::Union{Int64,Missing}=missing, run_name::Union{String,Missing})::RunInfo =
+    end_time::Union{Int64,Missing}=missing, run_name::Union{String,Missing}=missing)::RunInfo =
     updaterun(instance, run.info.run_id; status=status, end_time=end_time,
         run_name=run_name)

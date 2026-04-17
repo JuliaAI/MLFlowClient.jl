@@ -108,13 +108,19 @@ end
 - Vector of [`RegisteredModel`](@ref) that were found in the [`MLFlow`](@ref) instance.
 - The next page token if there are more results.
 """
-function searchregisteredmodels(instance::MLFlow; filter::String="",
+function searchregisteredmodels(instance::MLFlow; filter::Union{String,Missing}=missing,
     max_results::Int64=100, order_by::Array{String}=String[],
-    page_token::String="")::Tuple{Array{RegisteredModel},Union{String,Nothing}}
-    parameters = (; max_results, page_token, filter)
+    page_token::Union{String,Missing}=missing)::Tuple{Array{RegisteredModel},Union{String,Nothing}}
+    parameters = Dict{Symbol,Any}(:max_results => max_results)
 
-    if order_by |> !isempty
-        parameters = (; order_by, parameters...)
+    if !ismissing(filter) && !isempty(filter)
+        parameters[:filter] = filter
+    end
+    if !ismissing(page_token) && !isempty(page_token)
+        parameters[:page_token] = page_token
+    end
+    if !isempty(order_by)
+        parameters[:order_by] = order_by
     end
 
     result = mlfget(instance, "registered-models/search"; parameters...)

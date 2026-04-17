@@ -21,9 +21,21 @@ The ID of the newly created [`Experiment`](@ref).
 function createexperiment(instance::MLFlow, name::String;
     artifact_location::Union{String,Missing}=missing,
     tags::MLFlowUpsertData{Tag}=Tag[])::String
-    result = mlfpost(instance, "experiments/create"; name=name,
-        artifact_location=artifact_location, tags=parse(Tag, tags))
-    return result["experiment_id"]
+    try
+        result = mlfpost(instance, "experiments/create"; name=name,
+            artifact_location=artifact_location, tags=parse(Tag, tags))
+        return result["experiment_id"]
+    catch e
+        # MLflow with basic-auth may return RESOURCE_ALREADY_EXISTS due to a
+        # permission auto-creation race condition, even though the experiment was
+        # successfully created. Recover by fetching the experiment by name.
+        if e isa ErrorException && occursin("Experiment permission", e.msg) &&
+                occursin("already exists", e.msg)
+            experiment = getexperimentbyname(instance, name)
+            return experiment.experiment_id
+        end
+        rethrow()
+    end
 end
 
 """
@@ -163,12 +175,19 @@ updateexperiment(instance::MLFlow, experiment::Experiment, new_name::String)::Bo
 - The next page token if there are more results.
 """
 function searchexperiments(instance::MLFlow; max_results::Int64=20000,
-    page_token::String="", filter::String="", order_by::Array{String}=String[],
+    page_token::Union{String,Missing}=missing, filter::Union{String,Missing}=missing,
+    order_by::Array{String}=String[],
     view_type::ViewType.ViewTypeEnum=ViewType.ACTIVE_ONLY)::Tuple{Array{Experiment},Union{String,Nothing}}
-    parameters = (; max_results, page_token, filter, :view_type => view_type |> Integer)
+    parameters = Dict{Symbol,Any}(:max_results => max_results, :view_type => view_type |> Integer)
 
-    if order_by |> !isempty
-        parameters = (; order_by, parameters...)
+    if !ismissing(page_token) && !isempty(page_token)
+        parameters[:page_token] = page_token
+    end
+    if !ismissing(filter) && !isempty(filter)
+        parameters[:filter] = filter
+    end
+    if !isempty(order_by)
+        parameters[:order_by] = order_by
     end
 
     result = mlfget(instance, "experiments/search"; parameters...)

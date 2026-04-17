@@ -143,7 +143,7 @@ end
         deleterun(mlf, run)
     end
 
-    @testset "delete tag with run string id" begin
+    @testset "delete tag with Run" begin
         run = createrun(mlf, experiment_id)
         setruntag(mlf, run, "tag", "value")
         deleteruntag(mlf, run, "tag")
@@ -153,6 +153,22 @@ end
         @test (run.data.tags |> length) == 1 # The default tag
         deleterun(mlf, run)
     end
+
+    @testset "set and delete tag with Tag object" begin
+        run = createrun(mlf, experiment_id)
+        tag = Tag("tag_obj", "obj_value")
+        setruntag(mlf, run, tag)
+
+        run = refresh(mlf, run)
+        @test any(t -> t.key == "tag_obj" && t.value == "obj_value", run.data.tags)
+
+        deleteruntag(mlf, run, tag)
+        run = refresh(mlf, run)
+        @test !any(t -> t.key == "tag_obj", run.data.tags)
+
+        deleterun(mlf, run)
+    end
+
     deleteexperiment(mlf, experiment_id)
 end
 
@@ -208,11 +224,22 @@ end
         end_time = 456
         run_name = "gala"
 
-        run_info = updaterun(mlf, run.info.run_id; status=status, end_time=end_time, run_name=run_name)
+        run_info = updaterun(mlf, run; status=status, end_time=end_time, run_name=run_name)
 
         @test run_info.status == status
         @test run_info.end_time == end_time
         @test run_info.run_name == run_name
+    end
+
+    @testset "update only run_name (status and end_time missing)" begin
+        run_info = updaterun(mlf, run.info.run_id; run_name="only-name")
+        @test run_info.run_name == "only-name"
+    end
+
+    @testset "update only status (run_name missing)" begin
+        run2 = createrun(mlf, experiment_id)
+        run_info = updaterun(mlf, run2.info.run_id; status=MLFlowClient.RunStatus.FINISHED)
+        @test run_info.status == MLFlowClient.RunStatus.FINISHED
     end
 
     deleteexperiment(mlf, experiment_id)

@@ -1,5 +1,8 @@
 @testset verbose = true "instantiate mlflow" begin
-    mlflow_tracking_uri = ENV["MLFLOW_TRACKING_URI"]
+    mlflow_tracking_uri = get(ENV, "MLFLOW_TRACKING_URI", "http://localhost:5000/api")
+    if !haskey(ENV, "MLFLOW_TRACKING_URI")
+        ENV["MLFLOW_TRACKING_URI"] = mlflow_tracking_uri
+    end
 
     @testset "using default constructor" begin
         delete!(ENV, "MLFLOW_TRACKING_URI")
@@ -90,5 +93,16 @@
         if !isnothing(mlflow_tracking_uri)
             ENV["MLFLOW_TRACKING_URI"] = mlflow_tracking_uri
         end
+    end
+
+    @testset "show MLFlow" begin
+        delete!(ENV, "MLFLOW_TRACKING_URI")
+        instance = MLFlow("http://localhost:5000/api")
+        io = IOBuffer()
+        show(io, instance)
+        output = String(take!(io))
+        @test occursin("apiroot", output)
+        @test occursin("apiversion", output)
+        ENV["MLFLOW_TRACKING_URI"] = mlflow_tracking_uri
     end
 end

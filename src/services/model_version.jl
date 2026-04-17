@@ -112,13 +112,19 @@ end
 - Vector of [`ModelVersion`](@ref) that were found in the [`MLFlow`](@ref) instance.
 - The next page token if there are more results.
 """
-function searchmodelversions(instance::MLFlow; filter::String="",
+function searchmodelversions(instance::MLFlow; filter::Union{String,Missing}=missing,
     max_results::Int64=200000, order_by::Array{String}=String[],
-    page_token::String="")::Tuple{Array{ModelVersion},Union{String,Nothing}}
-    parameters = (; max_results, page_token, filter)
+    page_token::Union{String,Missing}=missing)::Tuple{Array{ModelVersion},Union{String,Nothing}}
+    parameters = Dict{Symbol,Any}(:max_results => max_results)
 
-    if order_by |> !isempty
-        parameters = (; order_by, parameters...)
+    if !ismissing(filter) && !isempty(filter)
+        parameters[:filter] = filter
+    end
+    if !ismissing(page_token) && !isempty(page_token)
+        parameters[:page_token] = page_token
+    end
+    if !isempty(order_by)
+        parameters[:order_by] = order_by
     end
 
     result = mlfget(instance, "model-versions/search"; parameters...)

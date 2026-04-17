@@ -5,12 +5,12 @@ Status of a webhook.
 
 # Members
 - `ACTIVE`: Webhook is active and sending events.
-- `INACTIVE`: Webhook is inactive and not sending events.
+- `DISABLED`: Webhook is disabled and not sending events.
 """
 module WebhookStatus
     @enum WebhookStatusEnum begin
         ACTIVE = 1
-        INACTIVE = 2
+        DISABLED = 2
     end
     function parse(status::String)::WebhookStatusEnum
         namemap = Dict(value => key for (key, value) in WebhookStatusEnum |> Base.Enums.namemap)
@@ -32,7 +32,8 @@ Entity types that webhooks can monitor.
 - `PROMPT_VERSION`: Monitor prompt version events.
 - `PROMPT_TAG`: Monitor prompt tag events.
 - `PROMPT_VERSION_TAG`: Monitor prompt version tag events.
-- `PROMPT_VERSION_ALIAS`: Monitor prompt version alias events.
+- `PROMPT_ALIAS`: Monitor prompt alias events.
+- `BUDGET_POLICY`: Monitor budget policy events.
 """
 module WebhookEntity
     @enum WebhookEntityEnum begin
@@ -44,7 +45,8 @@ module WebhookEntity
         PROMPT_VERSION = 6
         PROMPT_TAG = 7
         PROMPT_VERSION_TAG = 8
-        PROMPT_VERSION_ALIAS = 9
+        PROMPT_ALIAS = 9
+        BUDGET_POLICY = 10
     end
     function parse(entity::String)::WebhookEntityEnum
         # Strip any prefix like "ENTITY_" and convert to symbol

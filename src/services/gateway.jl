@@ -191,24 +191,31 @@ end
 
 """
     updategatewaymodeldefinition(instance::MLFlow, model_definition_id::String;
-        model_name::Union{String,Missing}=missing, updated_by::Union{String,Missing}=missing)
+        name::Union{String,Missing}=missing, secret_id::Union{String,Missing}=missing,
+        model_name::Union{String,Missing}=missing, provider::Union{String,Missing}=missing,
+        updated_by::Union{String,Missing}=missing)
 
 Update a model definition.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
 - `model_definition_id`: ID of the model definition to update.
+- `name`: Optional new name.
+- `secret_id`: Optional new secret ID.
 - `model_name`: Optional new model name.
+- `provider`: Optional new provider.
 - `updated_by`: Username of the updater.
 
 # Returns
 An instance of type [`GatewayModelDefinition`](@ref).
 """
 function updategatewaymodeldefinition(instance::MLFlow, model_definition_id::String;
-    model_name::Union{String,Missing}=missing, updated_by::Union{String,Missing}=missing)::GatewayModelDefinition
+    name::Union{String,Missing}=missing, secret_id::Union{String,Missing}=missing,
+    model_name::Union{String,Missing}=missing, provider::Union{String,Missing}=missing,
+    updated_by::Union{String,Missing}=missing)::GatewayModelDefinition
     result = mlfpost_v3(instance, "gateway/model-definitions/update";
-        model_definition_id=model_definition_id, model_name=model_name,
-        updated_by=updated_by)
+        model_definition_id=model_definition_id, name=name, secret_id=secret_id,
+        model_name=model_name, provider=provider, updated_by=updated_by)
     return result["model_definition"] |> GatewayModelDefinition
 end
 
@@ -289,7 +296,12 @@ end
 
 """
     updategatewayendpoint(instance::MLFlow, endpoint_id::String;
-        name::Union{String,Missing}=missing, config=missing,
+        name::Union{String,Missing}=missing,
+        model_configs::Union{Array,Missing}=missing,
+        routing_strategy::Union{String,Missing}=missing,
+        fallback_config::Union{Dict,Missing}=missing,
+        experiment_id::Union{String,Missing}=missing,
+        usage_tracking::Union{Bool,Missing}=missing,
         updated_by::Union{String,Missing}=missing)
 
 Update a gateway endpoint.
@@ -297,18 +309,34 @@ Update a gateway endpoint.
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
 - `endpoint_id`: ID of the endpoint to update.
-- `name`: Optional new name.
-- `config`: Optional new configuration.
+- `name`: Optional new name for the endpoint.
+- `model_configs`: Optional new list of model configurations (replaces all existing).
+- `routing_strategy`: Optional new routing strategy.
+- `fallback_config`: Optional fallback configuration.
+- `experiment_id`: Optional experiment ID for tracing.
+- `usage_tracking`: Whether to enable usage tracking.
 - `updated_by`: Username of the updater.
 
 # Returns
 An instance of type [`GatewayEndpoint`](@ref).
 """
 function updategatewayendpoint(instance::MLFlow, endpoint_id::String;
-    name::Union{String,Missing}=missing, config=missing,
+    name::Union{String,Missing}=missing,
+    model_configs::Union{Array,Missing}=missing,
+    routing_strategy::Union{String,Missing}=missing,
+    fallback_config::Union{Dict,Missing}=missing,
+    experiment_id::Union{String,Missing}=missing,
+    usage_tracking::Union{Bool,Missing}=missing,
     updated_by::Union{String,Missing}=missing)::GatewayEndpoint
-    result = mlfpost_v3(instance, "gateway/endpoints/update";
-        endpoint_id=endpoint_id, name=name, config=config, updated_by=updated_by)
+    params = Dict{Symbol,Any}(:endpoint_id => endpoint_id)
+    !ismissing(name) && (params[:name] = name)
+    !ismissing(model_configs) && (params[:model_configs] = model_configs)
+    !ismissing(routing_strategy) && (params[:routing_strategy] = routing_strategy)
+    !ismissing(fallback_config) && (params[:fallback_config] = fallback_config)
+    !ismissing(experiment_id) && (params[:experiment_id] = experiment_id)
+    !ismissing(usage_tracking) && (params[:usage_tracking] = usage_tracking)
+    !ismissing(updated_by) && (params[:updated_by] = updated_by)
+    result = mlfpost_v3(instance, "gateway/endpoints/update"; params...)
     return result["endpoint"] |> GatewayEndpoint
 end
 
@@ -367,14 +395,14 @@ Attach a model to a gateway endpoint.
 - `created_by`: Username of the creator.
 
 # Returns
-An instance of type [`GatewayEndpoint`](@ref).
+An instance of type [`GatewayEndpointModelMapping`](@ref).
 """
 function attachmodeltogatewayendpoint(instance::MLFlow, endpoint_id::String,
-    model_config::Dict{String,Any}; created_by::Union{String,Missing}=missing)::GatewayEndpoint
+    model_config::Dict{String,Any}; created_by::Union{String,Missing}=missing)::GatewayEndpointModelMapping
     params = Dict{Symbol,Any}(:endpoint_id => endpoint_id, :model_config => model_config)
     !ismissing(created_by) && (params[:created_by] = created_by)
     result = mlfpost_v3(instance, "gateway/endpoints/models/attach"; params...)
-    return result["endpoint"] |> GatewayEndpoint
+    return result["mapping"] |> GatewayEndpointModelMapping
 end
 
 """
@@ -393,7 +421,7 @@ Detach a model from a gateway endpoint.
 """
 function detachmodelfromgatewayendpoint(instance::MLFlow, endpoint_id::String,
     model_definition_id::String)::Bool
-    mlfdelete_v3(instance, "gateway/endpoints/models/detach";
+    mlfpost_v3(instance, "gateway/endpoints/models/detach";
         endpoint_id=endpoint_id, model_definition_id=model_definition_id)
     return true
 end

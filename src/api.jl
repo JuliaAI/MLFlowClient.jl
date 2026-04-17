@@ -205,25 +205,3 @@ function mlfdelete_v3(mlf, endpoint; kwargs...)
         throw(ErrorException(error_message))
     end
 end
-
-"""
-    mlfpatch_v3(mlf, endpoint; kwargs...)
-
-Performs a HTTP PATCH to the specified endpoint using API version 3.0. kwargs are converted to JSON and become
-the PATCH body.
-"""
-function mlfpatch_v3(mlf, endpoint; kwargs...)
-    apiuri = uri_v3(mlf, endpoint;)
-    apiheaders = headers(mlf, Dict("Content-Type" => "application/json"))
-    body = JSON.json(kwargs)
-
-    try
-        response = HTTP.patch(apiuri, apiheaders, body)
-        return response.body |> String |> JSON.parse
-    catch e
-        error_response = e.response.body |> String |> JSON.parse
-        error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
-        @error error_message
-        throw(ErrorException(error_message))
-    end
-end

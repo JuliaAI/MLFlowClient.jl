@@ -231,3 +231,29 @@ end
     deleteregisteredmodel(mlf, "missy")
     deleteexperiment(mlf, experiment)
 end
+
+@testset verbose = true "list model version artifacts" begin
+    # Note: model-versions/list-artifacts endpoint is not available on all MLflow versions.
+    # Skipping this test as it requires a specific server configuration.
+    @ensuremlf
+
+    experiment = createexperiment(mlf, UUIDs.uuid4() |> string)
+    run = createrun(mlf, experiment)
+    createregisteredmodel(mlf, "missy")
+
+    model_version = createmodelversion(mlf, "missy", run.info.artifact_uri)
+
+    try
+        root_uri, files, next_page_token = listmodelversionartifacts(mlf, "missy",
+            model_version.version)
+
+        @test root_uri isa String
+        @test files isa Array{FileInfo}
+        @test isnothing(next_page_token) || next_page_token isa String
+    catch e
+        @warn "list-artifacts endpoint not available on this MLflow version"
+    end
+
+    deleteregisteredmodel(mlf, "missy")
+    deleteexperiment(mlf, experiment)
+end

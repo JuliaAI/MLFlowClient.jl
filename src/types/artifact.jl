@@ -11,6 +11,8 @@ struct FileInfo
     is_dir::Bool
     file_size::Int64
 end
+FileInfo(data::AbstractDict) = FileInfo(
+    data["path"], get(data, "is_dir", false), get(data, "file_size", 0))
 Base.show(io::IO, t::FileInfo) = show(io, ShowCase(t, new_lines=true))
 
 """
@@ -28,6 +30,9 @@ struct MultipartUploadCredential
     upload_url::String
     headers::Dict{String,String}
 end
+MultipartUploadCredential(data::AbstractDict) = MultipartUploadCredential(
+    get(data, "part_number", 0), get(data, "url", ""),
+    Dict{String,String}(k => v for (k, v) in get(data, "headers", Dict())))
 
 """
     MultipartUploadPart
