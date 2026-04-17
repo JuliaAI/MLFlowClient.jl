@@ -69,4 +69,4 @@ Environment variables `MLFLOW_TRACKING_URI`, `MLFLOW_TRACKING_USERNAME`, and `ML
 
 ## Documentation
 
-See the [full documentation](https://juliaai.github.io/MLFlowClient.jl/stable) for the complete API reference and tutorial.
+See the [full documentation](https://juliaai.github.io/MLFlowClient.jl) for the complete API reference and tutorial.
