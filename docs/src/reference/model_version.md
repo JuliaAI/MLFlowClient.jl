@@ -12,4 +12,5 @@ transitionmodelversionstage
 setmodelversiontag
 deletemodelversiontag
 getmodelversionbyalias
+listmodelversionartifacts
 ```

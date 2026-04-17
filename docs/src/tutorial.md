@@ -1,125 +1,131 @@
 # Tutorial
 
-For a more comprehensive `MLFlow` tutorial, refer to its [documentation](https://mlflow.org/docs/latest/tutorials-and-examples/tutorial.html).
-
-This tutorial assumes that you are familiar with `MLFlow` concepts and focuses on usage of `MLFlowClient`.
-
-
-Suppose that you are developing a method `getpricepath(α, n)` which generates a random price path using `α`. This example is adapted from [QuantEcon Chapter 1](https://julia.quantecon.org/getting_started_julia/julia_by_example.html#id7).
-
-
-```julia
-using Plots
-using Random
-
-αs = [0.0, 0.9, 0.98]
-n = 100
-p = plot()
-
-function getpricepath(α, n)
-    x = zeros(n + 1)
-    x[1] = 0.0
-    for t in 1:n
-        x[t+1] = α * x[t] + rand()
-    end
-    x
-end
-
-pricepaths = [getpricepath(α, n) for α in αs]
-
-for (idx, pricepath) in enumerate(pricepaths)
-    plot!(p, pricepath,
-        title="Random price paths",
-        label="alpha = $(αs[idx])",
-        xlabel="Timestep", ylabel="Price"
-    )
-end
-
-p
-```
-
-This could result in the following plot:
-
-![](images/withoutmlflow.png)
-
-Now, suppose that you are interested in turning this into an experiment which stores its metadata and results in MLFlow using `MLFlowClient`. You could amend the code like this:
+This tutorial covers the common MLflow tracking workflow with `MLFlowClient`: creating experiments, logging parameters, metrics, and artifacts, and managing runs.
 
 !!! note
-    Running this example assumes you have an active MLFlow running on your computer.
+    This tutorial assumes you have an MLflow server running locally. Start one with:
+    ```bash
+    mlflow server --host 0.0.0.0 --port 5000
+    ```
 
+## Connecting to MLflow
 
 ```julia
-using Plots
 using MLFlowClient
-using Random
 
-# Parameters
-αs = [0.0, 0.9, 0.98]
-n = 100
+# Connect to a local MLflow server
+mlf = MLFlow("http://localhost:5000")
 
-"Method that generates price paths of length `n` based on `α`"
-function getpricepath(α, n)
-    x = zeros(n + 1)
-    x[1] = 0.0
-    for t in 1:n
-        x[t+1] = α * x[t] + rand()
-    end
-    x
-end
-p = plot()
-
-# Create MLFlow instance
-mlf = MLFlow("http://localhost:5000/api")
-
-# Initiate new experiment
-experiment_id = createexperiment(mlf, "price-paths")
-
-# Create a run in the new experiment
-exprun = createrun(mlf, experiment_id)
-
-# Log parameters and their values
-for (idx, α) in enumerate(αs)
-    logparam(mlf, exprun, "alpha$(idx)", string(α)) # MLFlow only supports string parameter values
-end
-
-# Obtain pricepaths
-pricepaths = [getpricepath(α, n) for α in αs]
-
-# Log pricepaths in MLFlow
-for (idx, pricepath) in enumerate(pricepaths)
-    plot!(p,
-        pricepath,
-        title="Random price paths",
-        label="alpha = $(αs[idx])",
-        xlabel="Timestep",
-        ylabel="Price"
-    )
-
-    # Log each point in the price path as a separate metric with step parameter
-    for (step, value) in enumerate(pricepath)
-        logmetric(mlf, exprun, "pricepath$(idx)", Float64(value); step=step-1)
-    end
-end
-
-# Save the price path plot as an image
-plotfilename = "pricepaths-plot.png"
-png(plotfilename)
-
-# TODO: Upload the plot as an artifact when logartifact function is implemented
-# See: https://github.com/JuliaAI/MLFlowClient.jl/issues/61
-# logartifact(mlf, exprun, plotfilename)
-
-# Keep the plot file since artifact upload is not yet available
-# rm(plotfilename)
-
-# complete the experiment
-updaterun(mlf, exprun; status=RunStatus.FINISHED)
+# Or with authentication
+mlf = MLFlow("http://localhost:5000"; username="admin", password="password")
 ```
 
-This will result in the folowing experiment created in your `MLFlow` which is running on `http://localhost/`:
+## Creating an experiment and a run
 
-![](images/mlflowexp.png)
+```julia
+# Create a new experiment
+experiment_id = createexperiment(mlf, "my-experiment")
 
-You can also observe series logged against individual metrics, i.e. `pricepath1` looks like this in `MLFlow`:
+# Create a run within the experiment
+run = createrun(mlf, experiment_id; run_name="training-run-1")
+```
 
-![](images/mlflowexpmetric1.png)
+## Logging parameters
+
+Parameters are string key-value pairs, typically used for hyperparameters.
+
+```julia
+# Log individual parameters
+logparam(mlf, run, "learning_rate", "0.01")
+logparam(mlf, run, "epochs", "100")
+logparam(mlf, run, "model", "linear_regression")
+```
+
+## Logging metrics
+
+Metrics are numeric key-value pairs with timestamps. They can be logged multiple times to track progress over time.
+
+```julia
+# Log a single metric
+logmetric(mlf, run, "accuracy", 0.85)
+
+# Log metrics at specific steps (e.g., per epoch)
+for epoch in 1:10
+    loss = 1.0 / epoch  # simulated loss
+    logmetric(mlf, run, "loss", loss; step=epoch)
+end
+```
+
+## Logging in batch
+
+For efficiency, you can log multiple metrics, parameters, and tags in a single call.
+
+```julia
+logbatch(mlf, run;
+    metrics=[("rmse", 0.12), ("mae", 0.08)],
+    params=[("optimizer", "adam"), ("batch_size", "32")],
+    tags=[("version", "v1.0")]
+)
+```
+
+## Logging artifacts
+
+Upload and download files associated with a run.
+
+```julia
+# Upload an artifact
+data = Vector{UInt8}(codeunits("model weights or any binary data"))
+uploadartifact(mlf, "models/weights.bin", data)
+
+# Download it back
+downloaded = downloadartifact(mlf, "models/weights.bin")
+
+# List artifacts
+root_uri, files, _ = listartifacts(mlf, run)
+```
+
+## Tagging runs
+
+Tags are mutable metadata on runs, useful for labeling and filtering.
+
+```julia
+# Set a tag
+setruntag(mlf, run, "environment", "production")
+
+# Remove a tag
+deleteruntag(mlf, run, "environment")
+```
+
+## Completing a run
+
+```julia
+updaterun(mlf, run; status=RunStatus.FINISHED)
+```
+
+## Searching experiments and runs
+
+```julia
+# Search all active experiments
+experiments, _ = searchexperiments(mlf)
+
+# Search runs with a filter
+runs, _ = searchruns(mlf;
+    experiment_ids=[experiment_id],
+    filter="metrics.accuracy > 0.8"
+)
+```
+
+## Retrieving metric history
+
+```julia
+metrics, _ = getmetrichistory(mlf, run, "loss")
+for m in metrics
+    println("step=$(m.step), value=$(m.value)")
+end
+```
+
+## Cleaning up
+
+```julia
+deleteexperiment(mlf, experiment_id)
+```

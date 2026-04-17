@@ -14,6 +14,7 @@ makedocs(;
         "Registered model operations" => "reference/registered_model.md",
         "Model version operations" => "reference/model_version.md",
         "User operations" => "reference/user.md",
+        "Webhook operations" => "reference/webhook.md",
         "Scorer operations" => "reference/scorer.md",
         "Gateway operations" => "reference/gateway.md",
         "Prompt optimization operations" => "reference/prompt_optimization.md"]])

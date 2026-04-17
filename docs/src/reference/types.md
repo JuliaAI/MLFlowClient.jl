@@ -5,6 +5,11 @@ Tag
 Dataset
 DatasetInput
 FileInfo
+ModelInput
+ModelOutput
+ModelMetric
+ModelParam
+ModelVersionDeploymentJobState
 ModelVersion
 RegisteredModel
 RegisteredModelAlias
@@ -15,10 +20,13 @@ Metric
 RunData
 RunInfo
 RunInputs
+RunOutputs
 User
 ExperimentPermission
 RegisteredModelPermission
 Scorer
+Webhook
+WebhookTestResult
 GatewaySecretInfo
 GatewayModelDefinition
 GatewayEndpoint
