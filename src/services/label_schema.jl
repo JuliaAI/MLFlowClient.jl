@@ -9,7 +9,7 @@ Create a new [`LabelSchema`](@ref) scoped to an experiment.
 - `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: Parent experiment ID.
 - `name`: Schema name (unique within the experiment).
-- `type`: Schema type (`FEEDBACK` or `EXPECTATION`, see [`LabelSchemaType`](@ref)).
+- `type`: Schema type (`FEEDBACK` or `EXPECTATION`, see `LabelSchemaType`).
 - `input`: The input configuration as a dictionary with exactly one variant key
     (`pass_fail`, `categorical`, `numeric`, or `text`), e.g.
     `Dict("categorical" => Dict("options" => ["good", "bad"]))`.

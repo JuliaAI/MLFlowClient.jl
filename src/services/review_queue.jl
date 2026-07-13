@@ -10,7 +10,7 @@ Create a [`ReviewQueue`](@ref) (user or custom) scoped to an experiment.
 - `instance`: [`MLFlow`](@ref) configuration.
 - `experiment_id`: Parent experiment ID.
 - `name`: Queue name (must be unique within the experiment).
-- `queue_type`: Queue type (`USER` or `CUSTOM`, see [`ReviewQueueType`](@ref)). A USER queue
+- `queue_type`: Queue type (`USER` or `CUSTOM`, see `ReviewQueueType`). A USER queue
     must have exactly one user equal to its name and no schemas; a CUSTOM queue may not use
     the reserved name `default`.
 - `created_by`: Optional owner of the queue (server-stamped on authenticated servers).
@@ -199,7 +199,7 @@ the existing status).
 - `instance`: [`MLFlow`](@ref) configuration.
 - `queue_id`: The review queue ID.
 - `item_ids`: IDs of the items to attach (trace IDs in v1).
-- `item_type`: Type of the referenced objects (see [`ReviewItemType`](@ref)); defaults to
+- `item_type`: Type of the referenced objects (see `ReviewItemType`); defaults to
     `TRACE`, the only supported value.
 
 # Returns
@@ -243,7 +243,7 @@ List a [`ReviewQueue`](@ref)'s attached items, newest-attached first.
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
 - `queue_id`: The review queue ID.
-- `status`: Optional filter by status (see [`ReviewStatus`](@ref)).
+- `status`: Optional filter by status (see `ReviewStatus`).
 - `max_results`: Maximum number of items to return.
 - `page_token`: Token indicating the page of items to fetch.
 
@@ -274,7 +274,7 @@ Set the shared-pool status of an attached [`ReviewQueueItem`](@ref).
 - `instance`: [`MLFlow`](@ref) configuration.
 - `queue_id`: The review queue ID.
 - `item_id`: The item ID.
-- `status`: New status (see [`ReviewStatus`](@ref)).
+- `status`: New status (see `ReviewStatus`).
 - `completed_by`: Required for `COMPLETE`/`DECLINED`; must be absent for `PENDING` (reopening
     an item clears attribution).
 
