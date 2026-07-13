@@ -38,6 +38,12 @@ function start_mlflow_server(; port::Int=free_port(), timeout::Real=180,
     mlflow_version = pyconvert(String, pyimport("mlflow").__version__)
     workdir = mktempdir()
     ENV["MLFLOW_FLASK_SERVER_SECRET_KEY"] = "mlflowclient.jl"
+    # MLflow 3.14 serves with multiple workers, and each worker generates its own random
+    # Fernet key for webhook secrets unless this is set. A secret encrypted by one worker
+    # then fails to decrypt on another (cryptography.fernet.InvalidToken → 500), e.g. when
+    # deleting a webhook that has a secret. A fixed key shared by all workers avoids it.
+    # Value is urlsafe-base64 of the 32-byte string "mlflowclient.jl-test-webhook-key".
+    ENV["MLFLOW_WEBHOOK_SECRET_ENCRYPTION_KEY"] = "bWxmbG93Y2xpZW50LmpsLXRlc3Qtd2ViaG9vay1rZXk="
 
     args = ["mlflow", "server", "--app-name", "basic-auth",
         "--backend-store-uri", "sqlite:///mlflow.db",
@@ -85,5 +91,6 @@ function stop_mlflow_server(server::ManagedMLflowServer)
     end
     rm(server.workdir; recursive=true, force=true)
     delete!(ENV, "MLFLOW_FLASK_SERVER_SECRET_KEY")
+    delete!(ENV, "MLFLOW_WEBHOOK_SECRET_ENCRYPTION_KEY")
     return nothing
 end
