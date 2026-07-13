@@ -9,4 +9,5 @@ createmultipartupload
 completemultipartupload
 abortmultipartupload
 getpresigneddownloadurl
+createpresigneduploadurl
 ```

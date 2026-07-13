@@ -14,9 +14,12 @@ makedocs(;
         "Registered model operations" => "reference/registered_model.md",
         "Model version operations" => "reference/model_version.md",
         "User operations" => "reference/user.md",
+        "Workspace operations" => "reference/workspace.md",
         "Webhook operations" => "reference/webhook.md",
         "Scorer operations" => "reference/scorer.md",
         "Gateway operations" => "reference/gateway.md",
-        "Prompt optimization operations" => "reference/prompt_optimization.md"]])
+        "Prompt optimization operations" => "reference/prompt_optimization.md",
+        "Label schema operations" => "reference/label_schema.md",
+        "Review queue operations" => "reference/review_queue.md"]])
 
 deploydocs(; repo="github.com/JuliaAI/MLFlowClient.jl", devbranch="main")

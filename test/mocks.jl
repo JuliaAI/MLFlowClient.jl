@@ -63,8 +63,9 @@ end
 
 function fixture_experiment(; experiment_id="1", name="test-experiment",
     artifact_location="mlflow-artifacts:/0", lifecycle_stage="active",
-    last_update_time=1700000000000, creation_time=1700000000000, tags=[])
-    Dict{String,Any}(
+    last_update_time=1700000000000, creation_time=1700000000000, tags=[],
+    workspace=nothing)
+    d = Dict{String,Any}(
         "experiment_id" => experiment_id,
         "name" => name,
         "artifact_location" => artifact_location,
@@ -73,6 +74,8 @@ function fixture_experiment(; experiment_id="1", name="test-experiment",
         "creation_time" => creation_time,
         "tags" => tags
     )
+    !isnothing(workspace) && (d["workspace"] = workspace)
+    return d
 end
 
 function fixture_run_info(; run_id="abc123", run_name="test-run", experiment_id="1",
@@ -253,6 +256,42 @@ function fixture_gateway_budget_window(; budget_policy_id="bp-abc",
     )
 end
 
+function fixture_gateway_guardrail(; guardrail_id="guard-abc", name="test-guardrail",
+    scorer=nothing, stage="BEFORE", action="VALIDATION", action_endpoint_id="",
+    created_by="user1", created_at=1700000000000, last_updated_by="user1",
+    last_updated_at=1700000000000)
+    d = Dict{String,Any}(
+        "guardrail_id" => guardrail_id,
+        "name" => name,
+        "stage" => stage,
+        "action" => action,
+        "action_endpoint_id" => action_endpoint_id,
+        "created_by" => created_by,
+        "created_at" => created_at,
+        "last_updated_by" => last_updated_by,
+        "last_updated_at" => last_updated_at
+    )
+    if !isnothing(scorer)
+        d["scorer"] = scorer
+    end
+    return d
+end
+
+function fixture_gateway_guardrail_config(; endpoint_id="ep-abc", guardrail_id="guard-abc",
+    execution_order=1, created_by="user1", created_at=1700000000000, guardrail=nothing)
+    d = Dict{String,Any}(
+        "endpoint_id" => endpoint_id,
+        "guardrail_id" => guardrail_id,
+        "execution_order" => execution_order,
+        "created_by" => created_by,
+        "created_at" => created_at
+    )
+    if !isnothing(guardrail)
+        d["guardrail"] = guardrail
+    end
+    return d
+end
+
 function fixture_prompt_optimization_job(; job_id="job-abc", run_id="run-abc",
     state=Dict("state" => "PENDING", "message" => ""), experiment_id="1",
     source_prompt_uri="prompts:/test/1", optimized_prompt_uri="",
@@ -293,13 +332,119 @@ function fixture_webhook(; webhook_id="wh-abc", name="test-webhook",
     )
 end
 
-function fixture_user(; id="1", username="testuser", is_admin=false,
-    experiment_permissions=[], registered_model_permissions=[])
+function fixture_user(; id="1", username="testuser", is_admin=false)
     Dict{String,Any}(
         "id" => id,
         "username" => username,
-        "is_admin" => is_admin,
-        "experiment_permissions" => experiment_permissions,
-        "registered_model_permissions" => registered_model_permissions
+        "is_admin" => is_admin
+    )
+end
+
+function fixture_role_permission(; id=1, role_id=1, resource_type="experiment",
+    resource_pattern="1", permission="MANAGE")
+    Dict{String,Any}(
+        "id" => id,
+        "role_id" => role_id,
+        "resource_type" => resource_type,
+        "resource_pattern" => resource_pattern,
+        "permission" => permission
+    )
+end
+
+function fixture_role(; id=1, name="test-role", workspace="default", description=nothing,
+    permissions=[])
+    Dict{String,Any}(
+        "id" => id,
+        "name" => name,
+        "workspace" => workspace,
+        "description" => description,
+        "permissions" => permissions
+    )
+end
+
+function fixture_user_role_assignment(; id=1, user_id="1", role_id=1)
+    Dict{String,Any}(
+        "id" => id,
+        "user_id" => user_id,
+        "role_id" => role_id
+    )
+end
+
+function fixture_user_permission(; role_id=1, role_name="__user_1__", workspace="default",
+    resource_type="experiment", resource_pattern="1", permission="MANAGE")
+    Dict{String,Any}(
+        "role_id" => role_id,
+        "role_name" => role_name,
+        "workspace" => workspace,
+        "resource_type" => resource_type,
+        "resource_pattern" => resource_pattern,
+        "permission" => permission
+    )
+end
+
+function fixture_trace_archival_config(; location=nothing, retention="30d")
+    d = Dict{String,Any}()
+    !isnothing(location) && (d["location"] = location)
+    !isnothing(retention) && (d["retention"] = retention)
+    return d
+end
+
+function fixture_workspace(; name="test-workspace", description="a test workspace",
+    default_artifact_root=nothing, trace_archival_config=nothing)
+    d = Dict{String,Any}("name" => name, "description" => description)
+    !isnothing(default_artifact_root) && (d["default_artifact_root"] = default_artifact_root)
+    !isnothing(trace_archival_config) && (d["trace_archival_config"] = trace_archival_config)
+    return d
+end
+
+function fixture_label_schema(; schema_id="ls-abc", experiment_id="1", name="quality",
+    type="FEEDBACK", instruction="Rate the response", enable_comment=true,
+    input=Dict("categorical" => Dict("options" => ["good", "bad"], "multi_select" => false)),
+    created_by="user1", created_at=1700000000000, last_updated_at=1700000000000,
+    is_default=false)
+    d = Dict{String,Any}(
+        "schema_id" => schema_id,
+        "experiment_id" => experiment_id,
+        "name" => name,
+        "type" => type,
+        "instruction" => instruction,
+        "enable_comment" => enable_comment,
+        "created_by" => created_by,
+        "created_at" => created_at,
+        "last_updated_at" => last_updated_at,
+        "is_default" => is_default
+    )
+    !isnothing(input) && (d["input"] = input)
+    return d
+end
+
+function fixture_review_queue(; queue_id="rq-abc", experiment_id="1", name="reviewer1",
+    queue_type="USER", created_by="user1", creation_time_ms=1700000000000,
+    last_update_time_ms=1700000000000, users=["reviewer1"], schema_ids=[])
+    Dict{String,Any}(
+        "queue_id" => queue_id,
+        "experiment_id" => experiment_id,
+        "name" => name,
+        "queue_type" => queue_type,
+        "created_by" => created_by,
+        "creation_time_ms" => creation_time_ms,
+        "last_update_time_ms" => last_update_time_ms,
+        "users" => users,
+        "schema_ids" => schema_ids
+    )
+end
+
+function fixture_review_queue_item(; queue_id="rq-abc", item_type="TRACE", item_id="tr-1",
+    status="PENDING", completed_by="", completed_time_ms=0,
+    creation_time_ms=1700000000000, last_update_time_ms=1700000000000)
+    Dict{String,Any}(
+        "queue_id" => queue_id,
+        "item_type" => item_type,
+        "item_id" => item_id,
+        "status" => status,
+        "completed_by" => completed_by,
+        "completed_time_ms" => completed_time_ms,
+        "creation_time_ms" => creation_time_ms,
+        "last_update_time_ms" => last_update_time_ms
     )
 end

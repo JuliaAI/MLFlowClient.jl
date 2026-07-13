@@ -46,3 +46,15 @@ deletegatewaybudget
 listgatewaybudgets
 listgatewaybudgetwindows
 ```
+
+## Guardrails
+```@docs
+creategatewayguardrail
+getgatewayguardrail
+deletegatewayguardrail
+listgatewayguardrails
+addguardrailtoendpoint
+removeguardrailfromendpoint
+listendpointguardrailconfigs
+updateendpointguardrailconfig
+```

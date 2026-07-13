@@ -29,7 +29,9 @@ include("types/enums.jl")
 export ViewType, RunStatus, ModelVersionStatus, Permission, DeploymentJobRunState, State,
     WebhookStatus, WebhookEvent, JobState, OptimizerType,
     RoutingStrategy, FallbackStrategy, BudgetUnit, BudgetDurationUnit,
-    BudgetTargetScope, BudgetAction, GatewayModelLinkageType
+    BudgetTargetScope, BudgetAction, GatewayModelLinkageType,
+    GuardrailStage, GuardrailAction,
+    LabelSchemaType, ReviewItemType, ReviewQueueType, ReviewStatus
 
 include("types/dataset.jl")
 export Dataset, DatasetInput
@@ -42,16 +44,22 @@ export ModelInput, ModelMetric, ModelOutput, ModelParam, ModelVersion,
     ModelVersionDeploymentJobState
 
 include("types/registered_model.jl")
-export RegisteredModel, RegisteredModelAlias, RegisteredModelPermission
+export RegisteredModel, RegisteredModelAlias
 
 include("types/experiment.jl")
-export Experiment, ExperimentPermission
+export Experiment
 
 include("types/run.jl")
 export Run, Param, Metric, RunData, RunInfo, RunInputs, RunOutputs
 
 include("types/user.jl")
 export User
+
+include("types/role.jl")
+export Role, RolePermission, UserRoleAssignment, UserPermission
+
+include("types/workspace.jl")
+export Workspace, TraceArchivalConfig
 
 include("types/webhook.jl")
 export Webhook, WebhookTestResult, WebhookEntity, WebhookAction, WebhookEvent
@@ -63,11 +71,19 @@ include("types/gateway.jl")
 export GatewaySecretInfo, GatewayModelDefinition, GatewayEndpoint, GatewayEndpointConfig,
     GatewayEndpointBinding, GatewayBudgetWindow,
     FallbackConfig, BudgetDuration, GatewayEndpointModelConfig,
-    GatewayEndpointModelMapping, GatewayEndpointTag, GatewayBudgetPolicy
+    GatewayEndpointModelMapping, GatewayEndpointTag, GatewayBudgetPolicy,
+    GatewayGuardrail, GatewayGuardrailConfig
 
 include("types/prompt_optimization.jl")
 export PromptOptimizationJob, PromptOptimizationJobConfig, PromptOptimizationJobTag,
     InitialEvalScoresEntry, FinalEvalScoresEntry, JobStateInfo
+
+include("types/label_schema.jl")
+export LabelSchema, LabelSchemaInput, InputPassFail, InputCategorical, InputNumeric,
+    InputText
+
+include("types/review_queue.jl")
+export ReviewQueue, ReviewQueueItem
 
 include("api.jl")
 
@@ -76,9 +92,7 @@ include("utils.jl")
 include("services/experiment.jl")
 export getexperiment, createexperiment, deleteexperiment, setexperimenttag,
     deleteexperimenttag,
-    updateexperiment, restoreexperiment, searchexperiments, getexperimentbyname,
-    createexperimentpermission, getexperimentpermission, updateexperimentpermission,
-    deleteexperimentpermission
+    updateexperiment, restoreexperiment, searchexperiments, getexperimentbyname
 
 include("services/run.jl")
 export getrun, createrun, deleterun, setruntag, updaterun, restorerun, searchruns,
@@ -90,7 +104,7 @@ export logbatch, loginputs, logmetric, logmodel, logparam
 include("services/artifact.jl")
 export listartifacts, downloadartifact, uploadartifact, listartifactsdirect,
     deleteartifact, createmultipartupload, completemultipartupload,
-    abortmultipartupload, getpresigneddownloadurl
+    abortmultipartupload, getpresigneddownloadurl, createpresigneduploadurl
 
 include("services/misc.jl")
 export refresh, getmetrichistory
@@ -99,8 +113,7 @@ include("services/registered_model.jl")
 export getregisteredmodel, createregisteredmodel, deleteregisteredmodel,
     renameregisteredmodel, updateregisteredmodel, searchregisteredmodels,
     setregisteredmodeltag, deleteregisteredmodeltag, deleteregisteredmodelalias,
-    setregisteredmodelalias, createregisteredmodelpermission, getregisteredmodelpermission,
-    updateregisteredmodelpermission, deleteregisteredmodelpermission
+    setregisteredmodelalias
 
 include("services/model_version.jl")
 export getlatestmodelversions, getmodelversion, createmodelversion, deletemodelversion,
@@ -109,7 +122,16 @@ export getlatestmodelversions, getmodelversion, createmodelversion, deletemodelv
     getmodelversionbyalias, listmodelversionartifacts
 
 include("services/user.jl")
-export createuser, getuser, updateuserpassword, updateuseradmin, deleteuser
+export createuser, getuser, updateuserpassword, updateuseradmin, deleteuser, listusers,
+    getcurrentuser,
+    createrole, getrole, listroles, updaterole, deleterole,
+    addrolepermission, removerolepermission, listrolepermissions, updaterolepermission,
+    assignrole, unassignrole, listuserroles, listroleusers,
+    grantuserpermission, revokeuserpermission, getuserpermission, listuserpermissions,
+    listcurrentuserpermissions
+
+include("services/workspace.jl")
+export listworkspaces, createworkspace, getworkspace, updateworkspace, deleteworkspace
 
 include("services/webhook.jl")
 export createwebhook, getwebhook, listwebhooks, updatewebhook, deletewebhook, testwebhook
@@ -128,10 +150,22 @@ export creategatewaysecret, getgatewaysecretinfo, updategatewaysecret, deletegat
     creategatewayendpointbinding, deletegatewayendpointbinding, listgatewayendpointbindings,
     setgatewayendpointtag, deletegatewayendpointtag,
     creategatewaybudget, getgatewaybudget, updategatewaybudget, deletegatewaybudget,
-    listgatewaybudgets, listgatewaybudgetwindows
+    listgatewaybudgets, listgatewaybudgetwindows,
+    creategatewayguardrail, getgatewayguardrail, deletegatewayguardrail,
+    listgatewayguardrails, addguardrailtoendpoint, removeguardrailfromendpoint,
+    listendpointguardrailconfigs, updateendpointguardrailconfig
 
 include("services/prompt_optimization.jl")
 export createpromptoptimizationjob, getpromptoptimizationjob, searchpromptoptimizationjobs,
     cancelpromptoptimizationjob, deletepromptoptimizationjob
+
+include("services/label_schema.jl")
+export createlabelschema, getlabelschema, getlabelschemabyname, listlabelschemas,
+    updatelabelschema, deletelabelschema
+
+include("services/review_queue.jl")
+export createreviewqueue, getorcreateuserqueue, getreviewqueue, getreviewqueuebyname,
+    listreviewqueues, updatereviewqueue, deletereviewqueue, additemstoreviewqueue,
+    removeitemsfromreviewqueue, listreviewqueueitems, setreviewqueueitemstatus
 
 end

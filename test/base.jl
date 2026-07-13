@@ -6,7 +6,7 @@ using MLFlowClient
 
 function mlflow_server_is_running(mlf::MLFlow)
     try
-        response = MLFlowClient.mlfget(mlf, "experiments/list")
+        response = MLFlowClient.mlfget(mlf, "experiments/search"; max_results=1)
         return isa(response, Dict)
     catch e
         return false

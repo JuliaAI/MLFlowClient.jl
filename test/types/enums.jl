@@ -93,6 +93,18 @@
         @test GatewayModelLinkageType.parse("FALLBACK") == GatewayModelLinkageType.FALLBACK
     end
 
+    @testset "GuardrailStage" begin
+        @test GuardrailStage.parse("GUARDRAIL_STAGE_UNSPECIFIED") == GuardrailStage.GUARDRAIL_STAGE_UNSPECIFIED
+        @test GuardrailStage.parse("BEFORE") == GuardrailStage.BEFORE
+        @test GuardrailStage.parse("AFTER") == GuardrailStage.AFTER
+    end
+
+    @testset "GuardrailAction" begin
+        @test GuardrailAction.parse("GUARDRAIL_ACTION_UNSPECIFIED") == GuardrailAction.GUARDRAIL_ACTION_UNSPECIFIED
+        @test GuardrailAction.parse("VALIDATION") == GuardrailAction.VALIDATION
+        @test GuardrailAction.parse("SANITIZATION") == GuardrailAction.SANITIZATION
+    end
+
     @testset "WebhookStatus" begin
         @test WebhookStatus.parse("ACTIVE") == WebhookStatus.ACTIVE
         @test WebhookStatus.parse("DISABLED") == WebhookStatus.DISABLED
@@ -121,6 +133,30 @@
         @test WebhookAction.parse("EXCEEDED") == WebhookAction.EXCEEDED
         # Test with ACTION_ prefix stripping
         @test WebhookAction.parse("ACTION_CREATED") == WebhookAction.CREATED
+    end
+
+    @testset "LabelSchemaType" begin
+        @test LabelSchemaType.parse("LABEL_SCHEMA_TYPE_UNSPECIFIED") == LabelSchemaType.LABEL_SCHEMA_TYPE_UNSPECIFIED
+        @test LabelSchemaType.parse("FEEDBACK") == LabelSchemaType.FEEDBACK
+        @test LabelSchemaType.parse("EXPECTATION") == LabelSchemaType.EXPECTATION
+    end
+
+    @testset "ReviewItemType" begin
+        @test ReviewItemType.parse("REVIEW_ITEM_TYPE_UNSPECIFIED") == ReviewItemType.REVIEW_ITEM_TYPE_UNSPECIFIED
+        @test ReviewItemType.parse("TRACE") == ReviewItemType.TRACE
+    end
+
+    @testset "ReviewQueueType" begin
+        @test ReviewQueueType.parse("REVIEW_QUEUE_TYPE_UNSPECIFIED") == ReviewQueueType.REVIEW_QUEUE_TYPE_UNSPECIFIED
+        @test ReviewQueueType.parse("USER") == ReviewQueueType.USER
+        @test ReviewQueueType.parse("CUSTOM") == ReviewQueueType.CUSTOM
+    end
+
+    @testset "ReviewStatus" begin
+        @test ReviewStatus.parse("REVIEW_STATUS_UNSPECIFIED") == ReviewStatus.REVIEW_STATUS_UNSPECIFIED
+        @test ReviewStatus.parse("PENDING") == ReviewStatus.PENDING
+        @test ReviewStatus.parse("COMPLETE") == ReviewStatus.COMPLETE
+        @test ReviewStatus.parse("DECLINED") == ReviewStatus.DECLINED
     end
 
     @testset "ViewType enum values" begin

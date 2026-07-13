@@ -298,3 +298,86 @@ end
         @test windows isa Array{GatewayBudgetWindow}
     end
 end
+
+@testset verbose = true "gateway guardrails" begin
+    @ensuremlf
+
+    experiment_id = createexperiment(mlf, UUIDs.uuid4() |> string)
+    serialized_scorer = """{"type": "test_scorer", "config": {"threshold": 0.5}}"""
+    scorer = registerscorer(mlf, experiment_id, UUIDs.uuid4() |> string, serialized_scorer)
+    scorer_id = scorer["scorer_id"]
+    scorer_version = scorer["version"] |> Int64
+
+    @testset "create guardrail" begin
+        guardrail = creategatewayguardrail(mlf, "guard-$(UUIDs.uuid4())", scorer_id,
+            scorer_version, "BEFORE", "VALIDATION")
+        @test guardrail isa GatewayGuardrail
+        @test !isempty(guardrail.guardrail_id)
+        @test guardrail.stage == "BEFORE"
+        @test guardrail.action == "VALIDATION"
+
+        deletegatewayguardrail(mlf, guardrail.guardrail_id)
+    end
+
+    @testset "get guardrail" begin
+        created = creategatewayguardrail(mlf, "get-guard-$(UUIDs.uuid4())", scorer_id,
+            scorer_version, "BEFORE", "VALIDATION")
+        guardrail = getgatewayguardrail(mlf, created.guardrail_id)
+        @test guardrail isa GatewayGuardrail
+        @test guardrail.guardrail_id == created.guardrail_id
+
+        deletegatewayguardrail(mlf, created.guardrail_id)
+    end
+
+    @testset "list guardrails" begin
+        g1 = creategatewayguardrail(mlf, "list-guard-$(UUIDs.uuid4())", scorer_id,
+            scorer_version, "AFTER", "SANITIZATION")
+        guardrails, next_page_token = listgatewayguardrails(mlf)
+        @test guardrails isa Array{GatewayGuardrail}
+        @test length(guardrails) >= 1
+        @test next_page_token isa Union{String,Nothing}
+
+        deletegatewayguardrail(mlf, g1.guardrail_id)
+    end
+
+    @testset "delete guardrail" begin
+        created = creategatewayguardrail(mlf, "del-guard-$(UUIDs.uuid4())", scorer_id,
+            scorer_version, "AFTER", "SANITIZATION")
+        @test deletegatewayguardrail(mlf, created.guardrail_id)
+    end
+
+    @testset "add, list, update and remove endpoint guardrail config" begin
+        secret = creategatewaysecret(mlf, "guard-secret-$(UUIDs.uuid4())",
+            [Dict("key" => "api_key", "value" => "sk-guard")]; provider="openai")
+        mdef = creategatewaymodeldefinition(mlf, "guard-mdef-$(UUIDs.uuid4())",
+            secret.secret_id, "openai", "gpt-4")
+        model_configs = [Dict("model_definition_id" => mdef.model_definition_id,
+            "linkage_type" => "PRIMARY", "weight" => 1.0)]
+        endpoint = creategatewayendpoint(mlf, "guard-ep-$(UUIDs.uuid4())", model_configs)
+        guardrail = creategatewayguardrail(mlf, "ep-guard-$(UUIDs.uuid4())", scorer_id,
+            scorer_version, "BEFORE", "VALIDATION")
+
+        config = addguardrailtoendpoint(mlf, endpoint.endpoint_id, guardrail.guardrail_id;
+            execution_order=1)
+        @test config isa GatewayGuardrailConfig
+        @test config.endpoint_id == endpoint.endpoint_id
+        @test config.guardrail_id == guardrail.guardrail_id
+
+        configs = listendpointguardrailconfigs(mlf, endpoint.endpoint_id)
+        @test configs isa Array{GatewayGuardrailConfig}
+        @test any(c -> c.guardrail_id == guardrail.guardrail_id, configs)
+
+        updated = updateendpointguardrailconfig(mlf, endpoint.endpoint_id,
+            guardrail.guardrail_id, 2)
+        @test updated isa GatewayGuardrailConfig
+
+        @test removeguardrailfromendpoint(mlf, endpoint.endpoint_id, guardrail.guardrail_id)
+
+        deletegatewayguardrail(mlf, guardrail.guardrail_id)
+        deletegatewayendpoint(mlf, endpoint.endpoint_id)
+        deletegatewaymodeldefinition(mlf, mdef.model_definition_id)
+        deletegatewaysecret(mlf, secret.secret_id)
+    end
+
+    deleteexperiment(mlf, experiment_id)
+end

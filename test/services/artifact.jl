@@ -20,6 +20,17 @@
         @test isnothing(next_page_token)
     end
 
+    @testset "create presigned upload url" begin
+        try
+            presigned_url, upload_headers =
+                createpresigneduploadurl(mlf, run.info.run_id, "models/model.pkl")
+            @test presigned_url isa String
+            @test upload_headers isa Dict{String,String}
+        catch e
+            @warn "Presigned upload URL not supported on this server"
+        end
+    end
+
     deleteexperiment(mlf, experiment_id)
 end
 

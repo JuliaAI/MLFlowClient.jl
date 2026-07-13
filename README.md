@@ -7,7 +7,7 @@
 
 A Julia client for the [MLflow](https://mlflow.org/) REST API. Track experiments, log metrics and parameters, manage models, and more — directly from Julia.
 
-Tested against MLflow 3.11.1.
+Tested against MLflow 3.14.0.
 
 ## Installation
 
@@ -50,10 +50,13 @@ MLFlowClient implements the full [MLflow REST API](https://mlflow.org/docs/lates
 | **Registered models** | Create, get, search, rename, update, delete, tags, aliases |
 | **Model versions** | Create, get, search, update, delete, transition stage, tags |
 | **Scorers** | Register, list, get, delete (v3.0) |
-| **Gateway** | Secrets, model definitions, endpoints, bindings, tags, budgets (v3.0) |
+| **Gateway** | Secrets, model definitions, endpoints, bindings, tags, budgets, guardrails (v3.0) |
 | **Prompt optimization** | Create, get, search, cancel, delete jobs (v3.0) |
+| **Label schemas** | Create, get, get-by-name, list, update, delete (v3.0) |
+| **Review queues** | Create, get, list, update, delete, items add/remove/list/set-status (v3.0) |
 | **Webhooks** | Create, get, list, update, delete, test |
-| **Users & permissions** | Create, get, update, delete users; experiment and model permissions |
+| **Users & RBAC** | Users, roles, role permissions, role assignments, user permissions (v3.0) |
+| **Workspaces** | List, create, get, update, delete (v3.0, requires `--enable-workspaces`) |
 
 ## Authentication
 

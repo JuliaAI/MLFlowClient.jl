@@ -396,3 +396,85 @@ function GatewayBudgetPolicy(data::AbstractDict)
         get(data, "last_updated_at", 0)
     )
 end
+
+"""
+    GatewayGuardrail
+
+A guardrail backed by a scorer that runs against a gateway endpoint.
+
+# Fields
+- `guardrail_id`: Unique identifier for the guardrail.
+- `name`: Name of the guardrail.
+- `scorer`: The [`Scorer`](@ref) backing the guardrail (populated when available).
+- `stage`: Whether the guardrail runs before or after LLM invocation.
+- `action`: Whether the guardrail validates or sanitizes the request/response.
+- `action_endpoint_id`: ID of the gateway endpoint for the LLM used by the action.
+- `created_by`: Username of the creator.
+- `created_at`: Creation time in milliseconds since epoch.
+- `last_updated_by`: Username of the last updater.
+- `last_updated_at`: Last update time in milliseconds since epoch.
+"""
+struct GatewayGuardrail
+    guardrail_id::String
+    name::String
+    scorer::Union{Scorer,Nothing}
+    stage::String
+    action::String
+    action_endpoint_id::String
+    created_by::String
+    created_at::Int64
+    last_updated_by::String
+    last_updated_at::Int64
+end
+
+function GatewayGuardrail(data::AbstractDict)
+    scorer = haskey(data, "scorer") && !isnothing(data["scorer"]) ?
+        Scorer(data["scorer"]) : nothing
+    GatewayGuardrail(
+        get(data, "guardrail_id", ""),
+        get(data, "name", ""),
+        scorer,
+        get(data, "stage", ""),
+        get(data, "action", ""),
+        get(data, "action_endpoint_id", ""),
+        get(data, "created_by", ""),
+        get(data, "created_at", 0),
+        get(data, "last_updated_by", ""),
+        get(data, "last_updated_at", 0)
+    )
+end
+
+"""
+    GatewayGuardrailConfig
+
+Association between a gateway endpoint and a guardrail, including its execution order.
+
+# Fields
+- `endpoint_id`: ID of the endpoint.
+- `guardrail_id`: ID of the guardrail.
+- `execution_order`: Order in which the guardrail is executed for the endpoint.
+- `created_by`: Username of the creator.
+- `created_at`: Creation time in milliseconds since epoch.
+- `guardrail`: The full [`GatewayGuardrail`](@ref) entity (populated when listing configs).
+"""
+struct GatewayGuardrailConfig
+    endpoint_id::String
+    guardrail_id::String
+    execution_order::Int64
+    created_by::String
+    created_at::Int64
+    guardrail::Union{GatewayGuardrail,Nothing}
+end
+
+function GatewayGuardrailConfig(data::AbstractDict)
+    guardrail = haskey(data, "guardrail") && !isnothing(data["guardrail"]) ?
+        GatewayGuardrail(data["guardrail"]) : nothing
+    GatewayGuardrailConfig(
+        get(data, "endpoint_id", ""),
+        get(data, "guardrail_id", ""),
+        get(data, "execution_order", 0),
+        get(data, "created_by", ""),
+        get(data, "created_at", 0),
+        guardrail
+    )
+end

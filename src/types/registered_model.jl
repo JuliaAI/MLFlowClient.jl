@@ -54,20 +54,3 @@ RegisteredModel(data::AbstractDict{String}) = RegisteredModel(data["name"],
     get(data, "deployment_job_id", nothing),
     haskey(data, "deployment_job_state") ? data["deployment_job_state"] |> State.parse : nothing)
 Base.show(io::IO, t::RegisteredModel) = show(io, ShowCase(t, new_lines=true))
-
-"""
-    RegisteredModelPermission
-
-# Fields
-- `name::String`: [`RegisteredModel`](@ref) name.
-- `user_id::String`: [`User`](@ref) id.
-- `permission::Permission.PermissionEnum`: Permission granted.
-"""
-struct RegisteredModelPermission
-    name::String
-    user_id::String
-    permission::Permission.PermissionEnum
-end
-RegisteredModelPermission(data::AbstractDict{String}) = RegisteredModelPermission(data["name"],
-    data["user_id"] |> string, Permission.parse(data["permission"]))
-Base.show(io::IO, t::RegisteredModelPermission) = show(io, ShowCase(t, new_lines=true))

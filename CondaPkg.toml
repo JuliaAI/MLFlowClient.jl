@@ -1,0 +1,13 @@
+# Python dependencies for running the test suite. The `[dev]` section is only
+# resolved when MLFlowClient is being developed or tested, so installing the
+# package as a normal dependency never pulls MLflow.
+
+# MLflow 3.14's dependency stack is not yet compatible with Python 3.14 (some deps still
+# import `Traversable` from `importlib.abc`, which was removed in Python 3.14), so pin the
+# interpreter below it for the test environment.
+[dev.deps]
+python = ">=3.10,<3.14"
+
+[dev.pip.deps.mlflow]
+version = "==3.14.0"
+extras = ["auth"]

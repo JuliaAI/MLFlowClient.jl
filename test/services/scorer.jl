@@ -30,6 +30,11 @@
         @test scorers isa Array{Scorer}
         @test length(scorers) >= 1
 
+        # 3.13 allows listing scorers across all experiments (experiment_id optional)
+        all_scorers = listscorers(mlf)
+        @test all_scorers isa Array{Scorer}
+        @test length(all_scorers) >= length(scorers)
+
         # Verify scorer structure
         if length(scorers) > 0
             scorer = scorers[1]

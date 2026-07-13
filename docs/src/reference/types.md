@@ -22,8 +22,12 @@ RunInfo
 RunInputs
 RunOutputs
 User
-ExperimentPermission
-RegisteredModelPermission
+Role
+RolePermission
+UserRoleAssignment
+UserPermission
+Workspace
+TraceArchivalConfig
 Scorer
 Webhook
 WebhookTestResult
@@ -37,6 +41,8 @@ GatewayEndpointModelMapping
 GatewayEndpointTag
 GatewayBudgetWindow
 GatewayBudgetPolicy
+GatewayGuardrail
+GatewayGuardrailConfig
 BudgetDuration
 FallbackConfig
 MultipartUploadCredential
@@ -47,4 +53,12 @@ PromptOptimizationJobTag
 InitialEvalScoresEntry
 FinalEvalScoresEntry
 JobStateInfo
+LabelSchema
+LabelSchemaInput
+InputPassFail
+InputCategorical
+InputNumeric
+InputText
+ReviewQueue
+ReviewQueueItem
 ```

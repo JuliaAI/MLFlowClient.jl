@@ -285,3 +285,117 @@ module GatewayModelLinkageType
     end
     parse(linkage_type::String) = Dict(value => key for (key, value) in GatewayModelLinkageTypeEnum |> Base.Enums.namemap)[Symbol(linkage_type)] |> GatewayModelLinkageTypeEnum
 end
+
+module GuardrailStage
+    """
+        GuardrailStage
+
+    Whether a guardrail runs before or after LLM invocation.
+
+    # Members
+    - `GUARDRAIL_STAGE_UNSPECIFIED`: Unspecified.
+    - `BEFORE`: Runs before LLM invocation.
+    - `AFTER`: Runs after LLM invocation.
+    """
+    @enum GuardrailStageEnum begin
+        GUARDRAIL_STAGE_UNSPECIFIED = 0
+        BEFORE = 1
+        AFTER = 2
+    end
+    parse(stage::String) = Dict(value => key for (key, value) in GuardrailStageEnum |> Base.Enums.namemap)[Symbol(stage)] |> GuardrailStageEnum
+end
+
+module GuardrailAction
+    """
+        GuardrailAction
+
+    Whether a guardrail blocks or modifies the request/response.
+
+    # Members
+    - `GUARDRAIL_ACTION_UNSPECIFIED`: Unspecified.
+    - `VALIDATION`: Validates and may block the request/response.
+    - `SANITIZATION`: Modifies the request/response.
+    """
+    @enum GuardrailActionEnum begin
+        GUARDRAIL_ACTION_UNSPECIFIED = 0
+        VALIDATION = 1
+        SANITIZATION = 2
+    end
+    parse(action::String) = Dict(value => key for (key, value) in GuardrailActionEnum |> Base.Enums.namemap)[Symbol(action)] |> GuardrailActionEnum
+end
+
+module LabelSchemaType
+    """
+        LabelSchemaType
+
+    Type of a label schema.
+
+    # Members
+    - `LABEL_SCHEMA_TYPE_UNSPECIFIED`: Unspecified.
+    - `FEEDBACK`: Feedback schema with a bounded value space (pass/fail, options, min/max).
+    - `EXPECTATION`: Expectation schema, typically ground-truth labels supplied by reviewers.
+    """
+    @enum LabelSchemaTypeEnum begin
+        LABEL_SCHEMA_TYPE_UNSPECIFIED = 0
+        FEEDBACK = 1
+        EXPECTATION = 2
+    end
+    parse(type::String) = Dict(value => key for (key, value) in LabelSchemaTypeEnum |> Base.Enums.namemap)[Symbol(type)] |> LabelSchemaTypeEnum
+end
+
+module ReviewItemType
+    """
+        ReviewItemType
+
+    What kind of object a review queue item points at.
+
+    # Members
+    - `REVIEW_ITEM_TYPE_UNSPECIFIED`: Unspecified.
+    - `TRACE`: The item references a trace.
+    """
+    @enum ReviewItemTypeEnum begin
+        REVIEW_ITEM_TYPE_UNSPECIFIED = 0
+        TRACE = 1
+    end
+    parse(item_type::String) = Dict(value => key for (key, value) in ReviewItemTypeEnum |> Base.Enums.namemap)[Symbol(item_type)] |> ReviewItemTypeEnum
+end
+
+module ReviewQueueType
+    """
+        ReviewQueueType
+
+    The flavor of a review queue.
+
+    # Members
+    - `REVIEW_QUEUE_TYPE_UNSPECIFIED`: Unspecified.
+    - `USER`: A single reviewer's personal worklist (name equals the user, all schemas).
+    - `CUSTOM`: A curated, possibly collaborative task (arbitrary name, users, schema subset).
+    """
+    @enum ReviewQueueTypeEnum begin
+        REVIEW_QUEUE_TYPE_UNSPECIFIED = 0
+        USER = 1
+        CUSTOM = 2
+    end
+    parse(queue_type::String) = Dict(value => key for (key, value) in ReviewQueueTypeEnum |> Base.Enums.namemap)[Symbol(queue_type)] |> ReviewQueueTypeEnum
+end
+
+module ReviewStatus
+    """
+        ReviewStatus
+
+    Shared-pool workflow status of a single review queue item.
+
+    # Members
+    - `REVIEW_STATUS_UNSPECIFIED`: Unspecified.
+    - `PENDING`: The item is awaiting review.
+    - `COMPLETE`: The item has been reviewed.
+    - `DECLINED`: The item has been declined.
+    """
+    @enum ReviewStatusEnum begin
+        REVIEW_STATUS_UNSPECIFIED = 0
+        PENDING = 1
+        COMPLETE = 2
+        DECLINED = 3
+    end
+    parse(status::String) = Dict(value => key for (key, value) in ReviewStatusEnum |> Base.Enums.namemap)[Symbol(status)] |> ReviewStatusEnum
+end

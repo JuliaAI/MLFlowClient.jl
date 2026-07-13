@@ -9,8 +9,4 @@ updateexperiment
 searchexperiments
 setexperimenttag
 deleteexperimenttag
-createexperimentpermission
-getexperimentpermission
-updateexperimentpermission
-deleteexperimentpermission
 ```

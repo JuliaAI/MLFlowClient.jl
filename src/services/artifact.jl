@@ -222,6 +222,36 @@ function getpresigneddownloadurl(instance::MLFlow, artifact_path::String)::Tuple
 end
 
 """
+    createpresigneduploadurl(instance::MLFlow, run_id::String, path::String;
+        expiration::Union{Int64,Missing}=missing)
+
+Generate a presigned URL for uploading an artifact directly to cloud storage. The server
+signs the URL with its own credentials, so clients can upload artifacts without direct cloud
+storage write permissions.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `run_id`: ID of the [`Run`](@ref) that owns the artifact.
+- `path`: Relative path within the run's artifact directory (e.g. "models/model.pkl").
+- `expiration`: Optional URL expiration time in seconds (the server defaults to 900).
+
+# Returns
+- `presigned_url`: The presigned URL for direct artifact upload.
+- `headers`: Required headers for the upload request (e.g. Content-Type).
+"""
+function createpresigneduploadurl(instance::MLFlow, run_id::String, path::String;
+    expiration::Union{Int64,Missing}=missing)::Tuple{String,Dict{String,String}}
+    params = Dict{Symbol,Any}(:run_id => run_id, :path => path)
+    !ismissing(expiration) && (params[:expiration] = expiration)
+    result = mlfpost(instance, "artifacts/presigned-upload-url"; params...)
+
+    presigned_url = get(result, "presigned_url", "")
+    upload_headers = get(result, "headers", Dict{String,String}())
+
+    return presigned_url, upload_headers
+end
+
+"""
     mlfget_artifacts(mlf, endpoint; kwargs...)
 
 Performs a HTTP GET to a specified mlflow-artifacts endpoint. kwargs are turned into GET params.

@@ -25,19 +25,21 @@ function registerscorer(instance::MLFlow, experiment_id::String, name::String, s
 end
 
 """
-    listscorers(instance::MLFlow, experiment_id::String)
+    listscorers(instance::MLFlow, experiment_id::String="")
 
-List all scorers for an experiment.
+List all scorers, optionally scoped to a single experiment.
 
 # Arguments
 - `instance`: [`MLFlow`](@ref) configuration.
-- `experiment_id`: The experiment ID.
+- `experiment_id`: The experiment ID. If empty, returns scorers across all experiments.
 
 # Returns
 Vector of [`Scorer`](@ref) entities (latest version for each scorer name).
 """
-function listscorers(instance::MLFlow, experiment_id::String)::Array{Scorer}
-    result = mlfget_v3(instance, "scorers/list"; experiment_id=experiment_id)
+function listscorers(instance::MLFlow, experiment_id::String="")::Array{Scorer}
+    parameters = Dict{Symbol,Any}()
+    !isempty(experiment_id) && (parameters[:experiment_id] = experiment_id)
+    result = mlfget_v3(instance, "scorers/list"; parameters...)
     return get(result, "scorers", []) |> (x -> [Scorer(y) for y in x])
 end
 

@@ -54,23 +54,4 @@
         show(io, rm)
         @test !isempty(String(take!(io)))
     end
-
-    @testset "RegisteredModelPermission from dict" begin
-        data = Dict{String,Any}(
-            "name" => "my-model",
-            "user_id" => 42,
-            "permission" => "MANAGE"
-        )
-        perm = RegisteredModelPermission(data)
-        @test perm.name == "my-model"
-        @test perm.user_id == "42"
-        @test perm.permission == Permission.MANAGE
-    end
-
-    @testset "RegisteredModelPermission show" begin
-        perm = RegisteredModelPermission("model", "1", Permission.READ)
-        io = IOBuffer()
-        show(io, perm)
-        @test !isempty(String(take!(io)))
-    end
 end

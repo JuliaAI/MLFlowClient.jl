@@ -678,3 +678,182 @@ function listgatewaybudgetwindows(instance::MLFlow)::Array{GatewayBudgetWindow}
     result = mlfget_v3(instance, "gateway/budgets/windows")
     return get(result, "windows", []) |> (x -> [GatewayBudgetWindow(y) for y in x])
 end
+
+## Guardrails
+
+"""
+    creategatewayguardrail(instance::MLFlow, name::String, scorer_id::String,
+        scorer_version::Int64, stage::String, action::String;
+        action_endpoint_id::Union{String,Missing}=missing)
+
+Create a new guardrail backed by a scorer.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `name`: Name of the guardrail.
+- `scorer_id`: ID of the scorer backing the guardrail.
+- `scorer_version`: Version of the scorer to use.
+- `stage`: Whether the guardrail runs before or after LLM invocation (e.g., "BEFORE", "AFTER").
+- `action`: Whether the guardrail validates or sanitizes (e.g., "VALIDATION", "SANITIZATION").
+- `action_endpoint_id`: Optional gateway endpoint ID for the LLM used by the action.
+
+# Returns
+An instance of type [`GatewayGuardrail`](@ref).
+"""
+function creategatewayguardrail(instance::MLFlow, name::String, scorer_id::String,
+    scorer_version::Int64, stage::String, action::String;
+    action_endpoint_id::Union{String,Missing}=missing)::GatewayGuardrail
+    params = Dict{Symbol,Any}(:name => name, :scorer_id => scorer_id,
+        :scorer_version => scorer_version, :stage => stage, :action => action)
+    !ismissing(action_endpoint_id) && (params[:action_endpoint_id] = action_endpoint_id)
+    result = mlfpost_v3(instance, "gateway/guardrails/create"; params...)
+    return result["guardrail"] |> GatewayGuardrail
+end
+
+"""
+    getgatewayguardrail(instance::MLFlow, guardrail_id::String)
+
+Get a guardrail by ID.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `guardrail_id`: ID of the guardrail to retrieve.
+
+# Returns
+An instance of type [`GatewayGuardrail`](@ref).
+"""
+function getgatewayguardrail(instance::MLFlow, guardrail_id::String)::GatewayGuardrail
+    result = mlfget_v3(instance, "gateway/guardrails/get"; guardrail_id=guardrail_id)
+    return result["guardrail"] |> GatewayGuardrail
+end
+
+"""
+    deletegatewayguardrail(instance::MLFlow, guardrail_id::String)
+
+Delete a guardrail.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `guardrail_id`: ID of the guardrail to delete.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function deletegatewayguardrail(instance::MLFlow, guardrail_id::String)::Bool
+    mlfdelete_v3(instance, "gateway/guardrails/delete"; guardrail_id=guardrail_id)
+    return true
+end
+
+"""
+    listgatewayguardrails(instance::MLFlow; max_results::Union{Int64,Missing}=missing,
+        page_token::Union{String,Missing}=missing)
+
+List all guardrails.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `max_results`: Maximum number of guardrails to return.
+- `page_token`: Token indicating the page of guardrails to fetch.
+
+# Returns
+- Vector of [`GatewayGuardrail`](@ref) entities.
+- The next page token if there are more results.
+"""
+function listgatewayguardrails(instance::MLFlow; max_results::Union{Int64,Missing}=missing,
+    page_token::Union{String,Missing}=missing)::Tuple{Array{GatewayGuardrail},Union{String,Nothing}}
+    parameters = Dict{Symbol,Any}()
+    !ismissing(max_results) && (parameters[:max_results] = max_results)
+    if !ismissing(page_token) && !isempty(page_token)
+        parameters[:page_token] = page_token
+    end
+    result = mlfget_v3(instance, "gateway/guardrails/list"; parameters...)
+
+    guardrails = get(result, "guardrails", []) |> (x -> [GatewayGuardrail(y) for y in x])
+    next_page_token = get(result, "next_page_token", nothing)
+
+    return guardrails, next_page_token
+end
+
+"""
+    addguardrailtoendpoint(instance::MLFlow, endpoint_id::String, guardrail_id::String;
+        execution_order::Union{Int64,Missing}=missing)
+
+Add a guardrail to a gateway endpoint.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `endpoint_id`: ID of the endpoint.
+- `guardrail_id`: ID of the guardrail to add.
+- `execution_order`: Optional order in which the guardrail is executed for the endpoint.
+
+# Returns
+An instance of type [`GatewayGuardrailConfig`](@ref).
+"""
+function addguardrailtoendpoint(instance::MLFlow, endpoint_id::String, guardrail_id::String;
+    execution_order::Union{Int64,Missing}=missing)::GatewayGuardrailConfig
+    params = Dict{Symbol,Any}(:endpoint_id => endpoint_id, :guardrail_id => guardrail_id)
+    !ismissing(execution_order) && (params[:execution_order] = execution_order)
+    result = mlfpost_v3(instance, "gateway/guardrails/add-to-endpoint"; params...)
+    return result["config"] |> GatewayGuardrailConfig
+end
+
+"""
+    removeguardrailfromendpoint(instance::MLFlow, endpoint_id::String, guardrail_id::String)
+
+Remove a guardrail from a gateway endpoint.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `endpoint_id`: ID of the endpoint.
+- `guardrail_id`: ID of the guardrail to remove.
+
+# Returns
+`true` if successful. Otherwise, raises exception.
+"""
+function removeguardrailfromendpoint(instance::MLFlow, endpoint_id::String,
+    guardrail_id::String)::Bool
+    mlfdelete_v3(instance, "gateway/guardrails/remove-from-endpoint";
+        endpoint_id=endpoint_id, guardrail_id=guardrail_id)
+    return true
+end
+
+"""
+    listendpointguardrailconfigs(instance::MLFlow, endpoint_id::String)
+
+List the guardrail configs for an endpoint.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `endpoint_id`: ID of the endpoint to list guardrail configs for.
+
+# Returns
+Vector of [`GatewayGuardrailConfig`](@ref) entities.
+"""
+function listendpointguardrailconfigs(instance::MLFlow,
+    endpoint_id::String)::Array{GatewayGuardrailConfig}
+    result = mlfget_v3(instance, "gateway/guardrails/list-for-endpoint";
+        endpoint_id=endpoint_id)
+    return get(result, "configs", []) |> (x -> [GatewayGuardrailConfig(y) for y in x])
+end
+
+"""
+    updateendpointguardrailconfig(instance::MLFlow, endpoint_id::String, guardrail_id::String,
+        execution_order::Int64)
+
+Update the execution order of a guardrail attached to an endpoint.
+
+# Arguments
+- `instance`: [`MLFlow`](@ref) configuration.
+- `endpoint_id`: ID of the endpoint.
+- `guardrail_id`: ID of the guardrail.
+- `execution_order`: New order in which the guardrail is executed for the endpoint.
+
+# Returns
+An instance of type [`GatewayGuardrailConfig`](@ref).
+"""
+function updateendpointguardrailconfig(instance::MLFlow, endpoint_id::String,
+    guardrail_id::String, execution_order::Int64)::GatewayGuardrailConfig
+    result = mlfpatch_v3(instance, "gateway/guardrails/update-config";
+        endpoint_id=endpoint_id, guardrail_id=guardrail_id, execution_order=execution_order)
+    return result["config"] |> GatewayGuardrailConfig
+end

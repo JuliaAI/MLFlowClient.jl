@@ -10,6 +10,10 @@
 - `last_update_time::Int64`: Last update time.
 - `creation_time::Int64`: Creation time.
 - `tags::Array{Tag}`: Additional metadata key-value pairs.
+- `effective_trace_archival_retention::String`: Effective trace archival retention after
+    broader-scope and experiment overrides are applied.
+- `workspace::String`: Workspace name of the experiment (always `default` if workspaces are
+    not enabled).
 """
 struct Experiment
     experiment_id::String
@@ -19,25 +23,12 @@ struct Experiment
     last_update_time::Int64
     creation_time::Int64
     tags::Array{Tag}
+    effective_trace_archival_retention::String
+    workspace::String
 end
 Experiment(data::AbstractDict{String}) = Experiment(data["experiment_id"], data["name"],
     data["artifact_location"], data["lifecycle_stage"], data["last_update_time"],
-    data["creation_time"], [Tag(tag) for tag in get(data, "tags", [])])
+    data["creation_time"], [Tag(tag) for tag in get(data, "tags", [])],
+    get(data, "effective_trace_archival_retention", ""),
+    get(data, "workspace", ""))
 Base.show(io::IO, t::Experiment) = show(io, ShowCase(t, new_lines=true))
-
-"""
-    ExperimentPermission
-
-# Fields
-- `experiment_id::String`: [`Experiment`](@ref) id.
-- `user_id::String`: [`User`](@ref) id.
-- `permission::Permission.PermissionEnum`: Permission granted.
-"""
-struct ExperimentPermission
-    experiment_id::String
-    user_id::String
-    permission::Permission.PermissionEnum
-end
-ExperimentPermission(data::AbstractDict{String}) = ExperimentPermission(data["experiment_id"],
-    data["user_id"] |> string, Permission.parse(data["permission"]))
-Base.show(io::IO, t::ExperimentPermission) = show(io, ShowCase(t, new_lines=true))

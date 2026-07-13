@@ -263,4 +263,68 @@
         @test policy.created_at == 1700000000000
         @test policy.last_updated_at == 1700000000000
     end
+
+    @testset "GatewayGuardrail from dict" begin
+        data = fixture_gateway_guardrail(action_endpoint_id="ep-action")
+        guardrail = GatewayGuardrail(data)
+        @test guardrail.guardrail_id == "guard-abc"
+        @test guardrail.name == "test-guardrail"
+        @test isnothing(guardrail.scorer)
+        @test guardrail.stage == "BEFORE"
+        @test guardrail.action == "VALIDATION"
+        @test guardrail.action_endpoint_id == "ep-action"
+        @test guardrail.created_by == "user1"
+        @test guardrail.created_at == 1700000000000
+        @test guardrail.last_updated_by == "user1"
+        @test guardrail.last_updated_at == 1700000000000
+    end
+
+    @testset "GatewayGuardrail with nested scorer" begin
+        data = fixture_gateway_guardrail(scorer=fixture_scorer())
+        guardrail = GatewayGuardrail(data)
+        @test !isnothing(guardrail.scorer)
+        @test guardrail.scorer.name == "test-scorer"
+        @test guardrail.scorer.scorer_id == "scorer-abc"
+    end
+
+    @testset "GatewayGuardrail defaults" begin
+        guardrail = GatewayGuardrail(Dict{String,Any}())
+        @test guardrail.guardrail_id == ""
+        @test guardrail.name == ""
+        @test isnothing(guardrail.scorer)
+        @test guardrail.stage == ""
+        @test guardrail.action == ""
+        @test guardrail.action_endpoint_id == ""
+        @test guardrail.created_at == 0
+        @test guardrail.last_updated_at == 0
+    end
+
+    @testset "GatewayGuardrailConfig from dict" begin
+        data = fixture_gateway_guardrail_config(execution_order=3)
+        config = GatewayGuardrailConfig(data)
+        @test config.endpoint_id == "ep-abc"
+        @test config.guardrail_id == "guard-abc"
+        @test config.execution_order == 3
+        @test config.created_by == "user1"
+        @test config.created_at == 1700000000000
+        @test isnothing(config.guardrail)
+    end
+
+    @testset "GatewayGuardrailConfig with nested guardrail" begin
+        data = fixture_gateway_guardrail_config(guardrail=fixture_gateway_guardrail())
+        config = GatewayGuardrailConfig(data)
+        @test !isnothing(config.guardrail)
+        @test config.guardrail.guardrail_id == "guard-abc"
+        @test config.guardrail.name == "test-guardrail"
+    end
+
+    @testset "GatewayGuardrailConfig defaults" begin
+        config = GatewayGuardrailConfig(Dict{String,Any}())
+        @test config.endpoint_id == ""
+        @test config.guardrail_id == ""
+        @test config.execution_order == 0
+        @test config.created_by == ""
+        @test config.created_at == 0
+        @test isnothing(config.guardrail)
+    end
 end
