@@ -43,14 +43,20 @@ uri_v3(mlf::MLFlow, endpoint::String;
 """
     headers(mlf::MLFlow,custom_headers::AbstractDict)
 
-Retrieves HTTP headers based on `mlf` and merges with user-provided `custom_headers`
+Retrieves HTTP headers based on `mlf` and merges with user-provided `custom_headers`.
+
+`Connection: close` is set by default so each request uses a fresh connection. MLflow's
+server (gunicorn) closes idle keep-alive connections after a couple of seconds, while the
+HTTP client keeps them pooled for much longer; reusing such a stale connection surfaces as
+`unexpected EOF while reading HTTP/1 data`. Disabling reuse avoids that class of error.
 
 # Examples
 ```@example
 headers(mlf,Dict("Content-Type"=>"application/json"))
 ```
 """
-headers(mlf::MLFlow, custom_headers::AbstractDict) = merge(mlf.headers, custom_headers)
+headers(mlf::MLFlow, custom_headers::AbstractDict) =
+    merge(Dict("Connection" => "close"), mlf.headers, custom_headers)
 
 """
     mlfget(mlf, endpoint; kwargs...)
@@ -66,6 +72,10 @@ function mlfget(mlf, endpoint; kwargs...)
         response = HTTP.get(apiuri, apiheaders)
         return response.body |> String |> JSON.parse
     catch e
+        # Only HTTP error responses (4xx/5xx) carry a `.response` with an MLflow error
+        # body; connection/parse errors (e.g. HTTP.ParseError) do not, so rethrow those
+        # instead of masking them with a FieldError on `e.response`.
+        e isa HTTP.StatusError || rethrow()
         error_response = e.response.body |> String |> JSON.parse
         error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message
@@ -88,6 +98,10 @@ function mlfpost(mlf, endpoint; kwargs...)
         response = HTTP.post(apiuri, apiheaders, body)
         return response.body |> String |> JSON.parse
     catch e
+        # Only HTTP error responses (4xx/5xx) carry a `.response` with an MLflow error
+        # body; connection/parse errors (e.g. HTTP.ParseError) do not, so rethrow those
+        # instead of masking them with a FieldError on `e.response`.
+        e isa HTTP.StatusError || rethrow()
         error_response = e.response.body |> String |> JSON.parse
         error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message
@@ -110,6 +124,10 @@ function mlfpatch(mlf, endpoint; kwargs...)
         response = HTTP.patch(apiuri, apiheaders, body)
         return response.body |> String |> JSON.parse
     catch e
+        # Only HTTP error responses (4xx/5xx) carry a `.response` with an MLflow error
+        # body; connection/parse errors (e.g. HTTP.ParseError) do not, so rethrow those
+        # instead of masking them with a FieldError on `e.response`.
+        e isa HTTP.StatusError || rethrow()
         error_response = e.response.body |> String |> JSON.parse
         error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message
@@ -135,6 +153,10 @@ function mlfdelete(mlf, endpoint; kwargs...)
         # Some v3 endpoints (e.g. workspaces/delete) return an empty body on success.
         return isempty(strip(response_body)) ? Dict{String,Any}() : JSON.parse(response_body)
     catch e
+        # Only HTTP error responses (4xx/5xx) carry a `.response` with an MLflow error
+        # body; connection/parse errors (e.g. HTTP.ParseError) do not, so rethrow those
+        # instead of masking them with a FieldError on `e.response`.
+        e isa HTTP.StatusError || rethrow()
         error_response = e.response.body |> String |> JSON.parse
         error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message
@@ -156,6 +178,10 @@ function mlfget_v3(mlf, endpoint; kwargs...)
         response = HTTP.get(apiuri, apiheaders)
         return response.body |> String |> JSON.parse
     catch e
+        # Only HTTP error responses (4xx/5xx) carry a `.response` with an MLflow error
+        # body; connection/parse errors (e.g. HTTP.ParseError) do not, so rethrow those
+        # instead of masking them with a FieldError on `e.response`.
+        e isa HTTP.StatusError || rethrow()
         error_response = e.response.body |> String |> JSON.parse
         error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message
@@ -178,6 +204,10 @@ function mlfpost_v3(mlf, endpoint; kwargs...)
         response = HTTP.post(apiuri, apiheaders, body)
         return response.body |> String |> JSON.parse
     catch e
+        # Only HTTP error responses (4xx/5xx) carry a `.response` with an MLflow error
+        # body; connection/parse errors (e.g. HTTP.ParseError) do not, so rethrow those
+        # instead of masking them with a FieldError on `e.response`.
+        e isa HTTP.StatusError || rethrow()
         error_response = e.response.body |> String |> JSON.parse
         error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message
@@ -200,6 +230,10 @@ function mlfpatch_v3(mlf, endpoint; kwargs...)
         response = HTTP.patch(apiuri, apiheaders, body)
         return response.body |> String |> JSON.parse
     catch e
+        # Only HTTP error responses (4xx/5xx) carry a `.response` with an MLflow error
+        # body; connection/parse errors (e.g. HTTP.ParseError) do not, so rethrow those
+        # instead of masking them with a FieldError on `e.response`.
+        e isa HTTP.StatusError || rethrow()
         error_response = e.response.body |> String |> JSON.parse
         error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message
@@ -225,6 +259,10 @@ function mlfdelete_v3(mlf, endpoint; kwargs...)
         # Some v3 endpoints (e.g. workspaces/delete) return an empty body on success.
         return isempty(strip(response_body)) ? Dict{String,Any}() : JSON.parse(response_body)
     catch e
+        # Only HTTP error responses (4xx/5xx) carry a `.response` with an MLflow error
+        # body; connection/parse errors (e.g. HTTP.ParseError) do not, so rethrow those
+        # instead of masking them with a FieldError on `e.response`.
+        e isa HTTP.StatusError || rethrow()
         error_response = e.response.body |> String |> JSON.parse
         error_message = "$(error_response["error_code"]) -  $(error_response["message"])"
         @error error_message

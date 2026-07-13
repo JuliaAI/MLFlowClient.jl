@@ -66,7 +66,7 @@ function wait_until_ready(process::Base.Process, uri::String, workdir::String, t
         end
         try
             response = HTTP.get("$(uri)/health"; status_exception=false, retry=false,
-                connect_timeout=2, readtimeout=2)
+                connect_timeout=2, read_idle_timeout=2)
             response.status == 200 && return nothing
         catch
             # Server still starting up; keep polling until the deadline.
