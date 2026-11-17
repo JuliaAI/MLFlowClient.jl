@@ -2,11 +2,13 @@
 
 This tutorial covers the common MLflow tracking workflow with `MLFlowClient`: creating experiments, logging parameters, metrics, and artifacts, and managing runs.
 
-!!! note
-    This tutorial assumes you have an MLflow server running locally. Start one with:
-    ```bash
-    mlflow server --host 0.0.0.0 --port 5000
-    ```
+
+For local tracking, start an MLflow server with:
+
+```bash
+mlflow server --host 0.0.0.0 --port 5000
+```
+
 
 ## Connecting to MLflow
 
@@ -19,6 +21,60 @@ mlf = MLFlow("http://localhost:5000")
 # Or with authentication
 mlf = MLFlow("http://localhost:5000"; username="admin", password="password")
 ```
+
+## Connecting to DagsHub
+
+DagsHub provides a hosted MLflow tracking server for logging experiments remotely.
+
+Create a repository on [DagsHub](https://dagshub.com) and obtain its MLflow tracking URI and an access token.
+
+In PowerShell, configure the tracking URI and credentials:
+
+```powershell
+$env:MLFLOW_TRACKING_URI = "https://dagshub.com/USERNAME/REPOSITORY.mlflow"
+$env:MLFLOW_TRACKING_USERNAME = "USERNAME"
+
+$secret = Read-Host "Enter DagsHub token" -AsSecureString
+$env:MLFLOW_TRACKING_PASSWORD = [System.Net.NetworkCredential]::new("", $secret).Password
+Remove-Variable secret
+```
+
+Replace `USERNAME` and `REPOSITORY` with your DagsHub details. Do not commit access tokens.
+
+Start Julia from the same PowerShell session:
+
+```julia
+using MLFlowClient
+mlf = MLFlow()
+```
+
+Verify the connection:
+
+```julia
+experiments, _ = searchexperiments(mlf)
+println("Experiments found: ", length(experiments))
+```
+
+An empty experiment list is normal for a new repository.
+
+Create an experiment and log a run:
+
+```julia
+experiment_id = createexperiment(mlf, "julia-dagshub-test")
+run = createrun(mlf, experiment_id; run_name="first-julia-run")
+
+logparam(mlf, run, "model", "RandomForest")
+logmetric(mlf, run, "accuracy", 0.92)
+
+updaterun(mlf, run; status=RunStatus.FINISHED)
+```
+
+You can view the logged results in your DagsHub repository's MLflow dashboard.
+
+!!! note
+    Experiment names must be unique. To reuse an existing experiment, retrieve its ID using `getexperimentbyname(mlf, "julia-dagshub-test").experiment_id`.
+
+    When `MLFLOW_TRACKING_URI` is set, it overrides the tracking URL passed to the `MLFlow` constructor.
 
 ## Creating an experiment and a run
 
