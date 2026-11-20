@@ -8,6 +8,7 @@ This tutorial covers the common MLflow tracking workflow with `MLFlowClient`: cr
     mlflow server --host 0.0.0.0 --port 5000
     ```
 
+
 ## Connecting to MLflow
 
 ```julia
@@ -19,6 +20,39 @@ mlf = MLFlow("http://localhost:5000")
 # Or with authentication
 mlf = MLFlow("http://localhost:5000"; username="admin", password="password")
 ```
+
+
+### Connecting to DagsHub
+
+DagsHub provides a hosted MLflow tracking server for logging experiments remotely.
+
+Create a repository on [DagsHub](https://dagshub.com) and obtain its MLflow tracking URI and an access token.
+
+Set your DagsHub access token in the `DAGSHUB_TOKEN` environment variable before starting Julia. Then connect using:
+
+```julia
+mlf = MLFlow("https://dagshub.com/USERNAME/REPOSITORY.mlflow";
+    username="USERNAME",
+    password=ENV["DAGSHUB_TOKEN"]
+)
+```
+
+Replace `USERNAME` and `REPOSITORY` with your DagsHub details.
+
+Verify the connection:
+
+```julia
+experiments, _ = searchexperiments(mlf)
+println("Experiments found: ", length(experiments))
+```
+
+An empty experiment list is normal for a new repository.
+
+!!! note
+    `MLFLOW_TRACKING_URI`, `MLFLOW_TRACKING_USERNAME`, and `MLFLOW_TRACKING_PASSWORD` override the corresponding arguments passed to the `MLFlow` constructor when set.
+
+    Artifact upload and download functionality has not been tested against DagsHub.
+
 
 ## Creating an experiment and a run
 
